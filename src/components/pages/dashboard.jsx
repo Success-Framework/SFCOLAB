@@ -1,8 +1,8 @@
 "use client"
 
-import WorldClock from "./WorldClock"
-import Calendar from "./Calendar"
-import Tasks from "./Tasks"
+import WorldClock from "../sections/WorldClock"
+import Calendar from "../sections/Calendar"
+import Tasks from "../sections/Tasks"
 
 export default function Dashboard() {
   return (

@@ -44,7 +44,7 @@ export default function WorldClock() {
           const { timePart, period } = formatTime(time)
 
           return (
-            <div key={city} className="bg-zinc-800 min-h-[180px] rounded-lg">
+            <div key={city} className="bg-zinc-800 min-h-[180px] min-w-[190px] rounded-lg">
               <div className='flex flex-col justify-between h-full w-full p-4'>
                 <div className="flex items-center w-full justify-between">
                   <span className="font-medium">{city}</span>

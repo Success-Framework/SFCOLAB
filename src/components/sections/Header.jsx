@@ -15,7 +15,7 @@ const Header = () => {
   const getPageTitle = () => {
     const path = location.pathname
     if (path === '/') return 'Home'
-    if (path === '/calendar') return 'Calendar'
+    if (path === '/dashboard') return 'DashBoard'
     if (path === '/analytics') return 'Analytics'
     if (path === '/projects') return 'Projects'
     if (path === '/tasks') return 'Tasks'

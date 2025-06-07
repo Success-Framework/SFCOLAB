@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import TaskProgress from './TaskProgress'
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -116,40 +117,7 @@ export default function Calendar() {
           ))}
         </div>
       </div>
-
-      {/* Completed Tasks Progress */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-        <h3 className="text-sm font-medium mb-4">Completed Tasks</h3>
-        <div className="space-y-3">
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Total Tasks Completed</span>
-              <span>92 of 100</span>
-            </div>
-            <div className="w-full bg-zinc-800 rounded-full h-2">
-              <div className="bg-green-600 h-2 rounded-full" style={{ width: "92%" }}></div>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Tasks On-time</span>
-              <span>83 of 100</span>
-            </div>
-            <div className="w-full bg-zinc-800 rounded-full h-2">
-              <div className="bg-orange-600 h-2 rounded-full" style={{ width: "83%" }}></div>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Tasks Late</span>
-              <span>18 of 100</span>
-            </div>
-            <div className="w-full bg-zinc-800 rounded-full h-2">
-              <div className="bg-red-600 h-2 rounded-full" style={{ width: "18%" }}></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <TaskProgress/>
     </div>
   )
 } 

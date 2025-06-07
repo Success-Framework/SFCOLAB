@@ -1,6 +1,23 @@
-import React from 'react'
+import React, { useRef, useState, useEffect } from 'react'
+import { ChevronRight, Loader2 } from 'lucide-react'
 
 export default function Tasks() {
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false)
+  const scrollRef = useRef(null)
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollWidth, clientWidth } = scrollRef.current
+      setShowScrollIndicator(scrollWidth > clientWidth)
+    }
+  }
+
+  useEffect(() => {
+    checkScroll()
+    window.addEventListener('resize', checkScroll)
+    return () => window.removeEventListener('resize', checkScroll)
+  }, [])
+
   const tasks = [
     {
       id: 1,
@@ -124,17 +141,7 @@ export default function Tasks() {
         <span className="text-xs text-gray-500">{task.date}</span>
       </div>
 
-      <div className="mt-3">
-        <span
-          className={`text-xs px-2 py-1 rounded-full ${
-            task.status === "Completed"
-              ? "bg-green-600 text-white"
-              : "bg-orange-600 text-white"
-          }`}
-        >
-          {task.status}
-        </span>
-      </div>
+  
     </div>
   )
 
@@ -145,12 +152,22 @@ export default function Tasks() {
         <span className="bg-zinc-700 text-white px-2 py-1 rounded-full text-sm">{badgeCount}</span>
       </div>
 
-      <div className="overflow-x-auto pb-4">
-        <div className="flex gap-4 min-w-min">
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+      <div className="relative">
+        <div className="overflow-x-auto pb-4" ref={scrollRef}>
+          <div className="flex gap-4 min-w-min">
+            {tasks.map((task) => (
+              <TaskCard key={task.id} task={task} />
+            ))}
+          </div>
         </div>
+        {showScrollIndicator && (
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 bg-gradient-to-l from-zinc-900 to-transparent w-12 h-full flex items-center justify-end pr-2">
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 text-zinc-600 animate-spin" />
+              <ChevronRight className="h-4 w-4 text-zinc-600" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
