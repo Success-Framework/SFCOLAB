@@ -111,7 +111,7 @@ export default function Tasks() {
   ]
 
   const TaskCard = ({ task }) => (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[645px] min-h-[542px] flex-shrink-0">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[345px] min-h-[342px] flex-shrink-0">
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2">
           <div
