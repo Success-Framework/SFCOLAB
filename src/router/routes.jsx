@@ -3,6 +3,7 @@ import Home from '../components/pages/Home.jsx'
 import Layout from '../Layout/Layout.jsx'
 import Project from "../components/pages/Project.jsx";
 import Profile from "../components/pages/Profile.jsx";
+import Dashboard from "../components/sections/dashboard.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
             {
                 path:'/profile',
                 element:<Profile/>
+            },
+            {
+                path:'/dashboard',
+                element:<Dashboard/>
             }
         ]
     }

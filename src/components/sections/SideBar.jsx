@@ -16,7 +16,7 @@ const SideBar = () => {
     {
       id: 2,
       icon: <CalendarCog />,
-      href: '/calendar'
+      href: '/dashboard'
     },
     {
       id: 3,
