@@ -97,7 +97,7 @@ const Knowledge = () => {
   return (
     <>
       <div className='h-screen w-full flex items-center justify-center'>
-        <div className='w-[600px] min-h-full bg-[#1A1A1A] rounded-4xl p-7 space-y-10'>
+        <div className='w-[600px] min-h-[600px] bg-[#1A1A1A] rounded-4xl p-7 space-y-10'>
           {/* header */}
           <div className='flex justify-between'>
             <h1 className='text-3xl font-medium'>Add new Knowledge resource</h1>
@@ -121,7 +121,7 @@ const Knowledge = () => {
               <textarea 
                 id='description' 
                 placeholder='Enter description' 
-                className={`bg-[#232323] rounded-full p-2 ${errors.description ? 'border border-red-500' : ''}`}
+                className={`bg-[#232323] rounded-md p-2 ${errors.description ? 'border border-red-500' : ''}`}
                 rows={8}
                 value={formData.description}
                 onChange={handleChange}

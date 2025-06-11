@@ -10,6 +10,9 @@ import Setting from "../components/pages/setting.jsx";
 import ProfileSetting from "../components/pages/ProfileSetting.jsx";
 import Preferences from "../components/pages/Preferences.jsx";
 import AccountandSecurity from "../components/pages/AccountandSecurity.jsx";
+import Login from "../components/auth/Login.jsx";
+import SignUp from "../components/auth/SignUp.jsx";
+import RegisterStartUp from "../components/pages/RegisterStartUp.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -59,6 +62,18 @@ export const router = createBrowserRouter([
                         element:<AccountandSecurity/>
                     }
                 ]
+            },
+            {
+                path:'/login',
+                element:<Login/>
+            },
+            {
+                path:'/signup',
+                element:<SignUp/>
+            },
+            {
+                path:'/register-startup',
+                element:<RegisterStartUp/>
             }
         ]
     }

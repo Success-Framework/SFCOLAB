@@ -1,6 +1,6 @@
-import { BriefcaseBusiness, CalendarCog, File, FileChartColumnIncreasing, Flag, HelpCircle, House, Menu, Settings, SquareChartGantt, Users, X } from 'lucide-react'
+import { BriefcaseBusiness, CalendarCog, File, FileChartColumnIncreasing, Flag, HelpCircle, House, Menu, Settings, SquareChartGantt, User, UserPlus, Users, X } from 'lucide-react'
 import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { href, Link, useLocation } from 'react-router-dom'
 
 const SideBar = () => {
   const location = useLocation()
@@ -27,41 +27,33 @@ const SideBar = () => {
       href: '/ideation',
       name: 'Ideation'
     },
+    
     {
       id: 4,
+      icon: <BriefcaseBusiness />,
+      href: '/knowledge',
+      name: 'Knowledge Base'
+    },
+    {
+      id: 5,
       icon: <SquareChartGantt />,
       href: '/projects',
       name: 'Projects'
     },
     {
-      id: 5,
-      icon: <BriefcaseBusiness />,
-      href: '/knowledge',
-      name: 'Knowledge'
-    },
-    {
       id: 6,
       icon: <File />,
-      href: '/documents',
-      name: 'Documents'
+      href: '/register-startup',
+      name: 'Register StarUp'
+    },
+    {
+      id: 7,
+      icon:<User/>,
+      href:'/join-startup',
+      name:'Join Startup'
     }
   ]
 
-  // myspaces links
-  const myspaceLink = [
-    {
-      id: 1,
-      icon: <Flag />,
-      href: '/goals',
-      name: 'Goals'
-    },
-    {
-      id: 2,
-      icon: <Users />,
-      href: '/team',
-      name: 'Team'
-    }
-  ]
 
   const SidebarContent = () => (
     <div 
@@ -95,30 +87,6 @@ const SideBar = () => {
           }
         </div>
 
-        {/* myspace link */}
-        <div className='flex flex-col gap-2 items-center'>
-          {
-            myspaceLink.map((links) => (
-              <Link 
-                key={links.id}
-                to={links.href}
-                className={`p-2 rounded-lg transition-all flex items-center ${
-                  location.pathname === links.href 
-                    ? 'bg-white/10 backdrop-blur-sm' 
-                    : 'hover:bg-white/5'
-                } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="w-6 h-6 flex items-center justify-center">
-                  {links.icon}
-                </div>
-                {isHovered && (
-                  <span className="text-sm whitespace-nowrap ml-3">{links.name}</span>
-                )}
-              </Link>
-            ))
-          }
-        </div>
       </div>
 
       {/* support links */}
