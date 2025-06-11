@@ -5,38 +5,45 @@ import { Link, useLocation } from 'react-router-dom'
 const SideBar = () => {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   
   // general Links
   const allLinks = [
     {
       id: 1,
       icon: <House />,
-      href: '/'
+      href: '/',
+      name: 'Home'
     },
     {
       id: 2,
       icon: <CalendarCog />,
-      href: '/dashboard'
+      href: '/dashboard',
+      name: 'Dashboard'
     },
     {
       id: 3,
       icon: <FileChartColumnIncreasing />,
-      href: '/analytics'
+      href: '/ideation',
+      name: 'Ideation'
     },
     {
       id: 4,
       icon: <SquareChartGantt />,
-      href: '/projects'
+      href: '/projects',
+      name: 'Projects'
     },
     {
       id: 5,
       icon: <BriefcaseBusiness />,
-      href: '/tasks'
+      href: '/knowledge',
+      name: 'Knowledge'
     },
     {
       id: 6,
       icon: <File />,
-      href: '/documents'
+      href: '/documents',
+      name: 'Documents'
     }
   ]
 
@@ -45,34 +52,44 @@ const SideBar = () => {
     {
       id: 1,
       icon: <Flag />,
-      href: '/goals'
+      href: '/goals',
+      name: 'Goals'
     },
     {
       id: 2,
       icon: <Users />,
-      href: '/team'
+      href: '/team',
+      name: 'Team'
     }
   ]
 
   const SidebarContent = () => (
-    <div className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'>
+    <div 
+      className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className='flex flex-col gap-4'>
         {/* general links */}
         <div className='flex flex-col gap-2 items-center'>
-          <p className='text-sm text-gray-400'>General</p>
           {
             allLinks.map(link => (
               <Link 
                 key={link.id} 
                 to={link.href}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-lg transition-all flex items-center ${
                   location.pathname === link.href 
                     ? 'bg-white/10 backdrop-blur-sm' 
                     : 'hover:bg-white/5'
-                }`}
+                } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
                 onClick={() => setIsOpen(false)}
               >
-                {link.icon}
+                <div className="w-6 h-6 flex items-center justify-center">
+                  {link.icon}
+                </div>
+                {isHovered && (
+                  <span className="text-sm whitespace-nowrap ml-3">{link.name}</span>
+                )}
               </Link>
             ))
           }
@@ -80,20 +97,24 @@ const SideBar = () => {
 
         {/* myspace link */}
         <div className='flex flex-col gap-2 items-center'>
-          <p className='text-sm text-gray-400'>Myspace</p>
           {
             myspaceLink.map((links) => (
               <Link 
                 key={links.id}
                 to={links.href}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-lg transition-all flex items-center ${
                   location.pathname === links.href 
                     ? 'bg-white/10 backdrop-blur-sm' 
                     : 'hover:bg-white/5'
-                }`}
+                } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
                 onClick={() => setIsOpen(false)}
               >
-                {links.icon}
+                <div className="w-6 h-6 flex items-center justify-center">
+                  {links.icon}
+                </div>
+                {isHovered && (
+                  <span className="text-sm whitespace-nowrap ml-3">{links.name}</span>
+                )}
               </Link>
             ))
           }
@@ -102,28 +123,37 @@ const SideBar = () => {
 
       {/* support links */}
       <div className='flex flex-col gap-2 items-center'>
-        <p className='text-sm text-gray-400'>Support</p>
         <Link 
-          to="/settings"
-          className={`p-2 rounded-lg transition-all ${
-            location.pathname === '/settings' 
+          to="/setting"
+          className={`p-2 rounded-lg transition-all flex items-center ${
+            location.pathname === '/setting' 
               ? 'bg-white/10 backdrop-blur-sm' 
               : 'hover:bg-white/5'
-          }`}
+          } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
           onClick={() => setIsOpen(false)}
         >
-          <Settings size={20} />
+          <div className="w-6 h-6 flex items-center justify-center">
+            <Settings size={20} />
+          </div>
+          {isHovered && (
+            <span className="text-sm whitespace-nowrap ml-3">Settings</span>
+          )}
         </Link>
         <Link 
           to="/help"
-          className={`p-2 rounded-lg transition-all ${
+          className={`p-2 rounded-lg transition-all flex items-center ${
             location.pathname === '/help' 
               ? 'bg-white/10 backdrop-blur-sm' 
               : 'hover:bg-white/5'
-          }`}
+          } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
           onClick={() => setIsOpen(false)}
         >
-          <HelpCircle size={20} />
+          <div className="w-6 h-6 flex items-center justify-center">
+            <HelpCircle size={20} />
+          </div>
+          {isHovered && (
+            <span className="text-sm whitespace-nowrap ml-3">Help</span>
+          )}
         </Link>
       </div>
     </div>
@@ -140,13 +170,13 @@ const SideBar = () => {
       </button>
 
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-[107px] text-white bg-[#120C18] h-full">
+      <div className={`hidden lg:block ${isHovered ? 'w-[200px]' : 'w-[100px]'} m-4 pt-4 rounded-t-3xl text-white bg-[#1A1A1A] h-full transition-all duration-300`}>
         <SidebarContent />
       </div>
 
       {/* Mobile Sidebar */}
       <div className={`
-        lg:hidden fixed inset-0 z-40 bg-[#120C18]/95 backdrop-blur-sm transition-transform duration-300 ease-in-out
+        lg:hidden fixed inset-0 z-40 bg-[#1A1A1A] backdrop-blur-sm transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="w-[107px] h-full mx-auto">
