@@ -6,7 +6,7 @@ import Profile from "../components/pages/Profile.jsx";
 import Dashboard from "../components/pages/dashboard.jsx";
 import Ideation from "../components/pages/Ideation.jsx";
 import Knowledge from "../components/pages/Knowledge.jsx";
-import Setting from "../components/pages/setting.jsx";
+import Setting from "../components/pages/Setting.jsx";
 import ProfileSetting from "../components/pages/ProfileSetting.jsx";
 import Preferences from "../components/pages/Preferences.jsx";
 import AccountandSecurity from "../components/pages/AccountandSecurity.jsx";
