@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Upload, Plus } from "lucide-react"
+import Header from '../sections/Header'
 
 export default function RegisterStartUp() {
   const [formData, setFormData] = useState({
@@ -47,11 +48,11 @@ export default function RegisterStartUp() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="p-4">
-        <div className="text-lg font-medium">Register New Startup</div>
+        <div className="md:text-3xl text-lg font-medium">Register New Startup</div>
       </div>
 
       {/* Hero Section */}
-      <div className="relative h-48 mb-8">
+      <div className="relative md:h-[400px] h-48 mb-8">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <img 
           src="https://plus.unsplash.com/premium_photo-1749618351944-e251d669af21?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwzN3x8fGVufDB8fHx8fA%3D%3D" 

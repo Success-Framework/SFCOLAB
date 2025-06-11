@@ -1,6 +1,7 @@
-import { BriefcaseBusiness, CheckCheck, LocateIcon, User } from 'lucide-react'
+import { BriefcaseBusiness, CheckCheck, LocateIcon, User, List } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Header from '../sections/Header'
 
 const Home = () => {
   const getRandomColor = () => {
@@ -68,6 +69,97 @@ const Home = () => {
 
   return (
     <div className='h-screen overflow-y-auto overflow-hidden'>
+      <div>
+        <Header
+          // Search bar customization
+          searchContainerClassName='min-w-[50%]'
+          searchClassName='w-full'
+          
+          // Custom dropdown button texts
+          dropdowns={{
+            available: {
+              label: 'Available',
+              buttonText: 'Current Status',
+              options: [
+                { label: 'Available', href: '/status/available' },
+                { label: 'Busy', href: '/status/busy' },
+                { label: 'Away', href: '/status/away' },
+                { label: 'Offline', href: '/status/offline' }
+              ],
+              className: 'bg-white/10 text-white hover:bg-white/20',
+              icon: null,
+              show: true,
+            },
+            userType: {
+              label: 'User Type',
+              buttonText: 'Select Role',
+              options: [
+                { label: 'Admin', href: '/roles/admin' },
+                { label: 'Manager', href: '/roles/manager' },
+                { label: 'Employee', href: '/roles/employee' },
+                { label: 'Guest', href: '/roles/guest' }
+              ],
+              className: 'bg-white/10 text-white hover:bg-white/20',
+              icon: List,
+              show: true,
+              buttonSize: 'default'
+            },
+            position: {
+              label: 'Position',
+              buttonText: 'Choose Job',
+              options: [
+                { label: 'Developer', href: '/positions/developer' },
+                { label: 'Designer', href: '/positions/designer' },
+                { label: 'Product Manager', href: '/positions/product-manager' },
+                { label: 'Marketing', href: '/positions/marketing' }
+              ],
+              className: 'bg-white text-gray-600 hover:bg-white/70',
+              icon: BriefcaseBusiness,
+              show: true,
+              buttonSize: 'default'
+            }
+          }}
+
+          // Mobile menu customization
+          mobileMenuItems={{
+            'Available Status': [
+              { label: 'Available', href: '/status/available' },
+              { label: 'Busy', href: '/status/busy' },
+              { label: 'Away', href: '/status/away' },
+              { label: 'Offline', href: '/status/offline' }
+            ],
+            'User Type': [
+              { label: 'Admin', href: '/roles/admin' },
+              { label: 'Manager', href: '/roles/manager' },
+              { label: 'Employee', href: '/roles/employee' },
+              { label: 'Guest', href: '/roles/guest' }
+            ],
+            'Position': [
+              { label: 'Developer', href: '/positions/developer' },
+              { label: 'Designer', href: '/positions/designer' },
+              { label: 'Product Manager', href: '/positions/product-manager' },
+              { label: 'Marketing', href: '/positions/marketing' }
+            ]
+          }}
+
+          // Custom mobile menu button text
+          mobileMenuButtonText="Open Menu"
+
+          // Custom search button text
+          searchButtonText="Search Items"
+
+          // Event handlers
+          onDropdownOptionClick={(key, option) => {
+            console.log(`${key}: ${option.label} selected`);
+          }}
+          onMobileMenuOptionClick={(title, option) => {
+            console.log(`${title}: ${option.label} selected`);
+          }}
+          onSearch={(value) => {
+            console.log('Search:', value);
+          }}
+        />
+      </div>
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
         {cardContent.map(content => (
           <Link key={content.id} to={content.href} className='bg-[#232323] rounded-4xl h-full'>

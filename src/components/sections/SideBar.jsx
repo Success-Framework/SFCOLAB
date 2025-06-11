@@ -38,7 +38,7 @@ const SideBar = () => {
       id: 5,
       icon: <SquareChartGantt />,
       href: '/projects',
-      name: 'Projects'
+      name: 'Find Collaborators'
     },
     {
       id: 6,

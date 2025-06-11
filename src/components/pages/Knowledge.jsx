@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import Header from '../sections/Header'
+import { List, BriefcaseBusiness, Plus } from 'lucide-react'
+import { useLocation, Link } from 'react-router-dom'
 
 const Knowledge = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -96,6 +99,92 @@ const Knowledge = () => {
 
   return (
     <>
+      <div className="mb-6">
+      <Header
+          // Search bar customization
+          searchContainerClassName='min-w-[50%]'
+          searchClassName='w-full'
+          
+          // Custom dropdown button texts
+          dropdowns={{
+            available: {
+              label: 'Available',
+              buttonText: 'All Categories',
+              options: [
+                { label: 'Available', href: '/status/available' },
+                { label: 'Busy', href: '/status/busy' },
+                { label: 'Away', href: '/status/away' },
+                { label: 'Offline', href: '/status/offline' }
+              ],
+              className: 'bg-white/10 text-white hover:bg-white/20',
+              icon: null,
+              show: true,
+            },
+            userType: {
+              label: 'User Type',
+              buttonText: 'Newest First',
+              options: [
+                { label: 'Admin', href: '/roles/admin' },
+                { label: 'Manager', href: '/roles/manager' },
+                { label: 'Employee', href: '/roles/employee' },
+                { label: 'Guest', href: '/roles/guest' }
+              ],
+              className: 'bg-white/10 text-white hover:bg-white/20',
+              icon: List,
+              show: true,
+              buttonSize: 'default'
+            },
+            addKnowledge: {
+              label: 'Add Knowledge',
+              buttonText: 'Add Knowledge',
+              href: '/knowledge/new',
+              className: 'bg-white text-gray-600 hover:bg-white/70',
+              icon: Plus,
+              show: true,
+              buttonSize: 'default'
+            }
+          }}
+
+          // Mobile menu customization
+          mobileMenuItems={{
+            'Available Status': [
+              { label: 'Available', href: '/status/available' },
+              { label: 'Busy', href: '/status/busy' },
+              { label: 'Away', href: '/status/away' },
+              { label: 'Offline', href: '/status/offline' }
+            ],
+            'User Type': [
+              { label: 'Admin', href: '/roles/admin' },
+              { label: 'Manager', href: '/roles/manager' },
+              { label: 'Employee', href: '/roles/employee' },
+              { label: 'Guest', href: '/roles/guest' }
+            ],
+            'Position': [
+              { label: 'Developer', href: '/positions/developer' },
+              { label: 'Designer', href: '/positions/designer' },
+              { label: 'Product Manager', href: '/positions/product-manager' },
+              { label: 'Marketing', href: '/positions/marketing' }
+            ]
+          }}
+
+          // Custom mobile menu button text
+          mobileMenuButtonText="Open Menu"
+
+          // Custom search button text
+          searchButtonText="Search Items"
+
+          // Event handlers
+          onDropdownOptionClick={(key, option) => {
+            console.log(`${key}: ${option.label} selected`);
+          }}
+          onMobileMenuOptionClick={(title, option) => {
+            console.log(`${title}: ${option.label} selected`);
+          }}
+          onSearch={(value) => {
+            console.log('Search:', value);
+          }}
+        />
+      </div>
       <div className='h-screen w-full flex items-center justify-center'>
         <div className='w-[600px] min-h-[600px] bg-[#1A1A1A] rounded-4xl p-7 space-y-10'>
           {/* header */}

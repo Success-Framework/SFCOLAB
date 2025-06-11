@@ -135,7 +135,7 @@ export default function Preferences() {
                     {timeZone}
                   </div>
                   {showTimeZoneOptions && (
-                    <div className="absolute top-full left-0 right-0 border border-white/10 bg-[#232323] border-gray-700 rounded mt-1 z-10">
+                    <div className="absolute top-full left-0 right-0 border  bg-[#232323] border-gray-700 rounded mt-1 z-10">
                       {timeZones.map(({ value, label }) => (
                         <div
                           key={value}

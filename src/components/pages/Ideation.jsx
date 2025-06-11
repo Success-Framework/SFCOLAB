@@ -1,6 +1,7 @@
-import { BriefcaseBusiness, CheckCheck, LocateIcon, User } from 'lucide-react'
+import { BriefcaseBusiness, CheckCheck, LocateIcon, User, Filter, Plus } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Header from '../sections/Header'
 
 const Ideation = () => {
   const getRandomColor = () => {
@@ -31,6 +32,61 @@ const Ideation = () => {
 
   return (
     <div className='h-screen overflow-y-auto overflow-hidden'>
+      <div className="mb-6">
+        <Header
+          showSearch={true}
+          searchPlaceholder="Search ideas..."
+          searchContainerClassName="min-w-[50%]"
+          searchClassName="w-full"
+          onSearch={(value) => {
+            console.log('Search:', value);
+          }}
+          dropdowns={{
+            filterBySuggestion: {
+              label: 'Filter by Suggestion',
+              buttonText: 'Filter by Suggestion',
+              options: [
+                { label: 'Most Recent', href: '/ideas/recent' },
+                { label: 'Most Popular', href: '/ideas/popular' },
+                { label: 'Most Commented', href: '/ideas/commented' },
+                { label: 'Most Liked', href: '/ideas/liked' }
+              ],
+              className: 'bg-white/10 text-white hover:bg-white/20',
+              icon: Filter,
+              show: true,
+              buttonSize: 'default'
+            },
+            addNewIdea: {
+              label: 'Add New Idea',
+              buttonText: 'Add New Idea',
+              href: '/ideas/new',
+              className: 'bg-[#1A1A1A] text-white hover:bg-white/20',
+              icon: Plus,
+              show: true,
+              buttonSize: 'default'
+            }
+          }}
+          mobileMenuItems={{
+            'Filter Options': [
+              { label: 'Most Recent', href: '/ideas/recent' },
+              { label: 'Most Popular', href: '/ideas/popular' },
+              { label: 'Most Commented', href: '/ideas/commented' },
+              { label: 'Most Liked', href: '/ideas/liked' }
+            ],
+            'Actions': [
+              { label: 'Add New Idea', href: '/ideas/new' }
+            ]
+          }}
+          mobileMenuButtonText="Ideation Menu"
+          searchButtonText="Search Ideas"
+          onDropdownOptionClick={(key, option) => {
+            console.log(`${key}: ${option.label} selected`);
+          }}
+          onMobileMenuOptionClick={(title, option) => {
+            console.log(`${title}: ${option.label} selected`);
+          }}
+        />
+      </div>
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
         {cardContent.map(content => (
           <Link key={content.id} to={content.href} className='bg-[#232323] rounded-4xl h-full'>

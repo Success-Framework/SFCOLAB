@@ -118,7 +118,7 @@ export default function Login() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="w-full bg-transparent border border-gray-700 text-white hover:bg-gray-900 flex items-center justify-center py-2 rounded"
+              className="w-full bg-transparent border border-gray-700 text-white  flex items-center justify-center py-2 rounded"
             >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -148,7 +148,7 @@ export default function Login() {
                 placeholder="eg: johnmike@gmail.com"
                 value={formData.email}
                 onChange={handleChange}
-                className={`bg-gray-900 border ${errors.email ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2`}
+                className={` border ${errors.email ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2`}
               />
               {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
             </div>
@@ -163,7 +163,7 @@ export default function Login() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`bg-gray-900 border ${errors.password ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2 pr-10`}
+                  className={` border ${errors.password ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2 pr-10`}
                 />
                 <button
                   type="button"
