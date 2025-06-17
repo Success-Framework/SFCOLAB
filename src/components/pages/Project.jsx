@@ -1,6 +1,7 @@
 import { Star, Users, Briefcase, Filter, Plus, BriefcaseBusiness, List } from "lucide-react"
 import { Link } from "react-router-dom"
 import { allimg } from "../../utils"
+import FindContributionHeader from "../headers/FindContributionHeader"
 
 export default function Project() {
   const employees = [
@@ -53,7 +54,7 @@ export default function Project() {
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="mb-6">
-     
+          <FindContributionHeader/>
       </div>
       <div className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -49,7 +49,7 @@ const SideBar = () => {
     {
       id: 7,
       icon:<User/>,
-      href:'/join-startup',
+      href:'/startup',
       name:'Join Startup'
     }
   ]

@@ -13,6 +13,7 @@ import AccountandSecurity from "../components/pages/AccountandSecurity.jsx";
 import Login from "../components/auth/Login.jsx";
 import SignUp from "../components/auth/SignUp.jsx";
 import RegisterStartUp from "../components/pages/RegisterStartUp.jsx";
+import StartUp from "../components/pages/StartUp.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
             {
                 path:'/register-startup',
                 element:<RegisterStartUp/>
+            },
+            {
+                path:'/startup',
+                element:<StartUp/>
             }
         ]
     }
