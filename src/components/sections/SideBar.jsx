@@ -5,7 +5,6 @@ import { href, Link, useLocation } from 'react-router-dom'
 const SideBar = () => {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
   
   // general Links
   const allLinks = [
@@ -56,11 +55,7 @@ const SideBar = () => {
 
 
   const SidebarContent = () => (
-    <div 
-      className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'>
       <div className='flex flex-col gap-4'>
         {/* general links */}
         <div className='flex flex-col gap-2 items-center'>
@@ -73,15 +68,13 @@ const SideBar = () => {
                   location.pathname === link.href 
                     ? 'bg-white/10 backdrop-blur-sm' 
                     : 'hover:bg-white/5'
-                } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
+                } w-full px-4`}
                 onClick={() => setIsOpen(false)}
               >
                 <div className="w-6 h-6 flex items-center justify-center">
                   {link.icon}
                 </div>
-                {isHovered && (
-                  <span className="text-sm whitespace-nowrap ml-3">{link.name}</span>
-                )}
+                <span className="text-sm whitespace-nowrap ml-3">{link.name}</span>
               </Link>
             ))
           }
@@ -97,15 +90,13 @@ const SideBar = () => {
             location.pathname === '/setting' 
               ? 'bg-white/10 backdrop-blur-sm' 
               : 'hover:bg-white/5'
-          } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
+          } w-full px-4`}
           onClick={() => setIsOpen(false)}
         >
           <div className="w-6 h-6 flex items-center justify-center">
             <Settings size={20} />
           </div>
-          {isHovered && (
-            <span className="text-sm whitespace-nowrap ml-3">Settings</span>
-          )}
+          <span className="text-sm whitespace-nowrap ml-3">Settings</span>
         </Link>
         <Link 
           to="/help"
@@ -113,15 +104,13 @@ const SideBar = () => {
             location.pathname === '/help' 
               ? 'bg-white/10 backdrop-blur-sm' 
               : 'hover:bg-white/5'
-          } ${isHovered ? 'w-full px-4' : 'w-fit'}`}
+          } w-full px-4`}
           onClick={() => setIsOpen(false)}
         >
           <div className="w-6 h-6 flex items-center justify-center">
             <HelpCircle size={20} />
           </div>
-          {isHovered && (
-            <span className="text-sm whitespace-nowrap ml-3">Help</span>
-          )}
+          <span className="text-sm whitespace-nowrap ml-3">Help</span>
         </Link>
       </div>
     </div>
@@ -138,7 +127,7 @@ const SideBar = () => {
       </button>
 
       {/* Desktop Sidebar */}
-      <div className={`hidden lg:block ${isHovered ? 'w-[200px]' : 'w-[100px]'} m-4 pt-4 rounded-t-3xl text-white bg-[#1A1A1A] h-full transition-all duration-300`}>
+      <div className="hidden lg:block w-[200px] m-4 pt-4 rounded-t-3xl text-white bg-[#1A1A1A] h-full">
         <SidebarContent />
       </div>
 
@@ -147,7 +136,7 @@ const SideBar = () => {
         lg:hidden fixed inset-0 z-40 bg-[#1A1A1A] backdrop-blur-sm transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="w-[107px] h-full mx-auto">
+        <div className="w-[200px] h-full mx-auto">
           <SidebarContent />
         </div>
       </div>
