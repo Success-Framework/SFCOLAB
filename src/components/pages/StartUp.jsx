@@ -1,12 +1,18 @@
 import React from 'react'
 import StartUpHeader from '../headers/StartUpHeader'
 import { Link } from 'react-router-dom'
-import { Users, Building2, MapPin, Calendar } from 'lucide-react'
+import { Users, Building2, MapPin, Calendar, DollarSign, Target, ArrowUpRight } from 'lucide-react'
 
 const StartUp = () => {
-  const getRandomColor = () => {
-    const colors = ['bg-red-700', 'bg-yellow-600', 'bg-gray-600', 'bg-green-600']
-    return colors[Math.floor(Math.random() * colors.length)]
+  const getStageColor = (stage) => {
+    const colors = {
+      'MVP Stage': 'bg-yellow-600',
+      'Growth Stage': 'bg-green-600',
+      'Scale Stage': 'bg-blue-600',
+      'Seed Stage': 'bg-purple-600',
+      'Series A': 'bg-red-600'
+    }
+    return colors[stage] || 'bg-gray-600'
   }
 
   const startupContent = [
@@ -19,7 +25,13 @@ const StartUp = () => {
       location: 'San Francisco',
       teamSize: '25',
       founded: '2022',
-      funding: '$5M'
+      funding: '$5M',
+      metrics: {
+        users: '10K+',
+        accuracy: '95%',
+        hospitals: '50+'
+      },
+      logo: 'https://i.pravatar.cc/150?img=1'
     },
     {
       id: 2,
@@ -30,7 +42,13 @@ const StartUp = () => {
       location: 'Berlin',
       teamSize: '15',
       founded: '2023',
-      funding: '$2M'
+      funding: '$2M',
+      metrics: {
+        installations: '500+',
+        savings: '30%',
+        customers: '1K+'
+      },
+      logo: 'https://i.pravatar.cc/150?img=2'
     },
     {
       id: 3,
@@ -41,7 +59,13 @@ const StartUp = () => {
       location: 'London',
       teamSize: '40',
       founded: '2021',
-      funding: '$8M'
+      funding: '$8M',
+      metrics: {
+        students: '50K+',
+        schools: '200+',
+        improvement: '40%'
+      },
+      logo: 'https://i.pravatar.cc/150?img=3'
     },
     {
       id: 4,
@@ -52,57 +76,88 @@ const StartUp = () => {
       location: 'Singapore',
       teamSize: '30',
       founded: '2022',
-      funding: '$6M'
+      funding: '$6M',
+      metrics: {
+        transactions: '1M+',
+        users: '100K+',
+        security: '99.9%'
+      },
+      logo: 'https://i.pravatar.cc/150?img=4'
     }
   ]
 
   return (
-    <div className='h-screen overflow-y-auto overflow-hidden'>
+    <div className='min-h-screen bg-black'>
       <StartUpHeader />
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
         {startupContent.map(startup => (
-          <Link key={startup.id} to={`/startup/${startup.id}`} className='bg-[#232323] rounded-4xl h-full'>
+          <Link 
+            key={startup.id} 
+            to={`/startup-details?id=${startup.id}`} 
+            className='bg-[#232323] rounded-4xl h-full hover:bg-[#2A2A2A] transition-colors'
+          >
             <div className='w-full h-full p-2'>
-              <div className='bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-10'>
+              <div className='bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6'>
                 {/* header */}
-                <div className='flex w-full justify-between'>
-                  <h1 className='text-lg font-bold'>{startup.name}</h1>
-                  <button className={`${getRandomColor()} text-sm px-1 font-medium rounded-sm`}>
+                <div className='flex w-full justify-between items-start'>
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-700">
+                      <img src={startup.logo} alt={startup.name} className="h-full w-full object-cover" />
+                    </div>
+                    <h1 className='text-lg font-bold'>{startup.name}</h1>
+                  </div>
+                  <button className={`${getStageColor(startup.stage)} text-sm px-2 py-1 font-medium rounded-full`}>
                     {startup.stage}
                   </button>
                 </div>
 
                 {/* content */}
-                <div className='text-sm font-medium leading-tight text-[#C4C4C4]'>
+                <div className='text-sm font-medium leading-relaxed text-[#C4C4C4] line-clamp-3'>
                   {startup.description}
                 </div>
 
+                {/* metrics */}
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(startup.metrics).map(([key, value], index) => (
+                    <div key={index} className="bg-[#2A2A2A] rounded-lg p-2 text-center">
+                      <p className="text-xs text-gray-400 mb-1">{key}</p>
+                      <p className="text-sm font-medium">{value}</p>
+                    </div>
+                  ))}
+                </div>
+
                 {/* metadata */}
-                <div className='grid grid-cols-2 font-medium text-[#C4C4C4]'>
+                <div className='grid grid-cols-2 font-medium text-[#C4C4C4] gap-4'>
                   <div className='space-y-3'>
-                    <p className='flex gap-1 text-sm'>
-                      <Users size={20}/> {startup.teamSize} Team
+                    <p className='flex items-center gap-2 text-sm'>
+                      <Users size={18} className="text-blue-500"/>
+                      <span>{startup.teamSize} Team</span>
                     </p>
-                    <p className='flex gap-1.5 text-sm'>
-                      <Building2 size={20}/> {startup.industry}
+                    <p className='flex items-center gap-2 text-sm'>
+                      <Building2 size={18} className="text-green-500"/>
+                      <span>{startup.industry}</span>
                     </p>
-                    <p className='flex gap-1.5 text-sm'>
-                      <MapPin size={20}/> {startup.location}
+                    <p className='flex items-center gap-2 text-sm'>
+                      <MapPin size={18} className="text-red-500"/>
+                      <span>{startup.location}</span>
                     </p>
                   </div>
                   <div className='space-y-3'>
-                    <p className='flex gap-1.5 text-sm'>
-                      <Calendar size={20}/> Founded {startup.founded}
+                    <p className='flex items-center gap-2 text-sm'>
+                      <Calendar size={18} className="text-purple-500"/>
+                      <span>Founded {startup.founded}</span>
                     </p>
-                    <p className='text-sm text-green-500'>
-                      {startup.funding} Raised
+                    <p className='flex items-center gap-2 text-sm text-green-500'>
+                      <DollarSign size={18}/>
+                      <span>{startup.funding} Raised</span>
+                    </p>
+                    <p className='flex items-center gap-2 text-sm text-blue-500'>
+                      <Target size={18}/>
+                      <span>View Details</span>
+                      <ArrowUpRight size={14}/>
                     </p>
                   </div>
                 </div>
-              </div>
-              {/* create at */}
-              <div className='flex justify-center pt-3'>
-                <h1 className='text-[#535353]'>Founded: {startup.founded}</h1>
               </div>
             </div>  
           </Link>

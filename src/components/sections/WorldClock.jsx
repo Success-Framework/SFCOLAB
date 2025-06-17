@@ -37,7 +37,7 @@ export default function WorldClock() {
   return (
     <div className="h-full">
       <h2 className="text-xl font-semibold mb-4">World Clock</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
         {TIME_ZONES.map(({ city, offset, utc }) => {
           const time = getTimeForTimezone(offset)
           const isDay = time.getHours() >= 6 && time.getHours() < 18

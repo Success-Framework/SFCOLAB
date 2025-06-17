@@ -7,7 +7,7 @@ const DashboardHeader = () => {
 
   return (
     <>
-      <div className='w-full h-[65px] '>
+      <div className='w-full min-h-[130px] '>
         <div className='flex w-full justify-between items-center h-full'>
           <div>
             <h1 className="text-2xl font-semibold">Dashboard</h1>

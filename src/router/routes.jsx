@@ -14,6 +14,12 @@ import Login from "../components/auth/Login.jsx";
 import SignUp from "../components/auth/SignUp.jsx";
 import RegisterStartUp from "../components/pages/RegisterStartUp.jsx";
 import StartUp from "../components/pages/StartUp.jsx";
+import HomedetailsPage from "../components/detailspage/HomedetailsPage.jsx";
+import Idationdetails from "../components/detailspage/Idationdetails.jsx";
+import Knowledgedetails from "../components/detailspage/Knowledgedetails.jsx";
+import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
+import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
+import Help from "../components/pages/Help.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -79,6 +85,30 @@ export const router = createBrowserRouter([
             {
                 path:'/startup',
                 element:<StartUp/>
+            },
+            {
+                path:"/help",
+                element:<Help/>
+            },
+            {
+                path:'/home-details',
+                element:<HomedetailsPage/>
+            },
+            {
+                path:'/ideation-details',
+                element:<Idationdetails/>
+            },
+            {
+                path:'/knowledge-details',
+                element:<Knowledgedetails/>
+            },
+            {
+            path:'/project-details',
+            element:<ProjectDetails/>
+            },
+            {
+                path:'/startup-details',
+                element:<StartUpdetails/>
             }
         ]
     }
