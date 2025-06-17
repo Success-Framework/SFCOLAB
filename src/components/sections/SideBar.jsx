@@ -12,51 +12,44 @@ const SideBar = () => {
       id: 1,
       icon: <House />,
       href: '/',
-      name: 'Home'
     },
     {
       id: 2,
       icon: <CalendarCog />,
       href: '/dashboard',
-      name: 'Dashboard'
     },
     {
       id: 3,
       icon: <FileChartColumnIncreasing />,
       href: '/ideation',
-      name: 'Ideation'
     },
     
     {
       id: 4,
       icon: <BriefcaseBusiness />,
       href: '/knowledge',
-      name: 'Knowledge Base'
     },
     {
       id: 5,
       icon: <SquareChartGantt />,
       href: '/projects',
-      name: 'Find Collaborators'
     },
     {
       id: 6,
       icon: <File />,
       href: '/register-startup',
-      name: 'Register StarUp'
     },
     {
       id: 7,
       icon:<User/>,
       href:'/startup',
-      name:'Join Startup'
     }
   ]
 
 
   const SidebarContent = () => (
     <div className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'>
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 items-center'>
         {/* general links */}
         <div className='flex flex-col gap-2 items-center'>
           {
@@ -74,7 +67,6 @@ const SideBar = () => {
                 <div className="w-6 h-6 flex items-center justify-center">
                   {link.icon}
                 </div>
-                <span className="text-sm whitespace-nowrap ml-3">{link.name}</span>
               </Link>
             ))
           }
@@ -127,7 +119,7 @@ const SideBar = () => {
       </button>
 
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-[200px] m-4 pt-4 rounded-t-3xl text-white bg-[#1A1A1A] h-full">
+      <div className="hidden lg:block w-[100px] m-4 pt-4 rounded-t-3xl text-white bg-[#1A1A1A] h-full">
         <SidebarContent />
       </div>
 
