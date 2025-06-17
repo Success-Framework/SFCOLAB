@@ -52,53 +52,47 @@ const SideBar = () => {
       <div className='flex flex-col gap-4 items-center'>
         {/* general links */}
         <div className='flex flex-col gap-2 items-center'>
-          {
-            allLinks.map(link => (
-              <Link 
-                key={link.id} 
-                to={link.href}
-                className={`p-2 rounded-lg transition-all flex items-center ${
-                  location.pathname === link.href 
-                    ? 'bg-white/10 backdrop-blur-sm' 
-                    : 'hover:bg-white/5'
-                } w-full px-4`}
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="w-6 h-6 flex items-center justify-center">
-                  {link.icon}
-                </div>
-              </Link>
-            ))
-          }
+          {allLinks.map((link) => (
+            <Link
+              key={link.id}
+              to={link.href}
+              className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
+                location.pathname === link.href
+                  ? 'bg-[#2A2A2A] text-white'
+                  : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
+              }`}
+            >
+              <div className="flex items-center justify-center">
+                {link.icon}
+              </div>
+            </Link>
+          ))}
         </div>
-
       </div>
 
-      {/* support links */}
+      {/* bottom links */}
       <div className='flex flex-col gap-2 items-center'>
         <Link 
-          to="/setting"
-          className={`p-2 rounded-lg transition-all flex items-center ${
-            location.pathname === '/setting' 
-              ? 'bg-white/10 backdrop-blur-sm' 
-              : 'hover:bg-white/5'
-          } w-full px-4`}
-          onClick={() => setIsOpen(false)}
+          to="/settings" 
+          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
+            location.pathname === '/settings'
+              ? 'bg-[#2A2A2A] text-white'
+              : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
+          }`}
         >
-          <div className="w-6 h-6 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <Settings size={20} />
           </div>
         </Link>
         <Link 
-          to="/help"
-          className={`p-2 rounded-lg transition-all flex items-center ${
-            location.pathname === '/help' 
-              ? 'bg-white/10 backdrop-blur-sm' 
-              : 'hover:bg-white/5'
-          } w-full px-4`}
-          onClick={() => setIsOpen(false)}
+          to="/help" 
+          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
+            location.pathname === '/help'
+              ? 'bg-[#2A2A2A] text-white'
+              : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
+          }`}
         >
-          <div className="w-6 h-6 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <HelpCircle size={20} />
           </div>
         </Link>
