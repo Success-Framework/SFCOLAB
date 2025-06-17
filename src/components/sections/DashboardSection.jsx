@@ -1,55 +1,8 @@
 import React, { useState } from 'react'
-import { Filter, ChevronDown, Search, Bell, Settings, Menu, X, Users, Target, TrendingUp, Award, Clock, ArrowUpRight, Check, Trash2 } from 'lucide-react'
+import {  Users, Target, TrendingUp, Award,  } from 'lucide-react'
 
 
 const DashboardSection = () => {
-    const [showFilterMenu, setShowFilterMenu] = useState(false)
-  const [selectedStage, setSelectedStage] = useState('All Stages')
-  const [showNotifications, setShowNotifications] = useState(false)
-
-  const stages = [
-    'All Stages',
-    'Idea Stage',
-    'MVP Stage',
-    'Growth Stage',
-    'Scale Stage',
-    'Research Stage'
-  ]
-
-  const notifications = [
-    {
-      id: 1,
-      title: 'New Project Update',
-      message: 'Project "AI Integration" has been updated',
-      time: '5 minutes ago',
-      read: false,
-      type: 'project'
-    },
-    {
-      id: 2,
-      title: 'Team Meeting',
-      message: 'Scheduled for tomorrow at 10:00 AM',
-      time: '1 hour ago',
-      read: false,
-      type: 'meeting'
-    },
-    {
-      id: 3,
-      title: 'Task Completed',
-      message: 'John completed the UI design task',
-      time: '2 hours ago',
-      read: true,
-      type: 'task'
-    },
-    {
-      id: 4,
-      title: 'New Comment',
-      message: 'Sarah commented on your project',
-      time: '3 hours ago',
-      read: true,
-      type: 'comment'
-    }
-  ]
 
   const dashboardCards = [
     {
@@ -133,11 +86,6 @@ const DashboardSection = () => {
                   </div>
                 ))}
               </div>
-
-              <button className="w-full mt-4 flex items-center justify-center gap-2 text-blue-500 text-sm hover:text-blue-400 transition-colors">
-                View Details
-                <ArrowUpRight size={14} />
-              </button>
             </div>
           ))}
         </div>
