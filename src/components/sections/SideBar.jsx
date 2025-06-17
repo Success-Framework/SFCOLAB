@@ -88,7 +88,6 @@ const SideBar = () => {
           <div className="w-6 h-6 flex items-center justify-center">
             <Settings size={20} />
           </div>
-          <span className="text-sm whitespace-nowrap ml-3">Settings</span>
         </Link>
         <Link 
           to="/help"
@@ -102,7 +101,6 @@ const SideBar = () => {
           <div className="w-6 h-6 flex items-center justify-center">
             <HelpCircle size={20} />
           </div>
-          <span className="text-sm whitespace-nowrap ml-3">Help</span>
         </Link>
       </div>
     </div>
