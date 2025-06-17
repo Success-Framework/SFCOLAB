@@ -1,6 +1,7 @@
 import { BriefcaseBusiness, CheckCheck, LocateIcon, User, Filter, Plus } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import IdeationHeader from '../headers/IdeationHeader'
 
 const Ideation = () => {
   const getRandomColor = () => {
@@ -32,7 +33,7 @@ const Ideation = () => {
   return (
     <div className='h-screen overflow-y-auto overflow-hidden'>
       <div className="mb-6">
-    
+        <IdeationHeader/>
       </div>
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
         {cardContent.map(content => (

@@ -1,6 +1,7 @@
 import { BriefcaseBusiness, CheckCheck, LocateIcon, User, List } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import FilterHeader from '../headers/HomeHeader'
 
 const Home = () => {
   const getRandomColor = () => {
@@ -42,35 +43,11 @@ const Home = () => {
       createAt:'6/3/2025',
       task:'Tasks'
     },
-    {
-      id:4,
-      header:'ABC - Marketing side',
-      content:`ABC is an application for parents, to make their life easier by helping them organize and track each task. Now we're looking for effective marketers. We are leaning towards female market.`,
-      people:'10',
-      technology:'technology',
-      location:'Location',
-      href:'',
-      createAt:'6/3/2025',
-      task:'Tasks'
-    },
-    {
-      id:5,
-      header:'ABC - Marketing side',
-      content:`ABC is an application for parents, to make their life easier by helping them organize and track each task. Now we're looking for effective marketers. We are leaning towards female market.`,
-      people:'10',
-      technology:'technology',
-      location:'Location',
-      href:'',
-      createAt:'6/3/2025',
-      task:'Tasks'
-    },
   ]
 
   return (
     <div className='h-screen overflow-y-auto overflow-hidden'>
-      <div>
-      
-      </div>
+      <FilterHeader />
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
         {cardContent.map(content => (
           <Link key={content.id} to={content.href} className='bg-[#232323] rounded-4xl h-full'>

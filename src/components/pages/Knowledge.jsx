@@ -1,197 +1,93 @@
-import React, { useState } from 'react'
+import React from 'react'
+import KnowledgeHeader from '../headers/KnowledgeHeader'
+import { FileText, Calendar, User, Tag } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const Knowledge = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState('Category 1')
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    file: null
-  })
-  const [errors, setErrors] = useState({})
-  
-  const categories = [
-    'Category 1',
-    'Category 2',
-    'Category 3'
+  const getRandomColor = () => {
+    const colors = ['bg-red-700', 'bg-yellow-600', 'bg-gray-600', 'bg-green-600']
+    return colors[Math.floor(Math.random() * colors.length)]
+  }
+
+  const knowledgeContent = [
+    {
+      id: 1,
+      title: 'Marketing Strategy Guide 2024',
+      description: 'Comprehensive guide covering modern marketing strategies, including digital marketing, social media, and content marketing approaches for startups.',
+      category: 'Marketing',
+      author: 'John Doe',
+      date: '6/3/2024',
+      fileType: 'PDF',
+      views: '1.2k'
+    },
+    {
+      id: 2,
+      title: 'Product Development Framework',
+      description: 'A detailed framework for product development, from ideation to launch, including best practices and common pitfalls to avoid.',
+      category: 'Product',
+      author: 'Jane Smith',
+      date: '5/3/2024',
+      fileType: 'DOC',
+      views: '856'
+    },
+    {
+      id: 3,
+      title: 'Technical Documentation Template',
+      description: 'Standardized template for technical documentation, ensuring consistency and clarity in project documentation.',
+      category: 'Development',
+      author: 'Mike Johnson',
+      date: '4/3/2024',
+      fileType: 'PDF',
+      views: '2.1k'
+    },
+    {
+      id: 4,
+      title: 'Financial Planning for Startups',
+      description: 'Essential financial planning guide for startups, covering budgeting, fundraising, and financial management.',
+      category: 'Finance',
+      author: 'Sarah Wilson',
+      date: '3/3/2024',
+      fileType: 'XLS',
+      views: '1.5k'
+    }
   ]
 
-  const handleSelect = (category) => {
-    setSelectedCategory(category)
-    setIsOpen(false)
-  }
-
-  const handleChange = (e) => {
-    const { id, value, files } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [id]: files ? files[0] : value
-    }))
-    // Clear error when user starts typing
-    if (errors[id]) {
-      setErrors(prev => ({
-        ...prev,
-        [id]: ''
-      }))
-    }
-  }
-
-  const validateForm = () => {
-    const newErrors = {}
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required'
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required'
-    }
-    if (!formData.file) {
-      newErrors.file = 'Please upload a file'
-    }
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
-
-    try {
-      // Create FormData object for file upload
-      const submitData = new FormData()
-      submitData.append('title', formData.title)
-      submitData.append('description', formData.description)
-      submitData.append('category', selectedCategory)
-      submitData.append('file', formData.file)
-
-      // TODO: Replace with your API endpoint
-      // const response = await fetch('/api/knowledge', {
-      //   method: 'POST',
-      //   body: submitData
-      // })
-
-      // if (!response.ok) {
-      //   throw new Error('Failed to submit')
-      // }
-
-      // Reset form after successful submission
-      setFormData({
-        title: '',
-        description: '',
-        file: null
-      })
-      setSelectedCategory('Category 1')
-      setErrors({})
-
-      // TODO: Add success notification
-      alert('Knowledge resource added successfully!')
-    } catch (error) {
-      console.error('Error submitting form:', error)
-      // TODO: Add error notification
-      alert('Failed to add knowledge resource. Please try again.')
-    }
-  }
-
   return (
-    <>
-      <div className="mb-6">
-      
-      </div>
-      <div className='h-screen w-full flex items-center justify-center'>
-        <div className='w-[600px] min-h-[600px] bg-[#1A1A1A] rounded-4xl p-7 space-y-10'>
-          {/* header */}
-          <div className='flex justify-between'>
-            <h1 className='text-3xl font-medium'>Add new Knowledge resource</h1>
-          </div>
-
-          <form onSubmit={handleSubmit} className='space-y-4'>
-            <div className='flex flex-col gap-2'>
-              <label htmlFor="title">Title</label>
-              <input 
-                type="text" 
-                id='title' 
-                placeholder='Enter title' 
-                className={`bg-[#232323] rounded-full p-2 ${errors.title ? 'border border-red-500' : ''}`}
-                value={formData.title}
-                onChange={handleChange}
-              />
-              {errors.title && <span className="text-red-500 text-sm">{errors.title}</span>}
-            </div>
-            <div className='flex flex-col gap-2'>
-              <label htmlFor="description">Description</label>
-              <textarea 
-                id='description' 
-                placeholder='Enter description' 
-                className={`bg-[#232323] rounded-md p-2 ${errors.description ? 'border border-red-500' : ''}`}
-                rows={8}
-                value={formData.description}
-                onChange={handleChange}
-              />
-              {errors.description && <span className="text-red-500 text-sm">{errors.description}</span>}
-            </div>
-            <div className='flex flex-col gap-2'>
-              <label htmlFor="file">Category</label>
-              <div className='relative'>
-                <div 
-                  className='bg-[#232323] rounded-full p-2 cursor-pointer flex justify-between items-center'
-                  onClick={() => setIsOpen(!isOpen)}
-                >
-                  <span>{selectedCategory}</span>
+    <div className='h-screen overflow-y-auto overflow-hidden'>
+      <KnowledgeHeader />
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
+        {knowledgeContent.map(content => (
+          <Link key={content.id} to={`/knowledge/${content.id}`} className='bg-[#232323] rounded-4xl h-full'>
+            <div className='w-full h-full p-2'>
+              <div className='bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-10'>
+                {/* header */}
+                <div className='flex w-full justify-between'>
+                  <h1 className='text-lg font-bold'>{content.title}</h1>
+                  <button className={`${getRandomColor()} text-sm px-1 font-medium rounded-sm`}>{content.fileType}</button>
                 </div>
-                {isOpen && (
-                  <div className='absolute top-full left-0 w-full mt-1 bg-[#232323] rounded-full shadow-lg z-10'>
-                    {categories.map((category, index) => (
-                      <div
-                        key={index}
-                        className='p-2 hover:bg-white/10 cursor-pointer'
-                        onClick={() => handleSelect(category)}
-                      >
-                        {category}
-                      </div>
-                    ))}
+
+                {/* content */}
+                <div className='text-sm font-medium leading-tight text-[#C4C4C4]'>{content.description}</div>
+
+                {/* metadata */}
+                <div className='grid grid-cols-2 font-medium text-[#C4C4C4]'>
+                  <div className='space-y-3'>
+                    <p className='flex gap-1 text-sm'><User size={20}/> {content.author}</p>
+                    <p className='flex gap-1.5 text-sm'><Tag size={20}/> {content.category}</p>
+                    <p className='flex gap-1.5 text-sm'><FileText size={20}/> {content.views} views</p>
                   </div>
-                )}
+                  <div className='flex gap-1.5 text-sm'><Calendar size={20} /> {content.date}</div>
+                </div>
               </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <label htmlFor="file">Upload file</label>
-              <input 
-                type="file" 
-                id='file' 
-                className={`bg-[#232323] rounded-full p-2 ${errors.file ? 'border border-red-500' : ''}`}
-                onChange={handleChange}
-              />
-              {errors.file && <span className="text-red-500 text-sm">{errors.file}</span>}
-            </div>
-            <div className='flex justify-end gap-2'>
-              <button 
-                type='button' 
-                className='bg-[#232323] rounded-full p-2'
-                onClick={() => {
-                  setFormData({
-                    title: '',
-                    description: '',
-                    file: null
-                  })
-                  setSelectedCategory('Category 1')
-                  setErrors({})
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                type='submit' 
-                className='bg-[#fff] text-[#000] rounded-full p-2'
-              >
-                Add Resource
-              </button>
-            </div>
-          </form>
-        </div>
+              {/* create at */}
+              <div className='flex justify-center pt-3'>
+                <h1 className='text-[#535353]'>Added: {content.date}</h1>
+              </div>
+            </div>  
+          </Link>
+        ))}
       </div>
-    </>
+    </div>
   )
 }
 
