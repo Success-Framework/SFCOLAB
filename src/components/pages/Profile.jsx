@@ -2,7 +2,6 @@
 import { Star, Users, Briefcase, GraduationCap } from "lucide-react"
 import { allimg } from "../../utils"
 import { useState } from "react"
-import Header from '../sections/Header'
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('work')
@@ -100,7 +99,7 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="mb-6">
-        <Header />
+        
       </div>
       <div className="w-full space-y-6">
         {/* Main grid layout for profile and freelancing details */}

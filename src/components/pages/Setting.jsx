@@ -1,7 +1,6 @@
 import React from 'react'
 import SettingSidebar from '../sections/SettingSidebar'
 import { Outlet } from 'react-router-dom'
-import Header from '../sections/Header'
 
 const setting = () => {
   return (

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Upload, Plus } from "lucide-react"
-import Header from '../sections/Header'
 
 export default function RegisterStartUp() {
   const [formData, setFormData] = useState({
