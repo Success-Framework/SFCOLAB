@@ -5,7 +5,7 @@ import WorldClock from "../sections/WorldClock"
 import Calendar from "../sections/Calendar"
 import Tasks from "../sections/Tasks"
 import DashboardHeader from "../headers/DashboardHeader"
-import DashboardSection from '../sections/dashboardSection'
+import DashboardSection from "../sections/DashboardSection"
 
 const Dashboard = () => {
   
