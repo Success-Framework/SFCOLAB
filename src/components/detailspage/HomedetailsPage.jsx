@@ -63,13 +63,13 @@ const HomedetailsPage = () => {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Header */}
       <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
               <ArrowLeft className="h-5 w-5" />
-              <span>Back to Projects</span>
+              <span className="hidden sm:inline">Back to Projects</span>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
                 <Share2 className="h-5 w-5" />
               </button>
@@ -82,14 +82,14 @@ const HomedetailsPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left Column - Main Info */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
             {/* Project Header */}
-            <div className="bg-[#1A1A1A] rounded-4xl p-8">
-              <div className="flex justify-between items-start mb-6">
-                <h1 className="text-3xl font-bold">{projectDetails.header}</h1>
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-0 mb-6">
+                <h1 className="text-2xl sm:text-3xl font-bold">{projectDetails.header}</h1>
                 <div className="flex items-center gap-3">
                   <button className="bg-red-700 text-sm px-3 py-1 font-medium rounded-sm">
                     {projectDetails.stage}
@@ -107,37 +107,37 @@ const HomedetailsPage = () => {
                   </button>
                 </div>
               </div>
-              <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              <p className="text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
                 {projectDetails.description}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="flex items-center gap-2">
                   <User className="h-5 w-5 text-gray-400" />
-                  <span>{projectDetails.people} Roles</span>
+                  <span className="text-sm sm:text-base">{projectDetails.people} Roles</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <BriefcaseBusiness className="h-5 w-5 text-gray-400" />
-                  <span>{projectDetails.technology}</span>
+                  <span className="text-sm sm:text-base">{projectDetails.technology}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <LocateIcon className="h-5 w-5 text-gray-400" />
-                  <span>{projectDetails.location}</span>
+                  <span className="text-sm sm:text-base">{projectDetails.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-gray-400" />
-                  <span>Created: {projectDetails.createdAt}</span>
+                  <span className="text-sm sm:text-base">Created: {projectDetails.createdAt}</span>
                 </div>
               </div>
             </div>
 
             {/* Requirements */}
-            <div className="bg-[#1A1A1A] rounded-4xl p-8">
-              <h2 className="text-2xl font-semibold mb-6">Requirements</h2>
-              <ul className="space-y-4">
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Requirements</h2>
+              <ul className="space-y-3 sm:space-y-4">
                 {projectDetails.requirements.map((req, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <CheckCheck className="h-5 w-5 text-green-500 mt-1" />
-                    <span>{req}</span>
+                    <span className="text-sm sm:text-base">{req}</span>
                   </li>
                 ))}
               </ul>
@@ -145,21 +145,21 @@ const HomedetailsPage = () => {
           </div>
 
           {/* Right Column - Team & Info */}
-          <div className="space-y-8">
+          <div className="space-y-4 sm:space-y-8">
             {/* Team Section */}
-            <div className="bg-[#1A1A1A] rounded-4xl p-8">
-              <h2 className="text-2xl font-semibold mb-6">Team</h2>
-              <div className="space-y-6">
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Team</h2>
+              <div className="space-y-4 sm:space-y-6">
                 {projectDetails.team.map((member, index) => (
                   <div key={index} className="flex items-center gap-4">
                     <img
                       src={member.avatar}
                       alt={member.name}
-                      className="w-12 h-12 rounded-full"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full"
                     />
                     <div>
-                      <h3 className="font-medium">{member.name}</h3>
-                      <p className="text-gray-400 text-sm">{member.role}</p>
+                      <h3 className="font-medium text-sm sm:text-base">{member.name}</h3>
+                      <p className="text-gray-400 text-xs sm:text-sm">{member.role}</p>
                     </div>
                   </div>
                 ))}
@@ -167,36 +167,36 @@ const HomedetailsPage = () => {
             </div>
 
             {/* Quick Info */}
-            <div className="bg-[#1A1A1A] rounded-4xl p-8">
-              <h2 className="text-2xl font-semibold mb-6">Quick Info</h2>
-              <div className="space-y-4">
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Quick Info</h2>
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Status</span>
-                  <span className="text-green-500">Active</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Status</span>
+                  <span className="text-green-500 text-sm sm:text-base">Active</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Posted</span>
-                  <span>{projectDetails.createdAt}</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Posted</span>
+                  <span className="text-sm sm:text-base">{projectDetails.createdAt}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Location</span>
-                  <span>{projectDetails.location}</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Location</span>
+                  <span className="text-sm sm:text-base">{projectDetails.location}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Team Size</span>
-                  <span>{projectDetails.people} members</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Team Size</span>
+                  <span className="text-sm sm:text-base">{projectDetails.people} members</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Progress</span>
-                  <span>{projectDetails.metrics.progress}</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Progress</span>
+                  <span className="text-sm sm:text-base">{projectDetails.metrics.progress}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Deadline</span>
-                  <span>{projectDetails.metrics.deadline}</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Deadline</span>
+                  <span className="text-sm sm:text-base">{projectDetails.metrics.deadline}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Budget</span>
-                  <span>{projectDetails.metrics.budget}</span>
+                  <span className="text-gray-400 text-sm sm:text-base">Budget</span>
+                  <span className="text-sm sm:text-base">{projectDetails.metrics.budget}</span>
                 </div>
               </div>
             </div>
@@ -206,29 +206,29 @@ const HomedetailsPage = () => {
 
       {/* Join Modal */}
       {showJoinModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#1A1A1A] rounded-4xl p-8 max-w-md w-full mx-4">
-            <h2 className="text-2xl font-semibold mb-4">Join Project</h2>
-            <p className="text-gray-400 mb-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8 max-w-md w-full">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4">Join Project</h2>
+            <p className="text-gray-400 text-sm sm:text-base mb-6">
               Please tell us why you want to join this project and what value you can bring to the team.
             </p>
             <textarea
               value={joinReason}
               onChange={(e) => setJoinReason(e.target.value)}
               placeholder="Share your motivation and relevant experience..."
-              className="w-full h-32 bg-[#2A2A2A] rounded-xl p-4 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-32 bg-[#2A2A2A] rounded-xl p-4 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
             <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setShowJoinModal(false)}
-                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
               >
                 Cancel
               </button>
               <button
                 onClick={handleJoin}
                 disabled={!joinReason.trim()}
-                className={`px-4 py-2 rounded-full ${
+                className={`px-4 py-2 rounded-full text-sm sm:text-base ${
                   joinReason.trim()
                     ? 'bg-blue-600 hover:bg-blue-700'
                     : 'bg-gray-600 cursor-not-allowed'

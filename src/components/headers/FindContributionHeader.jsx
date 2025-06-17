@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Search, ChevronDown, BriefcaseBusiness } from 'lucide-react'
+import { Search, ChevronDown, BriefcaseBusiness, Menu, X } from 'lucide-react'
 
 const FindContributionHeader = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [openDropdown, setOpenDropdown] = useState(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const userTypes = [
     'All User Types',
@@ -45,7 +46,7 @@ const FindContributionHeader = () => {
   const DropdownButton = ({ label, options, selected, onSelect, dropdownName }) => (
     <div className="relative dropdown-btn">
       <button
-        className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
         onClick={() => setOpenDropdown(openDropdown === dropdownName ? null : dropdownName)}
         type="button"
       >
@@ -71,19 +72,26 @@ const FindContributionHeader = () => {
   )
 
   return (
-    <div className="w-full flex justify-between items-end min-h-[130px] p-4">
-      <div>
+    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0">
+      <div className="flex items-center justify-between w-full sm:w-auto">
         <h1 className="text-2xl font-semibold">Find Contribution</h1>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
+        >
+          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
       </div>
-      <div className="flex gap-4">
-        <div className="relative">
+      
+      <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}>
+        <div className="relative w-full sm:w-auto">
           <div className="relative">
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search contributors..."
-              className="w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
+              className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
@@ -103,7 +111,7 @@ const FindContributionHeader = () => {
           dropdownName="availability"
         />
         <button
-          className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
         >
           <BriefcaseBusiness className="h-4 w-4" />
           <span>Position</span>
