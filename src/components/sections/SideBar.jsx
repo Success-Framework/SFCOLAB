@@ -1,6 +1,6 @@
-import { BriefcaseBusiness, CalendarCog, File, FileChartColumnIncreasing, Flag, HelpCircle, House, Menu, Settings, SquareChartGantt, User, UserPlus, Users, X } from 'lucide-react'
+import { BriefcaseBusiness, CalendarCog, File, FileChartColumnIncreasing, HelpCircle, House, Menu, Settings, SquareChartGantt, User, X } from 'lucide-react'
 import React, { useState } from 'react'
-import { href, Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 const SideBar = () => {
   const location = useLocation()
@@ -23,7 +23,6 @@ const SideBar = () => {
       icon: <FileChartColumnIncreasing />,
       href: '/ideation',
     },
-    
     {
       id: 4,
       icon: <BriefcaseBusiness />,
@@ -41,13 +40,17 @@ const SideBar = () => {
     },
     {
       id: 7,
-      icon:<User/>,
-      href:'/startup',
+      icon: <User />,
+      href: '/startup',
     }
   ]
 
+  // Helper to close sidebar on mobile when a link is clicked
+  const handleMobileLinkClick = () => {
+    setIsOpen(false)
+  }
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ onLinkClick }) => (
     <div className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'>
       <div className='flex flex-col gap-4 items-center'>
         {/* general links */}
@@ -61,6 +64,7 @@ const SideBar = () => {
                   ? 'bg-[#2A2A2A] text-white'
                   : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
               }`}
+              onClick={onLinkClick}
             >
               <div className="flex items-center justify-center">
                 {link.icon}
@@ -73,12 +77,13 @@ const SideBar = () => {
       {/* bottom links */}
       <div className='flex flex-col gap-2 items-center'>
         <Link 
-          to="/settings" 
+          to="/setting" 
           className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
             location.pathname === '/settings'
               ? 'bg-[#2A2A2A] text-white'
               : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
           }`}
+          onClick={onLinkClick}
         >
           <div className="flex items-center justify-center">
             <Settings size={20} />
@@ -91,6 +96,7 @@ const SideBar = () => {
               ? 'bg-[#2A2A2A] text-white'
               : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
           }`}
+          onClick={onLinkClick}
         >
           <div className="flex items-center justify-center">
             <HelpCircle size={20} />
@@ -104,7 +110,7 @@ const SideBar = () => {
     <>
       {/* Mobile Menu Button */}
       <button 
-        className="lg:hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+        className="lg:hidden fixed top-20 left-1  z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -121,7 +127,7 @@ const SideBar = () => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="w-[200px] h-full mx-auto">
-          <SidebarContent />
+          <SidebarContent onLinkClick={handleMobileLinkClick} />
         </div>
       </div>
 

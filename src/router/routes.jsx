@@ -20,6 +20,7 @@ import Knowledgedetails from "../components/detailspage/Knowledgedetails.jsx";
 import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
 import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
 import Help from "../components/pages/Help.jsx";
+import Chat from "../components/sections/Chat.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -109,6 +110,10 @@ export const router = createBrowserRouter([
             {
                 path:'/startup-details',
                 element:<StartUpdetails/>
+            },
+            {
+                path:'/messages',
+                element:<Chat/>
             }
         ]
     }

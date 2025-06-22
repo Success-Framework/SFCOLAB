@@ -1,10 +1,34 @@
 import { BellDot, SquareMenu } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { allimg } from '../../utils'
 
 const NavBar = () => {
     const [activeDropdown, setActiveDropdown] = useState(null)
+    const menuRef = useRef(null)
+    const notificationRef = useRef(null)
+    const profileRef = useRef(null)
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        if (!activeDropdown) return
+
+        const handleClickOutside = (event) => {
+            // Check which dropdown is open and if click is outside its ref
+            if (
+                (activeDropdown === 'menu' && menuRef.current && !menuRef.current.contains(event.target)) ||
+                (activeDropdown === 'notification' && notificationRef.current && !notificationRef.current.contains(event.target)) ||
+                (activeDropdown === 'profile' && profileRef.current && !profileRef.current.contains(event.target))
+            ) {
+                setActiveDropdown(null)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [activeDropdown])
 
     const handleDropdownClick = (dropdownName) => {
         setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName)
@@ -22,7 +46,7 @@ const NavBar = () => {
             {/* main content */}
             <div className='content items-center h-full flex gap-4'>
                 {/* messages dropdown */}
-                <div className='relative'>
+                <div className='relative' ref={menuRef}>
                     <button 
                         onClick={() => handleDropdownClick('menu')}
                         className='text-xl font-medium text-[#C4C4C4]'
@@ -30,15 +54,15 @@ const NavBar = () => {
                         <SquareMenu />
                     </button>
                     {activeDropdown === 'menu' && (
-                        <div className='absolute right-0 mt-2 w-48 bg-[#120C18] rounded-lg shadow-lg py-2 z-50'>
+                        <div className='absolute right-0 mt-2 w-48 bg-[black] rounded-lg shadow-lg py-2 z-50'>
                             <Link to="/messages" className='block px-4 py-2 text-white hover:bg-white/10'>Messages</Link>
-                            <Link to="/settings" className='block px-4 py-2 text-white hover:bg-white/10'>Settings</Link>
+                            <Link to="/setting" className='block px-4 py-2 text-white hover:bg-white/10'>Settings</Link>
                         </div>
                     )}
                 </div>
 
                 {/* notification dropdown */}
-                <div className='relative'>
+                <div className='relative' ref={notificationRef}>
                     <button 
                         onClick={() => handleDropdownClick('notification')}
                         className='text-xl font-medium text-[#C4C4C4]'
@@ -53,7 +77,7 @@ const NavBar = () => {
                 </div>
 
                 {/* profile dropdown */}
-                <div className='relative'>
+                <div className='relative' ref={profileRef}>
                     <button 
                         onClick={() => handleDropdownClick('profile')}
                         className='w-10 h-10 rounded-full overflow-hidden'
@@ -63,7 +87,7 @@ const NavBar = () => {
                     {activeDropdown === 'profile' && (
                         <div className='absolute right-0 mt-2 w-48 bg-[#120C18] rounded-lg shadow-lg py-2 z-50'>
                             <Link to="/profile" className='block px-4 py-2 text-white hover:bg-white/10'>Profile</Link>
-                            <Link to="/settings" className='block px-4 py-2 text-white hover:bg-white/10'>Settings</Link>
+                            <Link to="/setting" className='block px-4 py-2 text-white hover:bg-white/10'>Settings</Link>
                             <Link to="/logout" className='block px-4 py-2 text-white hover:bg-white/10'>Logout</Link>
                         </div>
                     )}
