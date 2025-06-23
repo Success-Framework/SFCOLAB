@@ -9,7 +9,7 @@ const Layout = () => {
     return (
         <div className="h-screen w-screen  bg-[#000000]">
             <div className='w-full h-[10%]'>
-                <NavBar />
+                <NavBar  />
             </div>
             {isChatPage ? (
                 <div className='w-full h-[90%]'>
