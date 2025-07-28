@@ -108,7 +108,8 @@ const Home = () => {
   return (
     <div className='min-h-screen bg-black'>
       <FilterHeader />
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
+      {/* <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'> */}
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-4'>
         {cardContent.map(content => (
           <Link 
             key={content.id} 
@@ -118,14 +119,14 @@ const Home = () => {
             <div className='w-full h-full p-2'>
               <div className='bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6'>
                 {/* header */}
-                <div className='flex w-full justify-between items-start'>
+                <div className='flex w-full justify-between items-center'>
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-700">
                       <img src={content.team[0].avatar} alt={content.team[0].name} className="h-full w-full object-cover" />
                     </div>
                     <h1 className='text-lg font-bold'>{content.header}</h1>
                   </div>
-                  <button className={`${getStageColor(content.stage)} text-sm px-2 py-1 font-medium rounded-full`}>
+                  <button className={`${getStageColor(content.stage)} text-xs max-sm:text-[10px] px-2 py-1 font-medium rounded-full`}>
                     {content.stage}
                   </button>
                 </div>
