@@ -1,6 +1,4 @@
-# SFCOLAB
-
-# Project Collaboration Guide
+# SFCOLAB - Project Collaboration Guide
 
 ## 📌 Branching Strategy & Workflow
 To maintain organized development, follow these rules:
