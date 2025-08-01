@@ -19,18 +19,18 @@ export default function Tasks() {
   }, [])
 
   const tasks = [
-    {
-      id: 1,
-      title: "User Research",
-      description: "Conduct a user research by conducting online survey and draft out questionnaires.",
-      status: "In Progress",
-      date: "Monday",
-      avatars: [
-        "/placeholder.svg?height=24&width=24",
-        "/placeholder.svg?height=24&width=24",
-        "/placeholder.svg?height=24&width=24",
-      ],
-    },
+  {
+    id: 1,
+    title: "User Research",
+    description: "Conduct a user research by conducting online survey and draft out questionnaires.",
+    status: "In Progress",
+    date: "Monday",
+    avatars: [
+      "/placeholder.svg?height=24&width=24",
+      "/placeholder.svg?height=24&width=24",
+      "/placeholder.svg?height=24&width=24",
+    ],
+  },
     {
       id: 2,
       title: "Design System",
@@ -43,24 +43,24 @@ export default function Tasks() {
         "/placeholder.svg?height=24&width=24",
       ],
     },
-    {
-      id: 3,
-      title: "Real Estate Landing Page",
-      description:
-        "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
-      status: "Completed",
-      date: "31/04/22",
-      avatars: [
-        "/placeholder.svg?height=24&width=24",
-        "/placeholder.svg?height=24&width=24",
-        "/placeholder.svg?height=24&width=24",
-      ],
-    },
+    // {
+    //   id: 3,
+    //   title: "Real Estate Landing Page",
+    //   description:
+    //     "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
+    //   status: "Completed",
+    //   date: "31/04/22",
+    //   avatars: [
+    //     "/placeholder.svg?height=24&width=24",
+    //     "/placeholder.svg?height=24&width=24",
+    //     "/placeholder.svg?height=24&width=24",
+    //   ],
+    // },
   ]
 
   const inProgressTasks = [
     {
-      id: 4,
+      id: 3,
       title: "UI/UX Design",
       description: "Create wireframes and mockups for the new dashboard interface",
       status: "In Progress",
@@ -71,7 +71,7 @@ export default function Tasks() {
       ],
     },
     {
-      id: 5,
+      id: 4,
       title: "Frontend Development",
       description: "Implement responsive design components using React",
       status: "In Progress",
@@ -86,7 +86,7 @@ export default function Tasks() {
 
   const completedTasks = [
     {
-      id: 6,
+      id: 5,
       title: "Project Setup",
       description: "Initialize project repository and set up development environment",
       status: "Completed",
@@ -97,7 +97,7 @@ export default function Tasks() {
       ],
     },
     {
-      id: 7,
+      id: 6,
       title: "API Integration",
       description: "Connect frontend with backend APIs and implement error handling",
       status: "Completed",
@@ -111,7 +111,7 @@ export default function Tasks() {
   ]
 
   const TaskCard = ({ task }) => (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[345px] min-h-[342px] flex-shrink-0">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[250px] min-h-[342px] flex-shrink-0">
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2">
           <div

@@ -3,7 +3,10 @@ import { ArrowLeft, Share2, BookmarkPlus, FileText, Calendar, User, Tag, Downloa
 import { Link } from 'react-router-dom'
 
 const Knowledgedetails = () => {
-  const [comment, setComment] = useState('')
+  const [comment, setComment] = useState('');
+  
+
+  
 
   const knowledgeDetails = {
     id: 1,

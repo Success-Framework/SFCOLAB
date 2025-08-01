@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Search, ChevronDown, BriefcaseBusiness, Menu, X } from 'lucide-react'
 
 const FindContributionHeader = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [openDropdown, setOpenDropdown] = useState(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSticky, setIsSticky] = useState(false)
+  const headerRef = useRef(null)
+  const lastScrollY = useRef(0)
 
   const userTypes = [
     'All User Types',
@@ -30,8 +33,29 @@ const FindContributionHeader = () => {
   const [selectedUserType, setSelectedUserType] = useState('All User Types')
   const [selectedAvailability, setSelectedAvailability] = useState('All Availability')
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      const scrollDifference = lastScrollY.current - currentScrollY
+
+      // Only show sticky header when scrolling up and past threshold
+      if (scrollDifference > 5 && currentScrollY > 100) {
+        setIsSticky(true)
+      } 
+      // Hide when scrolling down or at top of page
+      else if (scrollDifference < -5 || currentScrollY < 10) {
+        setIsSticky(false)
+      }
+
+      lastScrollY.current = currentScrollY
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   // Close dropdowns when clicking outside
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClick = (e) => {
       if (!e.target.closest('.dropdown-btn')) {
         setOpenDropdown(null)
@@ -51,9 +75,10 @@ const FindContributionHeader = () => {
         type="button"
       >
         {selected}
+        <ChevronDown className="h-4 w-4" />
       </button>
       {openDropdown === dropdownName && (
-        <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
+        <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] top-fixed rounded-lg shadow-lg py-2 z-50">
           {options.map((option, index) => (
             <button
               key={index}
@@ -72,52 +97,65 @@ const FindContributionHeader = () => {
   )
 
   return (
-    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0">
-      <div className="flex items-center justify-between w-full sm:w-auto">
-        <h1 className="text-2xl font-semibold">Find Contribution</h1>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
-        >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-      </div>
+    <>
+      {/* Hidden spacer to prevent layout shift */}
+      <div className={`h-[130px] ${isSticky ? 'block' : 'hidden'}`}></div>
       
-      <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}>
-        <div className="relative w-full sm:w-auto">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search contributors..."
-              className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
+      {/* Sticky header */}
+      <div 
+        ref={headerRef}
+        className={`w-full transition-all duration-300 ${isSticky ? 
+          'fixed top-0 left-0 right-0 z-50 bg-[#1A1A1A] shadow-lg' : 
+          'relative'}`}
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <h1 className="text-2xl font-semibold">Find Contribution</h1>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+          
+          <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}>
+            <div className="relative w-full sm:w-auto">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search contributors..."
+                  className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+            <DropdownButton
+              label="User Type"
+              options={userTypes}
+              selected={selectedUserType}
+              onSelect={setSelectedUserType}
+              dropdownName="userType"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <DropdownButton
+              label="Availability"
+              options={availabilityOptions}
+              selected={selectedAvailability}
+              onSelect={setSelectedAvailability}
+              dropdownName="availability"
+            />
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
+            >
+              <BriefcaseBusiness className="h-4 w-4" />
+              <span>Position</span>
+            </button>
           </div>
         </div>
-        <DropdownButton
-          label="User Type"
-          options={userTypes}
-          selected={selectedUserType}
-          onSelect={setSelectedUserType}
-          dropdownName="userType"
-        />
-        <DropdownButton
-          label="Availability"
-          options={availabilityOptions}
-          selected={selectedAvailability}
-          onSelect={setSelectedAvailability}
-          dropdownName="availability"
-        />
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
-        >
-          <BriefcaseBusiness className="h-4 w-4" />
-          <span>Position</span>
-        </button>
       </div>
-    </div>
+    </>
   )
 }
 
