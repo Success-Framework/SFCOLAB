@@ -1,5 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import { Phone, Send, Search, MoreVertical, File, X , Download } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Phone,
+  Send,
+  Search,
+  MoreVertical,
+  File,
+  X,
+  Download,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
 import io from "socket.io-client";
 
 // Default contacts data
@@ -61,7 +72,7 @@ const defaultContacts = [
 ];
 
 export default function Chat() {
-  // State management
+  // States
   const [contacts, setContacts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
@@ -73,6 +84,11 @@ export default function Chat() {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState("disconnected");
   const [unsentMessages, setUnsentMessages] = useState([]);
+  const [contactSearch, setContactSearch] = useState("");
+  const [isInputVisible, setIsInputVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [searchResults, setSearchResults] = useState([]);
 
   // Refs
   const fileInputRef = useRef(null);
@@ -81,7 +97,29 @@ export default function Chat() {
   // Configuration
   const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
 
-  // Get user ID from URL or default
+  // Toggle search input
+  const toggleInput = () => {
+    setIsInputVisible(!isInputVisible);
+    if (!isInputVisible) {
+      setSearchQuery("");
+      setCurrentMatchIndex(0);
+      setSearchResults([]);
+    }
+  };
+
+  // Scroll to specific message
+  const scrollToMessage = (messageId) => {
+    const element = document.getElementById(`message-${messageId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('bg-gray-700', 'bg-opacity-200');
+      setTimeout(() => {
+        element.classList.remove('bg-gray-700', 'bg-opacity-200');
+      }, 2000);
+    }
+  };
+
+  // Get user ID from URL or default (demo to update pending changes in the backend)
   const getSessionUserKey = () => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get("testUserId") || "1";
@@ -263,7 +301,6 @@ export default function Chat() {
     socket.on("reconnect_attempt", onReconnectAttempt);
     socket.on("reconnect_failed", onReconnectFailed);
     socket.on("newMessage", handleIncomingMessage);
-    // socket.on("messageDelivered", handleIncomingMessage);
 
     return () => {
       // Clean up event listeners
@@ -273,7 +310,6 @@ export default function Chat() {
       socket.off("reconnect_attempt", onReconnectAttempt);
       socket.off("reconnect_failed", onReconnectFailed);
       socket.off("newMessage", handleIncomingMessage);
-      // socket.off("messageDelivered", handleIncomingMessage);
     };
   }, [socket, currentUserId, selectedContact?.id]);
 
@@ -282,9 +318,31 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Update search results when search query changes
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const results = messages
+        .filter(
+          (msg) =>
+            (msg.senderId === selectedContact?.id &&
+              msg.recipientId === currentUserId) ||
+            (msg.senderId === currentUserId &&
+              msg.recipientId === selectedContact?.id)
+        )
+        .filter((msg) => 
+          msg.content?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((msg) => msg.id);
+      
+      setSearchResults(results);
+      setCurrentMatchIndex(0);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery, messages, selectedContact, currentUserId]);
+
   // Send message function
   const sendMessage = async () => {
-    // Add async here
     if (!currentUserId || !selectedContact) {
       console.error("Cannot send message - missing user or contact");
       return;
@@ -373,7 +431,8 @@ export default function Chat() {
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
-  // This is for the download of files
+
+  // Handle file download
   const handleDownload = (file) => {
     if (!file.data) return;
 
@@ -391,6 +450,7 @@ export default function Chat() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
   // Render connection status badge
   const renderConnectionStatus = () => {
     const statusColors = {
@@ -480,6 +540,8 @@ export default function Chat() {
           <div className="relative">
             <input
               type="text"
+              value={contactSearch}
+              onChange={(e) => setContactSearch(e.target.value.toLowerCase())}
               placeholder="Search messages"
               className="w-full px-3 py-2 bg-[#181818] border-[#2d2d2d] border rounded-lg text-white placeholder-gray-400"
             />
@@ -490,7 +552,12 @@ export default function Chat() {
         {/* Contacts List */}
         <div className="overflow-y-auto flex-1">
           {contacts
-            .filter((c) => c.id !== currentUserId)
+            .filter(
+              (c) =>
+                c.id !== currentUserId &&
+                (contactSearch === "" ||
+                  c.name.toLowerCase().includes(contactSearch))
+            )
             .map((contact) => (
               <div
                 key={contact.id}
@@ -553,10 +620,72 @@ export default function Chat() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              
-              <button className="text-gray-400  px-3 py-1.5 sm:px-4 sm:py-2 hover:text-white flex items-center text-xs sm:text-sm rounded">
-                <Search className="w-4 h-4 mr-1" />{" "}
+              <AnimatePresence>
+                {isInputVisible && (
+                  <motion.div
+                    key="search-input"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center"
+                  >
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        const query = e.target.value;
+                        setSearchQuery(query);
+                      }}
+                      className="pl-4 py-1 rounded-3xl bg-gray-800 text-white"
+                      placeholder="Search message..."
+                      autoFocus
+                    />
+                    
+                    {searchResults.length > 0 && (
+                      <div className="ml-2 text-xs text-gray-400">
+                        {currentMatchIndex + 1}/{searchResults.length}
+                      </div>
+                    )}
+                    
+                    {searchResults.length > 0 && (
+                      <div className="flex ml-2">
+                        <button
+                          onClick={() => {
+                            const newIndex = (currentMatchIndex - 1 + searchResults.length) % searchResults.length;
+                            setCurrentMatchIndex(newIndex);
+                            scrollToMessage(searchResults[newIndex]);
+                          }}
+                          className="p-1 text-gray-400 hover:text-white"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            const newIndex = (currentMatchIndex + 1) % searchResults.length;
+                            setCurrentMatchIndex(newIndex);
+                            scrollToMessage(searchResults[newIndex]);
+                          }}
+                          className="p-1 text-gray-400 hover:text-white"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <button
+                onClick={toggleInput}
+                className="text-gray-400  px-3 py-1.5 sm:px-4 sm:py-2 hover:text-white flex items-center text-xs sm:text-sm rounded"
+              >
+                {isInputVisible ? (
+                  <X className="w-4 h-4 mr-1" />
+                ) : (
+                  <Search className="w-4 h-4 mr-1" />
+                )}
               </button>
+
               <button className="text-gray-400 bg-zinc-700 px-3 py-1.5 sm:px-4 sm:py-2 hover:text-white flex items-center text-xs sm:text-sm rounded">
                 <Phone className="w-4 h-4 mr-1" />{" "}
                 <span className="hidden xs:inline">Call</span>
@@ -584,8 +713,11 @@ export default function Chat() {
 
               return (
                 <div
+                  id={`message-${message.id}`}
                   key={message.id}
-                  className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                  className={`flex ${isOwn ? "justify-end" : "justify-start"} ${
+                    searchResults.includes(message.id) 
+                  }`}
                 >
                   <div className="flex items-start space-x-2 max-w-[80vw] sm:max-w-xs md:max-w-md">
                     {!isOwn && (
@@ -622,17 +754,30 @@ export default function Chat() {
                       {message.file && (
                         <div className="mb-1 bg-gray-200 text-black p-2 rounded">
                           <div className="text-xs text-gray-600">
-                             {message.file.name}
+                            {message.file.name}
                           </div>
                           <button
                             onClick={() => handleDownload(message.file)}
                             className="mt-1 text-xs bg-gray-200 text-white px-2 py-1 rounded"
                           >
-                            <Download className="mr-4 text-black text-xs mt-2 hover:text-gray-400"/>
+                            <Download className="mr-4 text-black text-xs mt-2 hover:text-gray-400" />
                           </button>
                         </div>
                       )}
-                      <p className="text-xs sm:text-sm">{message.content}</p>
+                      <p className="text-xs sm:text-sm">
+                        {message.content && searchQuery ? (
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: message.content.replace(
+                                new RegExp(searchQuery, 'gi'),
+                                (match) => `<span class="bg-yellow-300 text-black">${match}</span>`
+                              )
+                            }}
+                          />
+                        ) : (
+                          message.content
+                        )}
+                      </p>
                       <div className="text-right text-xs text-gray-400 mt-1">
                         {new Date(message.timestamp).toLocaleTimeString([], {
                           hour: "2-digit",
