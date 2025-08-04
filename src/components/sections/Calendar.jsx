@@ -117,7 +117,7 @@ export default function Calendar() {
           ))}
         </div>
       </div>
-      <TaskProgress/>
+      {/* <TaskProgress/> */}
     </div>
   )
 } 

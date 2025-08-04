@@ -37,15 +37,15 @@ export default function WorldClock() {
   return (
     <div className="h-full">
       <h2 className="text-xl font-semibold mb-4">World Clock</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-2">
         {TIME_ZONES.map(({ city, offset, utc }) => {
           const time = getTimeForTimezone(offset)
           const isDay = time.getHours() >= 6 && time.getHours() < 18
           const { timePart, period } = formatTime(time)
 
           return (
-            <div key={city} className="bg-zinc-800 min-h-[180px] min-w-[190px] rounded-lg">
-              <div className='flex flex-col justify-between h-full w-full p-4'>
+            <div key={city} className="bg-zinc-800 min-h-[150px] min-w-[150px] rounded-lg">
+              <div className='flex flex-col justify-between h-full w-full p-2'>
                 <div className="flex items-center w-full justify-between">
                   <span className="font-medium">{city}</span>
                   <div className="text-sm text-gray-400">{utc}</div>
@@ -60,7 +60,7 @@ export default function WorldClock() {
                     )}
                   </div>
                   <div className="flex items-baseline gap-2 ">
-                    <span className="text-4xl font-bold">{timePart}</span>
+                    <span className="text-3xl font-bold">{timePart}</span>
                     <span className="text-xl font-bold">{period}</span>
                   </div>
                 </div>
