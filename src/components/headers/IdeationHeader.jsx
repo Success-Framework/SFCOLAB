@@ -1,61 +1,89 @@
-import React, { useState } from 'react'
-import { ChevronDown, MapPin, Filter, Building2, Search, Plus, X, Menu } from 'lucide-react'
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  MapPin,
+  Filter,
+  Building2,
+  Search,
+  Plus,
+  X,
+  Menu,
+} from "lucide-react";
 
-const IdeationHeader = () => {
-  const [activeDropdown, setActiveDropdown] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showNewIdeaForm, setShowNewIdeaForm] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+const IdeationHeader = ({
+  searchQuery,
+  setSearchQuery,
+  selectedStage,
+  setSelectedStage,
+  selectedIndustry,
+  setSelectedIndustry,
+}) => {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showNewIdeaForm, setShowNewIdeaForm] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    industry: '',
-    stage: ''
-  })
+    title: "",
+    description: "",
+    industry: "",
+    stage: "",
+  });
 
   const stages = [
+    "All Stages",
     "Idea Stage",
+    "Concept Stage",
+    "Development Stage",
+    "Research Stage",
     "MVP Stage",
     "Growth Stage",
-    "Scale Stage"
-  ]
+    "Scale Stage",
+  ];
 
   const industries = [
+    "All Industries",
     "Technology",
     "Healthcare",
     "Finance",
     "Education",
     "Retail",
-    "Manufacturing"
-  ]
+    "Manufacturing",
+    "Sustainability",
+  ];
 
   const toggleDropdown = (dropdownName) => {
-    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName)
-  }
+    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+  };
 
   const handleFormSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle form submission here
-    console.log('Form submitted:', formData)
-    setShowNewIdeaForm(false)
+    console.log("Form submitted:", formData);
+    setShowNewIdeaForm(false);
     setFormData({
-      title: '',
-      description: '',
-      industry: '',
-      stage: ''
-    })
-  }
+      title: "",
+      description: "",
+      industry: "",
+      stage: "",
+    });
+  };
 
-  const FilterButton = ({ icon, label, dropdownName, options }) => (
+  const FilterButton = ({
+    icon,
+    label,
+    dropdownName,
+    options,
+    selected,
+    onSelect,
+  }) => (
     <div className="relative">
       <button
         onClick={() => toggleDropdown(dropdownName)}
         className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
       >
         {icon}
-        <span>{label}</span>
+        <span>{selected || label}</span>
       </button>
-      
+
       {activeDropdown === dropdownName && (
         <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
           {options.map((option, index) => (
@@ -63,7 +91,8 @@ const IdeationHeader = () => {
               key={index}
               className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10"
               onClick={() => {
-                setActiveDropdown(null)
+                onSelect(option);
+                setActiveDropdown(null);
               }}
             >
               {option}
@@ -72,7 +101,7 @@ const IdeationHeader = () => {
         </div>
       )}
     </div>
-  )
+  );
 
   const SearchBar = () => (
     <div className="relative w-full sm:w-auto">
@@ -86,15 +115,8 @@ const IdeationHeader = () => {
         />
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
       </div>
-      {searchQuery && (
-        <div className="absolute top-full left-0 mt-2 w-full bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
-          <div className="px-4 py-2 text-sm text-gray-400">
-            No results found
-          </div>
-        </div>
-      )}
     </div>
-  )
+  );
 
   const NewIdeaForm = () => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -110,50 +132,74 @@ const IdeationHeader = () => {
         </div>
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-400 mb-1">
+              Title
+            </label>
             <input
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               className="w-full px-4 py-2 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-400 mb-1">
+              Description
+            </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               className="w-full px-4 py-2 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white h-32 resize-none"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Industry</label>
+            <label className="block text-sm font-medium text-gray-400 mb-1">
+              Industry
+            </label>
             <select
               value={formData.industry}
-              onChange={(e) => setFormData({...formData, industry: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, industry: e.target.value })
+              }
               className="w-full px-4 py-2 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white"
               required
             >
               <option value="">Select Industry</option>
-              {industries.map((industry, index) => (
-                <option key={index} value={industry}>{industry}</option>
-              ))}
+              {industries
+                .filter((industry) => industry !== "All Industries")
+                .map((industry, index) => (
+                  <option key={index} value={industry}>
+                    {industry}
+                  </option>
+                ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Stage</label>
+            <label className="block text-sm font-medium text-gray-400 mb-1">
+              Stage
+            </label>
             <select
               value={formData.stage}
-              onChange={(e) => setFormData({...formData, stage: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, stage: e.target.value })
+              }
               className="w-full px-4 py-2 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white"
               required
             >
               <option value="">Select Stage</option>
-              {stages.map((stage, index) => (
-                <option key={index} value={stage}>{stage}</option>
-              ))}
+              {stages
+                .filter((stage) => stage !== "All Stages")
+                .map((stage, index) => (
+                  <option key={index} value={stage}>
+                    {stage}
+                  </option>
+                ))}
             </select>
           </div>
           <div className="flex justify-end gap-4">
@@ -174,7 +220,7 @@ const IdeationHeader = () => {
         </form>
       </div>
     </div>
-  )
+  );
 
   return (
     <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0">
@@ -184,17 +230,35 @@ const IdeationHeader = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
-      
-      <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}>
+
+      <div
+        className={`${
+          isMobileMenuOpen ? "flex" : "hidden"
+        } sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}
+      >
         <SearchBar />
         <FilterButton
           icon={<Filter className="h-4 w-4" />}
           label="Filter by stages"
           dropdownName="stages"
           options={stages}
+          selected={selectedStage}
+          onSelect={setSelectedStage}
+        />
+        <FilterButton
+          icon={<Building2 className="h-4 w-4" />}
+          label="Filter by industry"
+          dropdownName="industries"
+          options={industries}
+          selected={selectedIndustry}
+          onSelect={setSelectedIndustry}
         />
         <button
           onClick={() => setShowNewIdeaForm(true)}
@@ -206,7 +270,7 @@ const IdeationHeader = () => {
       </div>
       {showNewIdeaForm && <NewIdeaForm />}
     </div>
-  )
-}
+  );
+};
 
-export default IdeationHeader 
+export default IdeationHeader;
