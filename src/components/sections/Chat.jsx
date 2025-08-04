@@ -10,6 +10,7 @@ import {
   Download,
   ChevronUp,
   ChevronDown,
+  Mic,
 } from "lucide-react";
 import io from "socket.io-client";
 
@@ -21,8 +22,9 @@ const defaultContacts = [
     avatar:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnN8ZW58MHx8MHx8fDA%3D",
     status: "online",
-    isOnline: true,
+    isOnline: false,
     lastMessage: "",
+    unreadCount: 0,
   },
   {
     id: "2",
@@ -30,8 +32,9 @@ const defaultContacts = [
     avatar:
       "https://images.unsplash.com/photo-1672863601285-253fc82db868?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHVzZXJzfGVufDB8fDB8fHww",
     status: "online",
-    isOnline: true,
+    isOnline: false,
     lastMessage: "",
+    unreadCount: 0,
   },
   {
     id: "3",
@@ -39,8 +42,9 @@ const defaultContacts = [
     avatar:
       "https://images.unsplash.com/photo-1685903772095-f07172808761?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHVzZXJzfGVufDB8fDB8fHww",
     status: "online",
-    isOnline: true,
+    isOnline: false,
     lastMessage: "",
+    unreadCount: 0,
   },
   {
     id: "4",
@@ -50,6 +54,7 @@ const defaultContacts = [
     status: "online",
     isOnline: false,
     lastMessage: "",
+    unreadCount: 0,
   },
   {
     id: "5",
@@ -57,8 +62,9 @@ const defaultContacts = [
     avatar:
       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=580&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     status: "online",
-    isOnline: true,
+    isOnline: false,
     lastMessage: "",
+    unreadCount: 0,
   },
   {
     id: "6",
@@ -68,6 +74,7 @@ const defaultContacts = [
     status: "online",
     isOnline: false,
     lastMessage: "",
+    unreadCount: 0,
   },
 ];
 
@@ -89,6 +96,8 @@ export default function Chat() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [searchResults, setSearchResults] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [unreadCounts, setUnreadCounts] = useState({});
 
   // Refs
   const fileInputRef = useRef(null);
@@ -111,18 +120,27 @@ export default function Chat() {
   const scrollToMessage = (messageId) => {
     const element = document.getElementById(`message-${messageId}`);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      element.classList.add('bg-gray-700', 'bg-opacity-200');
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      element.classList.add("bg-gray-700", "bg-opacity-200");
       setTimeout(() => {
-        element.classList.remove('bg-gray-700', 'bg-opacity-200');
+        element.classList.remove("bg-gray-700", "bg-opacity-200");
       }, 2000);
     }
   };
 
-  // Get user ID from URL or default (demo to update pending changes in the backend)
+  // Get user ID from URL or default
   const getSessionUserKey = () => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get("testUserId") || "1";
+  };
+
+  // Update contact online status based on onlineUsers Set
+  const updateContactsWithOnlineStatus = (contacts) => {
+    return contacts.map((contact) => ({
+      ...contact,
+      isOnline: onlineUsers.has(contact.id),
+      status: onlineUsers.has(contact.id) ? "online" : "offline",
+    }));
   };
 
   // Initialize application
@@ -135,13 +153,15 @@ export default function Chat() {
       const savedContacts = localStorage.getItem("chatContacts");
       const savedMessages = localStorage.getItem("chatMessages");
 
+      let initialContacts = defaultContacts;
       if (savedContacts) {
-        const parsedContacts = JSON.parse(savedContacts);
-        setContacts(parsedContacts);
-        setSelectedContact(parsedContacts[1] || parsedContacts[0]);
-      } else {
-        setContacts(defaultContacts);
-        setSelectedContact(defaultContacts[1] || defaultContacts[0]);
+        initialContacts = JSON.parse(savedContacts);
+      }
+
+      setContacts(updateContactsWithOnlineStatus(initialContacts));
+      setSelectedContact(initialContacts[1] || initialContacts[0]);
+
+      if (!savedContacts) {
         localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
       }
 
@@ -183,20 +203,30 @@ export default function Chat() {
       for (const message of unsentMessages) {
         try {
           await new Promise((resolve) => {
-            socket.emit("sendMessage", message, (response) => {
-              if (response?.status === "success") {
-                successfulMessages.push(message.tempId);
-                updateMessageStatus(
-                  message.tempId,
-                  "delivered",
-                  response.message
-                );
-              } else {
-                failedMessages.push(message.tempId);
-                updateMessageStatus(message.tempId, "failed");
+            socket.emit(
+              "sendMessage",
+              {
+                recipientId: message.recipientId,
+                content: message.content,
+                file: message.file,
+                senderName: "You",
+                tempId: message.tempId,
+              },
+              (response) => {
+                if (response?.status === "success") {
+                  successfulMessages.push(message.tempId);
+                  updateMessageStatus(
+                    message.tempId,
+                    "delivered",
+                    response.message
+                  );
+                } else {
+                  failedMessages.push(message.tempId);
+                  updateMessageStatus(message.tempId, "failed");
+                }
+                resolve();
               }
-              resolve();
-            });
+            );
           });
         } catch (err) {
           console.error("Error sending queued message:", err);
@@ -204,7 +234,6 @@ export default function Chat() {
         }
       }
 
-      // Remove successfully sent messages from queue
       setUnsentMessages((prev) =>
         prev.filter((msg) => !successfulMessages.includes(msg.tempId))
       );
@@ -229,6 +258,74 @@ export default function Chat() {
       return updatedMessages;
     });
   };
+
+  // Calculate unread counts for each contact
+  const calculateUnreadCounts = () => {
+    const counts = {};
+
+    messages.forEach((message) => {
+      if (
+        message.recipientId === currentUserId &&
+        !message.isRead &&
+        message.senderId !== currentUserId
+      ) {
+        counts[message.senderId] = (counts[message.senderId] || 0) + 1;
+      }
+    });
+
+    return counts;
+  };
+
+  // Update unread counts when messages or selected contact changes
+  useEffect(() => {
+    const newUnreadCounts = calculateUnreadCounts();
+    setUnreadCounts(newUnreadCounts);
+
+    // Update contacts with unread counts
+    setContacts((prevContacts) =>
+      prevContacts.map((contact) => ({
+        ...contact,
+        unreadCount: newUnreadCounts[contact.id] || 0,
+      }))
+    );
+  }, [messages, currentUserId]);
+
+  // Mark messages as read when a contact is selected
+  useEffect(() => {
+    if (!selectedContact || !socket || !currentUserId) return;
+
+    // Find unread messages from this contact
+    const unreadMessageIds = messages
+      .filter(
+        (msg) =>
+          msg.senderId === selectedContact.id &&
+          msg.recipientId === currentUserId &&
+          !msg.isRead
+      )
+      .map((msg) => msg.id);
+
+    if (unreadMessageIds.length > 0) {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          unreadMessageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
+        )
+      );
+
+      // Notify server
+      socket.emit("markAsRead", unreadMessageIds, (response) => {
+        if (response?.status !== "success") {
+          console.error("Failed to mark messages as read on server");
+          setMessages((prevMessages) =>
+            prevMessages.map((msg) =>
+              unreadMessageIds.includes(msg.id)
+                ? { ...msg, isRead: false }
+                : msg
+            )
+          );
+        }
+      });
+    }
+  }, [selectedContact, messages, socket, currentUserId]);
 
   // Socket event handlers
   useEffect(() => {
@@ -263,7 +360,6 @@ export default function Chat() {
     };
 
     const handleIncomingMessage = (message) => {
-      // Check if this is a duplicate message
       setMessages((prevMessages) => {
         if (prevMessages.some((m) => m.id === message.id)) return prevMessages;
 
@@ -275,7 +371,6 @@ export default function Chat() {
         return updatedMessages;
       });
 
-      // Update last message in contacts if this is a new message
       if (!message.isOwn) {
         setContacts((prevContacts) => {
           const updatedContacts = prevContacts.map((contact) => {
@@ -295,23 +390,70 @@ export default function Chat() {
       }
     };
 
+    const handleInitialOnlineStatus = (onlineUserIds) => {
+      console.log("Initial online users:", onlineUserIds);
+      setOnlineUsers(new Set(onlineUserIds));
+    };
+
+    const handleUserOnline = (userId) => {
+      console.log(`User ${userId} is online`);
+      setOnlineUsers((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(userId);
+        return newSet;
+      });
+    };
+
+    const handleUserOffline = (userId) => {
+      console.log(`User ${userId} is offline`);
+      setOnlineUsers((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    };
+
+    const handleUnreadCountUpdate = ({ count }) => {
+      console.log(`Unread count updated: ${count}`);
+    };
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("connect_error", onConnectError);
     socket.on("reconnect_attempt", onReconnectAttempt);
     socket.on("reconnect_failed", onReconnectFailed);
     socket.on("newMessage", handleIncomingMessage);
+    socket.on("initialOnlineStatus", handleInitialOnlineStatus);
+    socket.on("userOnline", handleUserOnline);
+    socket.on("userOffline", handleUserOffline);
+    socket.on("unreadCountUpdate", handleUnreadCountUpdate);
 
     return () => {
-      // Clean up event listeners
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("connect_error", onConnectError);
       socket.off("reconnect_attempt", onReconnectAttempt);
       socket.off("reconnect_failed", onReconnectFailed);
       socket.off("newMessage", handleIncomingMessage);
+      socket.off("initialOnlineStatus", handleInitialOnlineStatus);
+      socket.off("userOnline", handleUserOnline);
+      socket.off("userOffline", handleUserOffline);
+      socket.off("unreadCountUpdate", handleUnreadCountUpdate);
     };
-  }, [socket, currentUserId, selectedContact?.id]);
+  }, [socket, currentUserId]);
+
+  // Update contacts when onlineUsers changes
+  useEffect(() => {
+    setContacts((prevContacts) => updateContactsWithOnlineStatus(prevContacts));
+
+    if (selectedContact) {
+      setSelectedContact((prev) => ({
+        ...prev,
+        isOnline: onlineUsers.has(prev.id),
+        status: onlineUsers.has(prev.id) ? "online" : "offline",
+      }));
+    }
+  }, [onlineUsers]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -329,11 +471,11 @@ export default function Chat() {
             (msg.senderId === currentUserId &&
               msg.recipientId === selectedContact?.id)
         )
-        .filter((msg) => 
+        .filter((msg) =>
           msg.content?.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .map((msg) => msg.id);
-      
+
       setSearchResults(results);
       setCurrentMatchIndex(0);
     } else {
@@ -360,7 +502,7 @@ export default function Chat() {
           name: selectedFile.name,
           type: selectedFile.type,
           size: selectedFile.size,
-          data: Array.from(new Uint8Array(fileBuffer)), // Convert to byte array
+          data: Array.from(new Uint8Array(fileBuffer)),
         };
       } catch (err) {
         console.error("Error reading file:", err);
@@ -378,27 +520,27 @@ export default function Chat() {
       timestamp: new Date().toISOString(),
       isOwn: true,
       status: "sending",
+      isRead: false,
     };
 
-    // Optimistic UI update with temporary ID
     setMessages((prev) => [...prev, message]);
 
     if (isConnected && socket) {
       socket.emit(
         "sendMessage",
         {
-          ...message,
-          id: undefined,
+          recipientId: selectedContact.id,
+          content: newMessage,
+          file: fileData,
+          senderName: "You",
           tempId,
         },
         (response) => {
           if (response?.status === "success") {
-            // Replace the temporary message with the server-verified one
             setMessages((prev) =>
               prev.map((m) => (m.id === tempId ? response.message : m))
             );
 
-            // Update localStorage
             const savedMessages = JSON.parse(
               localStorage.getItem("chatMessages") || "[]"
             );
@@ -410,7 +552,6 @@ export default function Chat() {
               JSON.stringify(updatedMessages)
             );
           } else {
-            // Mark as failed
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === tempId ? { ...m, status: "failed" } : m
@@ -420,7 +561,6 @@ export default function Chat() {
         }
       );
     } else {
-      // Queue message for later sending
       setUnsentMessages((prev) => [...prev, { ...message, tempId }]);
       setMessages((prev) =>
         prev.map((m) => (m.id === tempId ? { ...m, status: "queued" } : m))
@@ -436,11 +576,9 @@ export default function Chat() {
   const handleDownload = (file) => {
     if (!file.data) return;
 
-    // Convert byte array back to Blob
     const byteArray = new Uint8Array(file.data);
     const blob = new Blob([byteArray], { type: file.type });
 
-    // Create download link
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -451,34 +589,31 @@ export default function Chat() {
     URL.revokeObjectURL(url);
   };
 
-  // Render connection status badge
-  const renderConnectionStatus = () => {
-    const statusColors = {
-      connected: "bg-green-500",
-      disconnected: "bg-red-500",
-      reconnecting: "bg-yellow-500",
-      error: "bg-red-700",
-      failed: "bg-red-900",
-    };
+  // Test to check for connection of websocket
+  // const renderConnectionStatus = () => {
+  //   const statusColors = {
+  //     connected: "bg-green-500",
+  //     disconnected: "bg-red-500",
+  //     reconnecting: "bg-yellow-500",
+  //     error: "bg-red-700",
+  //     failed: "bg-red-900",
+  //   };
 
-    return (
-      <div className="fixed bottom-4 right-4 flex items-center z-50">
-        <div
-          className={`w-3 h-3 rounded-full mr-2 ${statusColors[connectionStatus]}`}
-        ></div>
-        <span className="text-xs capitalize">
-          {connectionStatus}
-          {unsentMessages.length > 0 && ` (${unsentMessages.length} queued)`}
-        </span>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="fixed bottom-4 right-4 flex items-center z-50">
+  //       <div
+  //         className={`w-3 h-3 rounded-full mr-2 ${statusColors[connectionStatus]}`}
+  //       ></div>
+  //       <span className="text-xs capitalize">
+  //         {connectionStatus}
+  //         {unsentMessages.length > 0 && ` (${unsentMessages.length} queued)`}
+  //       </span>
+  //     </div>
+  //   );
+  // };
 
   return (
     <div className="flex flex-col h-screen bg-[#181818] text-white md:flex-row">
-      {/* Connection status indicator */}
-      {renderConnectionStatus()}
-
       {/* Mobile Topbar */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#000] border-b border-[#222]">
         <button
@@ -533,9 +668,7 @@ export default function Chat() {
         <div className="p-4 pt-0 md:pt-4">
           <div className="hidden md:flex gap-4 items-center mb-4">
             <h1 className="text-xl font-semibold">Messages</h1>
-            <div className="text-sm bg-[#181818] px-2 py-1 rounded">
-              {contacts.length}
-            </div>
+            <div className="text-sm bg-[#181818] px-2 py-1 rounded"></div>
           </div>
           <div className="relative">
             <input
@@ -581,13 +714,28 @@ export default function Chat() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                    <p
+                      className={`text-sm font-medium truncate ${
+                        contact.unreadCount > 0 ? "font-bold" : ""
+                      }`}
+                    >
                       {contact.name}
                     </p>
-                    <p className="text-sm text-gray-400 truncate">
+                    <p
+                      className={`text-sm truncate ${
+                        contact.unreadCount > 0
+                          ? "text-white font-semibold"
+                          : "text-gray-400"
+                      }`}
+                    >
                       {contact.lastMessage}
                     </p>
                   </div>
+                  {contact.unreadCount > 0 && (
+                    <div className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                      {contact.unreadCount}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -614,8 +762,14 @@ export default function Chat() {
                 <h2 className="font-semibold text-base sm:text-lg">
                   {selectedContact.name}
                 </h2>
-                <p className="text-xs sm:text-sm text-green-400">
-                  {selectedContact.status}
+                <p
+                  className={`text-xs sm:text-sm ${
+                    selectedContact.isOnline
+                      ? "text-green-400"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {selectedContact.isOnline ? "online" : "offline"}
                 </p>
               </div>
             </div>
@@ -641,18 +795,20 @@ export default function Chat() {
                       placeholder="Search message..."
                       autoFocus
                     />
-                    
+
                     {searchResults.length > 0 && (
                       <div className="ml-2 text-xs text-gray-400">
                         {currentMatchIndex + 1}/{searchResults.length}
                       </div>
                     )}
-                    
+
                     {searchResults.length > 0 && (
                       <div className="flex ml-2">
                         <button
                           onClick={() => {
-                            const newIndex = (currentMatchIndex - 1 + searchResults.length) % searchResults.length;
+                            const newIndex =
+                              (currentMatchIndex - 1 + searchResults.length) %
+                              searchResults.length;
                             setCurrentMatchIndex(newIndex);
                             scrollToMessage(searchResults[newIndex]);
                           }}
@@ -662,7 +818,8 @@ export default function Chat() {
                         </button>
                         <button
                           onClick={() => {
-                            const newIndex = (currentMatchIndex + 1) % searchResults.length;
+                            const newIndex =
+                              (currentMatchIndex + 1) % searchResults.length;
                             setCurrentMatchIndex(newIndex);
                             scrollToMessage(searchResults[newIndex]);
                           }}
@@ -715,9 +872,9 @@ export default function Chat() {
                 <div
                   id={`message-${message.id}`}
                   key={message.id}
-                  className={`flex ${isOwn ? "justify-end" : "justify-start"} ${
-                    searchResults.includes(message.id) 
-                  }`}
+                  className={`flex ${
+                    isOwn ? "justify-end" : "justify-start"
+                  } ${searchResults.includes(message.id)}`}
                 >
                   <div className="flex items-start space-x-2 max-w-[80vw] sm:max-w-xs md:max-w-md">
                     {!isOwn && (
@@ -769,9 +926,10 @@ export default function Chat() {
                           <span
                             dangerouslySetInnerHTML={{
                               __html: message.content.replace(
-                                new RegExp(searchQuery, 'gi'),
-                                (match) => `<span class="bg-yellow-300 text-black">${match}</span>`
-                              )
+                                new RegExp(searchQuery, "gi"),
+                                (match) =>
+                                  `<span class="bg-yellow-300 text-black">${match}</span>`
+                              ),
                             }}
                           />
                         ) : (
@@ -791,7 +949,6 @@ export default function Chat() {
             })}
           <div ref={messagesEndRef} />
         </div>
-
         {/* Message Input */}
         <div className="p-2 sm:p-4 bg-[#181818]">
           <div className="flex items-center space-x-2">
@@ -888,7 +1045,11 @@ export default function Chat() {
                 }`}
                 style={{ lineHeight: 0 }}
               >
-                <Send className="w-4 h-4" />
+                {newMessage.trim() || selectedFile ? (
+                  <Send className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
