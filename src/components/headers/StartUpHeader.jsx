@@ -1,66 +1,79 @@
-import React, { useState } from 'react'
-import { Search, Building2, MapPin, Filter, Menu, X } from 'lucide-react'
+import React, { useState } from "react";
+import { Search, Building2, MapPin, Filter, Menu, X } from "lucide-react";
 
-const StartUpHeader = () => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [openDropdown, setOpenDropdown] = useState(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+const StartUpHeader = ({
+  searchQuery,
+  setSearchQuery,
+  selectedIndustry,
+  setSelectedIndustry,
+  selectedStage,
+  setSelectedStage,
+  selectedLocation,
+  setSelectedLocation,
+}) => {
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const industries = [
-    'All Industries',
-    'Technology',
-    'Healthcare',
-    'Finance',
-    'Education',
-    'Retail',
-    'Manufacturing',
-    'Real Estate',
-    'Transportation',
-    'Energy'
-  ]
+    "All Industries",
+    "Technology",
+    "Healthcare",
+    "Finance",
+    "Education",
+    "Retail",
+    "Manufacturing",
+    "Real Estate",
+    "Transportation",
+    "Energy",
+  ];
 
   const stages = [
-    'All Stages',
-    'Idea Stage',
-    'MVP Stage',
-    'Growth Stage',
-    'Scale Stage',
-    'Established'
-  ]
+    "All Stages",
+    "Idea Stage",
+    "MVP Stage",
+    "Growth Stage",
+    "Scale Stage",
+    "Established",
+  ];
 
   const locations = [
-    'All Locations',
-    'New York',
-    'San Francisco',
-    'London',
-    'Berlin',
-    'Tokyo',
-    'Singapore',
-    'Remote'
-  ]
-
-  const [selectedIndustry, setSelectedIndustry] = useState('All Industries')
-  const [selectedStage, setSelectedStage] = useState('All Stages')
-  const [selectedLocation, setSelectedLocation] = useState('All Locations')
+    "All Locations",
+    "New York",
+    "San Francisco",
+    "London",
+    "Berlin",
+    "Tokyo",
+    "Singapore",
+    "Remote",
+  ];
 
   // Close dropdowns when clicking outside
   React.useEffect(() => {
     const handleClick = (e) => {
-      if (!e.target.closest('.dropdown-btn')) {
-        setOpenDropdown(null)
+      if (!e.target.closest(".dropdown-btn")) {
+        setOpenDropdown(null);
       }
-    }
+    };
     if (openDropdown) {
-      document.addEventListener('mousedown', handleClick)
+      document.addEventListener("mousedown", handleClick);
     }
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [openDropdown])
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [openDropdown]);
 
-  const DropdownButton = ({ label, options, selected, onSelect, dropdownName, icon }) => (
+  const DropdownButton = ({
+    label,
+    options,
+    selected,
+    onSelect,
+    dropdownName,
+    icon,
+  }) => (
     <div className="relative dropdown-btn">
       <button
         className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
-        onClick={() => setOpenDropdown(openDropdown === dropdownName ? null : dropdownName)}
+        onClick={() =>
+          setOpenDropdown(openDropdown === dropdownName ? null : dropdownName)
+        }
         type="button"
       >
         {icon}
@@ -73,8 +86,8 @@ const StartUpHeader = () => {
               key={index}
               className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10"
               onClick={() => {
-                onSelect(option)
-                setOpenDropdown(null)
+                onSelect(option);
+                setOpenDropdown(null);
               }}
             >
               {option}
@@ -83,7 +96,7 @@ const StartUpHeader = () => {
         </div>
       )}
     </div>
-  )
+  );
 
   return (
     <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0">
@@ -93,17 +106,25 @@ const StartUpHeader = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
-      
-      <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}>
+
+      <div
+        className={`${
+          isMobileMenuOpen ? "flex" : "hidden"
+        } sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}
+      >
         <div className="relative w-full sm:w-auto">
           <div className="relative">
             <input
               type="text"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search startups..."
               className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
             />
@@ -136,7 +157,7 @@ const StartUpHeader = () => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default StartUpHeader
+export default StartUpHeader;

@@ -111,7 +111,7 @@ const Ideation = () => {
       <div className="mb-6">
         <IdeationHeader/>
       </div>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4'>
         {cardContent.map(content => (
           <Link 
             key={content.id} 
