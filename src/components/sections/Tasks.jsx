@@ -43,19 +43,58 @@ export default function Tasks() {
         "/placeholder.svg?height=24&width=24",
       ],
     },
-    // {
-    //   id: 3,
-    //   title: "Real Estate Landing Page",
-    //   description:
-    //     "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
-    //   status: "Completed",
-    //   date: "31/04/22",
-    //   avatars: [
-    //     "/placeholder.svg?height=24&width=24",
-    //     "/placeholder.svg?height=24&width=24",
-    //     "/placeholder.svg?height=24&width=24",
-    //   ],
-    // },
+    {
+      id: 3,
+      title: "Real Estate Landing Page",
+      description:
+        "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
+      status: "Completed",
+      date: "31/04/22",
+      avatars: [
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+      ],
+    },
+    {
+      id: 3,
+      title: "Real Estate Landing Page",
+      description:
+        "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
+      status: "Completed",
+      date: "31/04/22",
+      avatars: [
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+      ],
+    },
+    {
+      id: 3,
+      title: "Real Estate Landing Page",
+      description:
+        "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
+      status: "Completed",
+      date: "31/04/22",
+      avatars: [
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+      ],
+    },
+    {
+      id: 3,
+      title: "Real Estate Landing Page",
+      description:
+        "Assist to leverage on our efforts in making the user research possible and ensure the design solution for the real estate project.",
+      status: "Completed",
+      date: "31/04/22",
+      avatars: [
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+        "/placeholder.svg?height=24&width=24",
+      ],
+    },
   ]
 
   const inProgressTasks = [
@@ -111,7 +150,7 @@ export default function Tasks() {
   ]
 
   const TaskCard = ({ task }) => (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[250px] min-h-[342px] flex-shrink-0">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[250px] min-h-[342px] flex-shrink-0 relative">
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2">
           <div
@@ -130,7 +169,7 @@ export default function Tasks() {
 
       <p className="text-sm text-gray-400 mb-3">{task.description}</p>
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center bottom-4 absolute w-full">
         <div className="flex -space-x-2">
           {task.avatars.map((avatar, index) => (
             <div key={index} className="h-6 w-6 rounded-full border-2 border-zinc-900 overflow-hidden">
@@ -138,7 +177,10 @@ export default function Tasks() {
             </div>
           ))}
         </div>
-        <span className="text-xs text-gray-500">{task.date}</span>
+        <div className="text-xs text-gray-500 space-x-8">
+          <span>{task.date}</span>
+          <span>{task.time}</span>
+        </div>
       </div>
     </div>
   )
