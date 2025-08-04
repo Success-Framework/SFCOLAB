@@ -54,7 +54,7 @@ const SideBar = () => {
     <div className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'>
       <div className='flex flex-col gap-4 items-center'>
         {/* general links */}
-        <div className='flex flex-col gap-2 items-center'>
+        <div className='flex flex-col gap-4 items-center'>
           {allLinks.map((link) => (
             <Link
               key={link.id}
@@ -110,10 +110,10 @@ const SideBar = () => {
     <>
       {/* Mobile Menu Button */}
       <button 
-        className="lg:hidden fixed top-20 left-1  z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+        className="lg:hidden fixed top left-2 z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={24} /> : <Menu size={20} />}
       </button>
 
       {/* Desktop Sidebar */}

@@ -14,8 +14,8 @@ const ProfileSetting = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [bioLength, setBioLength] = useState(0)
   const [formData, setFormData] = useState({
-    username: "fcollab",
-    profileUrl: "https://fcollab.com/",
+    username: "sfcollab",
+    profileUrl: "https://sfcollab.com/",
     bio: "",
     facebook: "https://www.facebook.com",
     twitter: "https://www.twitter.com",
@@ -89,7 +89,7 @@ const ProfileSetting = () => {
             <p className="text-[#C4C4C4]">This is where people will see your actual face</p>
             </div>
             <div className="flex gap-4 items-center w-[50%]">
-              <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10">
+              <div className="w-24 h-24 rounded-full overflow-hidden text-center py-4 border border-white/10">
                 <img src="/placeholder.svg?height=96&width=96" alt="Profile picture" width={96} height={96} />
               </div>
               <div className="flex flex-col gap-2">
