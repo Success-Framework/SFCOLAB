@@ -1,16 +1,14 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 
 const SettingSidebar = () => {
     const navigate = useNavigate()
+    const { logout } = useAuth()
     const [active, setActive] = useState(1)
 
     const handleLogout = () => {
-        // Clear any stored authentication data
-        localStorage.removeItem('token') // or whatever auth token you're using
-        // You can add more cleanup here if needed
-        
-        // Redirect to login page
+        logout()
         navigate('/login')
     }
 

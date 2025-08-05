@@ -1,9 +1,9 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from '../components/pages/Home.jsx'
 import Layout from '../Layout/Layout.jsx'
 import Project from "../components/pages/Project.jsx";
 import Profile from "../components/pages/Profile.jsx";
-import Dashboard from "../components/pages/Dashboard.jsx";
+import Dashboard from "../components/pages/dashboard.jsx";
 import Ideation from "../components/pages/Ideation.jsx";
 import Knowledge from "../components/pages/Knowledge.jsx";
 import Setting from "../components/pages/Setting.jsx";
@@ -12,6 +12,7 @@ import Preferences from "../components/pages/Preferences.jsx";
 import AccountandSecurity from "../components/pages/AccountandSecurity.jsx";
 import Login from "../components/auth/Login.jsx";
 import SignUp from "../components/auth/SignUp.jsx";
+import OAuthCallback from "../components/auth/OAuthCallback.jsx";
 import RegisterStartUp from "../components/pages/RegisterStartUp.jsx";
 import StartUp from "../components/pages/StartUp.jsx";
 import HomedetailsPage from "../components/detailspage/HomedetailsPage.jsx";
@@ -21,16 +22,47 @@ import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
 import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
 import Help from "../components/pages/Help.jsx";
 import Chat from "../components/sections/Chat.jsx";
+import NotFound from "../components/NotFound.jsx";
+import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
 
 export const router = createBrowserRouter([
+    // Authentication routes (accessible only when not logged in)
+    {
+        path: '/login',
+        element: (
+            <AuthRoute>
+                <Login />
+            </AuthRoute>
+        )
+    },
+    {
+        path: '/signup',
+        element: (
+            <AuthRoute>
+                <SignUp />
+            </AuthRoute>
+        )
+    },
+    // OAuth callback route
+    {
+        path: '/auth/callback',
+        element: <OAuthCallback />
+    },
+    // Protected routes (accessible only when logged in)
     {
         path:'/',
         element:(
-            <Layout/>
+            <ProtectedRoute>
+                <Layout/>
+            </ProtectedRoute>
         ),
         children:[
             {
                 path:'/',
+                element:<Navigate to="/dashboard" replace />
+            },
+            {
+                path:'/home',
                 element:<Home/>
             },
             {
@@ -72,14 +104,6 @@ export const router = createBrowserRouter([
                 ]
             },
             {
-                path:'/login',
-                element:<Login/>
-            },
-            {
-                path:'/signup',
-                element:<SignUp/>
-            },
-            {
                 path:'/register-startup',
                 element:<RegisterStartUp/>
             },
@@ -116,5 +140,14 @@ export const router = createBrowserRouter([
                 element:<Chat/>
             }
         ]
+    },
+    // Catch all unmatched routes
+    {
+        path: '*',
+        element: (
+            <ProtectedRoute>
+                <NotFound />
+            </ProtectedRoute>
+        )
     }
 ]) 

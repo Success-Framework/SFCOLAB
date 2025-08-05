@@ -1,13 +1,21 @@
 import { BellDot, SquareMenu } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { allimg } from '../../utils'
+import { useAuth } from '../../contexts/AuthContext'
 
 const NavBar = () => {
+    const navigate = useNavigate()
+    const { logout } = useAuth()
     const [activeDropdown, setActiveDropdown] = useState(null)
     const menuRef = useRef(null)
     const notificationRef = useRef(null)
     const profileRef = useRef(null)
+
+    const handleLogout = () => {
+        logout()
+        navigate('/login')
+    }
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -88,7 +96,12 @@ const NavBar = () => {
                         <div className='absolute right-0 mt-2 w-48 bg-[#120C18] rounded-lg shadow-lg py-2 z-50'>
                             <Link to="/profile" className='block px-4 py-2 text-white hover:bg-white/10'>Profile</Link>
                             <Link to="/setting" className='block px-4 py-2 text-white hover:bg-white/10'>Settings</Link>
-                            <Link to="/logout" className='block px-4 py-2 text-white hover:bg-white/10'>Logout</Link>
+                            <button 
+                                onClick={handleLogout}
+                                className='block w-full text-left px-4 py-2 text-white hover:bg-white/10'
+                            >
+                                Logout
+                            </button>
                         </div>
                     )}
                 </div>

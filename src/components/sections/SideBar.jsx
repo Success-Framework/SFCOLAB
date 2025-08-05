@@ -11,7 +11,7 @@ const SideBar = () => {
     {
       id: 1,
       icon: <House />,
-      href: '/',
+      href: '/home',
     },
     {
       id: 2,
