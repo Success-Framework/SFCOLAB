@@ -1,73 +1,85 @@
-import { BriefcaseBusiness, CalendarCog, File, FileChartColumnIncreasing, HelpCircle, House, Menu, Settings, SquareChartGantt, User, X } from 'lucide-react'
-import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import {
+  BriefcaseBusiness,
+  CalendarCog,
+  File,
+  FileChartColumnIncreasing,
+  HelpCircle,
+  House,
+  Menu,
+  Settings,
+  SquareChartGantt,
+  User,
+  X,
+} from "lucide-react";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const SideBar = () => {
-  const location = useLocation()
-  const [isOpen, setIsOpen] = useState(false)
-  
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
   // general Links
   const allLinks = [
     {
       id: 1,
       icon: <House />,
-      href: '/',
+      href: "/",
     },
     {
       id: 2,
       icon: <CalendarCog />,
-      href: '/dashboard',
+      href: "/dashboard",
     },
     {
       id: 3,
       icon: <FileChartColumnIncreasing />,
-      href: '/ideation',
+      href: "/ideation",
     },
     {
       id: 4,
       icon: <BriefcaseBusiness />,
-      href: '/knowledge',
+      href: "/knowledge",
     },
     {
       id: 5,
       icon: <SquareChartGantt />,
-      href: '/projects',
+      href: "/projects",
     },
     {
       id: 6,
       icon: <File />,
-      href: '/register-startup',
+      href: "/register-startup",
     },
     {
       id: 7,
       icon: <User />,
-      href: '/startup',
-    }
-  ]
+      href: "/startup",
+    },
+  ];
 
   // Helper to close sidebar on mobile when a link is clicked
   const handleMobileLinkClick = () => {
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
 
   const SidebarContent = ({ onLinkClick }) => (
-    <div className='flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto'>
-      <div className='flex flex-col gap-4 items-center'>
+    <div className="flex flex-col justify-between h-full w-full py-2.5 overflow-y-auto">
+      <div className="flex flex-col gap-4 items-center">
         {/* general links */}
-        <div className='flex flex-col gap-4 items-center'>
+        <div className="flex flex-col gap-4 items-center">
           {allLinks.map((link) => (
             <Link
               key={link.id}
               to={link.href}
               className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
                 location.pathname === link.href
-                  ? 'bg-[#2A2A2A] text-white'
-                  : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
+                  ? "bg-[#2A2A2A] text-white"
+                  : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
               }`}
               onClick={onLinkClick}
             >
               <div className="flex items-center justify-center">
-                {link.icon}
+                {link.icon} 
               </div>
             </Link>
           ))}
@@ -75,13 +87,13 @@ const SideBar = () => {
       </div>
 
       {/* bottom links */}
-      <div className='flex flex-col gap-2 items-center'>
-        <Link 
-          to="/setting" 
+      <div className="flex flex-col gap-2 items-center">
+        <Link
+          to="/setting"
           className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
-            location.pathname === '/settings'
-              ? 'bg-[#2A2A2A] text-white'
-              : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
+            location.pathname === "/settings"
+              ? "bg-[#2A2A2A] text-white"
+              : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
           }`}
           onClick={onLinkClick}
         >
@@ -89,12 +101,12 @@ const SideBar = () => {
             <Settings size={20} />
           </div>
         </Link>
-        <Link 
-          to="/help" 
+        <Link
+          to="/help"
           className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
-            location.pathname === '/help'
-              ? 'bg-[#2A2A2A] text-white'
-              : 'text-gray-400 hover:bg-[#2A2A2A] hover:text-white'
+            location.pathname === "/help"
+              ? "bg-[#2A2A2A] text-white"
+              : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
           }`}
           onClick={onLinkClick}
         >
@@ -104,13 +116,13 @@ const SideBar = () => {
         </Link>
       </div>
     </div>
-  )
+  );
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button 
-        className="lg:hidden fixed top left-2 z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+      {/* Mobile Menu Button - Positioned to avoid logo overlap */}
+      <button
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={24} /> : <Menu size={20} />}
@@ -122,24 +134,44 @@ const SideBar = () => {
       </div>
 
       {/* Mobile Sidebar */}
-      <div className={`
-        lg:hidden fixed inset-0 z-40 bg-[#1A1A1A] backdrop-blur-sm transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="w-[200px] h-full mx-auto">
-          <SidebarContent onLinkClick={handleMobileLinkClick} />
-        </div>
-      </div>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
+      <div
+        className={`
+        lg:hidden fixed inset-0 z-50 transition-all duration-300 ease-in-out        ${isOpen ? "visible" : "invisible"}
+      `}
+      >
+        {/* Backdrop */}
+        <div
+          className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+            isOpen ? "opacity-100" : "opacity-0"
+          }`}
           onClick={() => setIsOpen(false)}
         />
-      )}
-    </>
-  )
-}
 
-export default SideBar
+        {/* Sidebar Panel */}
+        <div
+          className={`
+          absolute left-0 top-0 h-full w-[100px] bg-[#1A1A1A] shadow-2xl transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+        >
+          {/* Close Button */}
+          <div className="flex justify-end p-4">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center hover:bg-gray-100 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Sidebar Content */}
+          <div className="px-4 pb-4">
+            <SidebarContent onLinkClick={handleMobileLinkClick} />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default SideBar;

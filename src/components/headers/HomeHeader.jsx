@@ -111,7 +111,7 @@ const FilterHeader = ({
   );
 
   return (
-    <div className="w-full flex flex-col sm:flex-row justify-end items-end min-h-[130px] p-4">
+    <div className="w-full flex flex-col sm:flex-row justify-end items-end min-h-[80px] p-4">
       <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <SearchBar />

@@ -35,7 +35,7 @@ const NavBar = () => {
     }
 
     return (
-        <nav className='flex px-5 items-center w-full h-full justify-between relative'>
+        <nav className='flex px-5 items-center w-full h-full justify-between relative border-b border-[#262626]'>
             {/* logo */}
             <div className='logo'>
                 <Link className='text-white text-xl font-bold'>

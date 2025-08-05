@@ -15,6 +15,7 @@ import {
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import IdeationHeader from "../headers/IdeationHeader";
+import Options from "../sections/Options";
 
 const Ideation = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -158,6 +159,8 @@ const Ideation = () => {
   return (
     <div className="min-h-screen bg-black">
       <div className="mb-6">
+      <Options />
+
         <IdeationHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

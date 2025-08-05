@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { allimg } from "../../utils";
 import FindContributionHeader from "../headers/FindContributionHeader";
 import React, { useState, useMemo } from "react";
+import Options from "../sections/Options";
 
 export default function Project() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,8 +206,11 @@ export default function Project() {
   }, [searchQuery, selectedUserType, selectedAvailability, selectedPosition]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="mb-6">
+    <div className="min-h-screen bg-black text-white">
+
+      <div className="mb-6">      
+        <Options />
+
         <FindContributionHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
