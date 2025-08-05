@@ -1,51 +1,81 @@
-import React, { useState } from 'react'
-import { ChevronDown, MapPin, Filter, Building2, Search, Menu, X } from 'lucide-react'
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  MapPin,
+  Filter,
+  Building2,
+  Search,
+  Menu,
+  X,
+} from "lucide-react";
+import { IoOptionsOutline } from "react-icons/io5";
 
-const FilterHeader = () => {
-  const [activeDropdown, setActiveDropdown] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+const FilterHeader = ({
+  searchQuery,
+  setSearchQuery,
+  selectedLocation,
+  setSelectedLocation,
+  selectedStage,
+  setSelectedStage,
+  selectedIndustry,
+  setSelectedIndustry,
+}) => {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const locations = [
+    "All Locations",
     "New York",
     "San Francisco",
     "London",
     "Berlin",
     "Tokyo",
-    "Singapore"
-  ]
+    "Singapore",
+    "Boston",
+  ];
 
   const stages = [
-    "Idea Stage",
+    "All Stages",
+    "IDEA Stage",
     "MVP Stage",
     "Growth Stage",
-    "Scale Stage"
-  ]
+    "Scale Stage",
+    "Research Stage",
+  ];
 
   const industries = [
+    "All Industries",
     "Technology",
     "Healthcare",
     "Finance",
     "Education",
     "Retail",
-    "Manufacturing"
-  ]
+    "Manufacturing",
+  ];
 
   const toggleDropdown = (dropdownName) => {
-    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName)
-  }
+    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+  };
 
-  const FilterButton = ({ icon, label, dropdownName, options }) => (
+  const FilterButton = ({
+    icon,
+    label,
+    dropdownName,
+    options,
+    selected,
+    onSelect,
+  }) => (
     <div className="relative">
       <button
         onClick={() => toggleDropdown(dropdownName)}
         className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
       >
         {icon}
-        <span>{label}</span>
+        <span>{selected || label}</span>
         <ChevronDown className="h-4 w-4" />
       </button>
-      
+
       {activeDropdown === dropdownName && (
         <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
           {options.map((option, index) => (
@@ -53,7 +83,8 @@ const FilterHeader = () => {
               key={index}
               className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10"
               onClick={() => {
-                setActiveDropdown(null)
+                onSelect(option);
+                setActiveDropdown(null);
               }}
             >
               {option}
@@ -62,7 +93,7 @@ const FilterHeader = () => {
         </div>
       )}
     </div>
-  )
+  );
 
   const SearchBar = () => (
     <div className="relative w-full sm:w-auto">
@@ -76,15 +107,8 @@ const FilterHeader = () => {
         />
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
       </div>
-      {searchQuery && (
-        <div className="absolute top-full left-0 mt-2 w-full bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
-          <div className="px-4 py-2 text-sm text-gray-400">
-            No results found
-          </div>
-        </div>
-      )}
     </div>
-  )
+  );
 
   return (
     <div className="w-full flex flex-col sm:flex-row justify-end items-end min-h-[130px] p-4">
@@ -95,33 +119,47 @@ const FilterHeader = () => {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
           >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <IoOptionsOutline className="h-6 w-6" />
+            )}
           </button>
         </div>
-        
-        <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}>
+
+        <div
+          className={`${
+            isMobileMenuOpen ? "flex" : "hidden"
+          } sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}
+        >
           <FilterButton
             icon={<MapPin className="h-4 w-4" />}
             label="Location"
             dropdownName="location"
             options={locations}
+            selected={selectedLocation}
+            onSelect={setSelectedLocation}
           />
           <FilterButton
             icon={<Filter className="h-4 w-4" />}
             label="Filter by stages"
             dropdownName="stages"
             options={stages}
+            selected={selectedStage}
+            onSelect={setSelectedStage}
           />
           <FilterButton
             icon={<Building2 className="h-4 w-4" />}
             label="Select industry"
             dropdownName="industry"
             options={industries}
+            selected={selectedIndustry}
+            onSelect={setSelectedIndustry}
           />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FilterHeader 
+export default FilterHeader;
