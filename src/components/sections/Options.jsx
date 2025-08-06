@@ -49,23 +49,23 @@ const Options = () => {
         </Link>
         <Link
           className={`px-3 py-1 rounded-full transition-colors ${
-            location.pathname === "/settings"
+            location.pathname === "/startup"
               ? "border border-white text-white"
               : "text-gray-400 hover:text-white"
           }`}
-          to="/settings"
+          to="/startup"
         >
-          Settings
+          Startup
         </Link>
         <Link
           className={`px-3 py-1 rounded-full transition-colors ${
-            location.pathname === "/logout"
+            location.pathname === "/register-startup"
               ? "border border-white text-white"
               : "text-gray-400 hover:text-white"
           }`}
-          to="/logout"
+          to="/register-startup"
         >
-          Logout
+          Register
         </Link>
       </div>
     </div>

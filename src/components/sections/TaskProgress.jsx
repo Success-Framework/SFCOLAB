@@ -33,13 +33,13 @@ export default function TaskProgress() {
         <div className="space-y-3">
           {PROGRESS_ITEMS.map((item) => (
             <div key={item.id}>
-              <div className="flex justify-between text-sm mb-1">
+              <div className="flex justify-between text-sm sm:text-base mb-1">
                 <span>{item.title}</span>
                 <span>{item.current} of {item.total}</span>
               </div>
-              <div className="w-full bg-zinc-800 rounded-full h-2">
+              <div className="w-full bg-zinc-800 rounded-full h-[6px] sm:h-2">
                 <div 
-                  className={`${item.color} h-2 rounded-full`} 
+                  className={`${item.color} h-[6px] sm:h-2 rounded-full`} 
                   style={{ width: `${(item.current / item.total) * 100}%` }}
                 ></div>
               </div>
