@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, BriefcaseBusiness, Menu, X } from "lucide-react";
+import { IoOptionsOutline } from "react-icons/io5";
 
 const FindContributionHeader = ({
   searchQuery,
@@ -151,9 +152,9 @@ const FindContributionHeader = ({
             : "relative"
         }`}
       >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[100px] max-sm:min-h-[80px] p-4 gap-4 sm:gap-0 max-w-7xl mx-auto">
           <div className="flex items-center justify-between w-full sm:w-auto">
-            <h1 className="text-2xl font-semibold">Find Contribution</h1>
+            <h1 className="text-2xl font-medium">Find Contribution</h1>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
@@ -161,7 +162,7 @@ const FindContributionHeader = ({
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <IoOptionsOutline className="h-6 w-6" />
               )}
             </button>
           </div>

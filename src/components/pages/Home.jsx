@@ -11,10 +11,13 @@ import {
   Building2,
   MapPin,
   Target,
+  MessageCircle,
 } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import FilterHeader from "../headers/HomeHeader";
+import Options from "../sections/Options";
+import ScrollToTop from "../sections/ScrollToTop";
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -173,6 +176,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-black">
+      <Options />
       <FilterHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -184,15 +188,15 @@ const Home = () => {
         setSelectedIndustry={setSelectedIndustry}
       />
       {/* <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4'> */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-4 max-sm:p-0">
         {filteredProjects.map((content) => (
           <Link
             key={content.id}
             to={`/home-details?id=${content.id}`}
             className="bg-[#232323] rounded-4xl h-full hover:bg-[#2a2a2a] transition-colors duration-200"
           >
-            <div className="w-full h-full p-2">
-              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6">
+            <div className="w-full h-full p-2 max-sm:p-1">
+              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6 max-sm:p-4">
                 {/* header */}
                 <div className="flex w-full justify-between items-center">
                   <div className="flex items-center gap-3">
@@ -203,7 +207,9 @@ const Home = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <h1 className="text-lg font-bold">{content.header}</h1>
+                    <h1 className="text-lg font-bold max-sm:text-base">
+                      {content.header}
+                    </h1>
                   </div>
                   <button
                     className={`${getStageColor(
@@ -215,7 +221,7 @@ const Home = () => {
                 </div>
 
                 {/* content */}
-                <div className="text-sm font-medium leading-relaxed text-[#C4C4C4] line-clamp-3">
+                <div className="text-sm font leading-relaxed text-[#C4C4C4] line-clamp-3">
                   {content.content}
                 </div>
 
@@ -305,6 +311,17 @@ const Home = () => {
           </div>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
+
+      {/* Fixed Chat Button */}
+      <Link
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
+        to="/messages"
+      >
+        <MessageCircle size={24} />
+      </Link>
     </div>
   );
 };

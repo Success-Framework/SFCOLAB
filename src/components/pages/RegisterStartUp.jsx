@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Upload, Plus } from "lucide-react"
+import Options from "../sections/Options"
 
 export default function RegisterStartUp() {
   const [formData, setFormData] = useState({
@@ -45,6 +46,8 @@ export default function RegisterStartUp() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+            <Options />
+
       {/* Header */}
       <div className="p-4">
         <div className="md:text-3xl text-lg font-medium">Register New Startup</div>

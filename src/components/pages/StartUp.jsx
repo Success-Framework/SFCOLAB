@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import StartUpHeader from "../headers/StartUpHeader";
 import { Link } from "react-router-dom";
+import Options from "../sections/Options";
+import ScrollToTop from "../sections/ScrollToTop";
 import {
   Users,
   Building2,
@@ -144,6 +146,7 @@ const StartUp = () => {
 
   return (
     <div className="min-h-screen bg-black">
+      <Options />
       <StartUpHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -154,15 +157,15 @@ const StartUp = () => {
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4 max-sm:p-0">
         {filteredStartups.map((startup) => (
           <Link
             key={startup.id}
             to={`/startup-details?id=${startup.id}`}
             className="bg-[#232323] rounded-4xl h-full hover:bg-[#2A2A2A] transition-colors"
           >
-            <div className="w-full h-full p-2">
-              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6">
+            <div className="w-full h-full p-2 max-sm:p-1">
+              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6 max-sm:p-5">
                 {/* header */}
                 <div className="flex w-full justify-between items-start">
                   <div className="flex items-center gap-3">
@@ -173,19 +176,21 @@ const StartUp = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <h1 className="text-lg font-bold">{startup.name}</h1>
+                    <h1 className="text-lg max-sm:text-base font-bold">
+                      {startup.name}
+                    </h1>
                   </div>
                   <button
                     className={`${getStageColor(
                       startup.stage
-                    )} text-sm px-2 py-1 font-medium rounded-full`}
+                    )} text-xs max-sm:text-[10px] px-2 py-1 font-medium rounded-full`}
                   >
                     {startup.stage}
                   </button>
                 </div>
 
                 {/* content */}
-                <div className="text-sm font-medium leading-relaxed text-[#C4C4C4] line-clamp-3">
+                <div className="text-sm font-medium max-sm:font-normal leading-relaxed text-[#C4C4C4] line-clamp-3">
                   {startup.description}
                 </div>
 
@@ -256,6 +261,9 @@ const StartUp = () => {
           </div>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 };

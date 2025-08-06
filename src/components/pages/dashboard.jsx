@@ -7,10 +7,13 @@ import Tasks from "../sections/Tasks";
 import DashboardHeader from "../headers/DashboardHeader";
 import DashboardSection from "../sections/DashboardSection";
 import TaskProgress from "../sections/TaskProgress";
+import Options from "../sections/Options";
 
 const Dashboard = () => {
   return (
     <div className="min-h-screen bg-black text-white w-full overflow-x-hidden">
+            <Options />
+
       <DashboardHeader />
 
       {/* Main Content */}
