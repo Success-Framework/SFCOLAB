@@ -16,6 +16,7 @@ import { allimg } from "../../utils";
 import FindContributionHeader from "../headers/FindContributionHeader";
 import React, { useState, useMemo } from "react";
 import Options from "../sections/Options";
+import ScrollToTop from "../sections/ScrollToTop";
 
 export default function Project() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -207,8 +208,7 @@ export default function Project() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-
-      <div className="mb-0">      
+      <div className="mb-0">
         <Options />
 
         <FindContributionHeader
@@ -230,17 +230,16 @@ export default function Project() {
               to={`/project-details?id=${employee.id}`}
               className="bg-zinc-900 p-3 min-h-[330px] rounded-xl flex flex-col h-full hover:bg-zinc-800 transition-colors"
             >
-
               <div className="bg-[#1A1A1A] min-h-[270px] rounded-4xl p-5 max-sm:p-4">
                 <div className="flex items-center justify-end mb-4">
-              <Link
+                  <Link
                     to={`/profile?username=${employee.username}`}
                     className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1 "
                   >
                     View Profile
                     <ArrowUpRight size={12} />
                   </Link>
-                  </div>
+                </div>
                 <div className="flex flex-row-reverse justify-between  gap-4 items-start mb-4">
                   <div className="h-20 w-20 rounded-full overflow-hidden bg-zinc-700 flex items-center justify-center text-white text-lg font-bold">
                     <img
@@ -248,18 +247,21 @@ export default function Project() {
                       alt={employee.name}
                       className="h-full w-full object-cover"
                     />
-                  </div><div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-medium">{employee.name}</h3>
-                    <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full uppercase">
-                      {employee.role}
-                    </span>
                   </div>
-                  <p className="text-gray-400 text-sm">@{employee.username}</p>
-                  <p className="text-gray-500 text-xs mt-1">
-                    {employee.position}
-                  </p>
-                </div>
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-medium">{employee.name}</h3>
+                      <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full uppercase">
+                        {employee.role}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-sm">
+                      @{employee.username}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {employee.position}
+                    </p>
+                  </div>
                   {/* <Link
                     to={`/profile?username=${employee.username}`}
                     className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1"
@@ -379,6 +381,9 @@ export default function Project() {
           </div>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 }

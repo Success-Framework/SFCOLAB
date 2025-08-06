@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import StartUpHeader from "../headers/StartUpHeader";
 import { Link } from "react-router-dom";
 import Options from "../sections/Options";
+import ScrollToTop from "../sections/ScrollToTop";
 import {
   Users,
   Building2,
@@ -175,7 +176,9 @@ const StartUp = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <h1 className="text-lg max-sm:text-base font-bold">{startup.name}</h1>
+                    <h1 className="text-lg max-sm:text-base font-bold">
+                      {startup.name}
+                    </h1>
                   </div>
                   <button
                     className={`${getStageColor(
@@ -258,6 +261,9 @@ const StartUp = () => {
           </div>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 };

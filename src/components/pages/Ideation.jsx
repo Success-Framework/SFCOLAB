@@ -16,6 +16,7 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import IdeationHeader from "../headers/IdeationHeader";
 import Options from "../sections/Options";
+import ScrollToTop from "../sections/ScrollToTop";
 
 const Ideation = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -159,7 +160,7 @@ const Ideation = () => {
   return (
     <div className="min-h-screen bg-black">
       <div className="mb-0">
-      <Options />
+        <Options />
 
         <IdeationHeader
           searchQuery={searchQuery}
@@ -189,7 +190,9 @@ const Ideation = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <h1 className="text-lg max-sm:text-base font-bold">{content.header}</h1>
+                    <h1 className="text-lg max-sm:text-base font-bold">
+                      {content.header}
+                    </h1>
                   </div>
                   <button
                     className={`${getStageColor(
@@ -296,6 +299,9 @@ const Ideation = () => {
           </div>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 };
