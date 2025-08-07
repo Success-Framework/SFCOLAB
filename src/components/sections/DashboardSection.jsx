@@ -59,7 +59,7 @@ const DashboardSection = () => {
 
 
          {/* Dashboard Cards */}
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
           {dashboardCards.map((card) => (
             <div key={card.id} className="bg-[#1A1A1A] rounded-4xl p-6 hover:bg-[#232323] transition-colors">
               <div className="flex items-center justify-between mb-4">
