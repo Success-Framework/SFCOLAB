@@ -2,10 +2,13 @@
 
 import { useState } from "react"
 import { Eye, EyeOff, GoalIcon } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useAuth } from "../../contexts/AuthContext"
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login, loginWithGoogle } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
@@ -13,6 +16,9 @@ export default function Login() {
   })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+
+  // Get the intended destination or default to dashboard
+  const from = location.state?.from?.pathname || '/dashboard'
 
   const handleChange = (e) => {
     const { id, value } = e.target
@@ -51,44 +57,44 @@ export default function Login() {
 
     setIsLoading(true)
     try {
-      // TODO: Replace with your actual API endpoint
-      // const response = await fetch('/api/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(formData),
-      // })
-
-      // if (!response.ok) {
-      //   throw new Error('Login failed')
-      // }
-
-      // const data = await response.json()
-      // Store token in localStorage or your preferred storage
-      // localStorage.setItem('token', data.token)
+      const result = await login(formData)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      navigate('/dashboard')
+      if (result.success) {
+        // Navigate to intended destination or dashboard
+        navigate(from, { replace: true })
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          submit: result.error || "Login failed"
+        }))
+      }
     } catch (error) {
       console.error('Login error:', error)
       setErrors(prev => ({
         ...prev,
-        submit: "Invalid email or password"
+        submit: "An unexpected error occurred"
       }))
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleSignIn = async () => {
+    const handleGoogleSignIn = async () => {
     try {
-      // TODO: Implement Google Sign In
-      console.log('Google sign in clicked')
+      const result = await loginWithGoogle();
+      if (!result.success) {
+        setErrors(prev => ({
+          ...prev,
+          submit: result.error || "Google sign in failed"
+        }));
+      }
+      // If successful, the user will be redirected to Google
     } catch (error) {
-      console.error('Google sign in error:', error)
+      console.error('Google sign in error:', error);
+      setErrors(prev => ({
+        ...prev,
+        submit: "Google sign in failed"
+      }));
     }
   }
 
@@ -118,7 +124,7 @@ export default function Login() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="w-full bg-transparent border border-gray-700 text-white  flex items-center justify-center py-2 rounded"
+              className="w-full bg-transparent border border-gray-700 text-white flex items-center justify-center py-2 rounded hover:bg-gray-800 transition-colors"
             >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
