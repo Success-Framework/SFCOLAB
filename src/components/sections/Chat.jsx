@@ -104,7 +104,8 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
 
   // Configuration
-  const SOCKET_URL = import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
+  const SOCKET_URL =
+    import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
 
   // Toggle search input
   const toggleInput = () => {
@@ -166,7 +167,14 @@ export default function Chat() {
       }
 
       if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages);
+        const parsedMessages = JSON.parse(savedMessages).map((msg) => ({
+          ...msg,
+          // Ensure existing messages get proper IDs
+          id:
+            msg.id.startsWith("msg_") || msg.id.startsWith("temp_msg_")
+              ? msg.id
+              : `msg_${msg.id}`,
+        }));
         const sortedMessages = parsedMessages.sort(
           (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
         );
@@ -246,7 +254,12 @@ export default function Chat() {
   const updateMessageStatus = (tempId, status, serverMessage = null) => {
     setMessages((prevMessages) => {
       const updatedMessages = prevMessages.map((msg) => {
-        if (msg.id === tempId) {
+        // Handle both temp_msg_ and final msg_ IDs
+        if (
+          msg.id === tempId ||
+          (tempId.startsWith("temp_msg_") &&
+            msg.id === `msg_${tempId.replace("temp_msg_", "")}`)
+        ) {
           return serverMessage
             ? { ...serverMessage, isOwn: true }
             : { ...msg, status };
@@ -302,7 +315,7 @@ export default function Chat() {
           msg.recipientId === currentUserId &&
           !msg.isRead
       )
-      .map((msg) => msg.id);
+      .map((msg) => (msg.id.startsWith("msg_") ? msg.id : `msg_${msg.id}`));
 
     if (unreadMessageIds.length > 0) {
       setMessages((prevMessages) =>
@@ -360,10 +373,17 @@ export default function Chat() {
     };
 
     const handleIncomingMessage = (message) => {
-      setMessages((prevMessages) => {
-        if (prevMessages.some((m) => m.id === message.id)) return prevMessages;
+      const normalizedMessage = {
+        ...message,
+        id: message.id.startsWith("msg_") ? message.id : `msg_${message.id}`,
+      };
 
-        const updatedMessages = [...prevMessages, message].sort(
+      setMessages((prevMessages) => {
+        // Check for duplicates using normalized ID
+        if (prevMessages.some((m) => m.id === normalizedMessage.id))
+          return prevMessages;
+
+        const updatedMessages = [...prevMessages, normalizedMessage].sort(
           (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
         );
 
@@ -492,7 +512,7 @@ export default function Chat() {
 
     if (!newMessage.trim() && !selectedFile) return;
 
-    const tempId = `temp-${Date.now()}`;
+    const tempId = `temp_msg_${Date.now()}`;
     let fileData = null;
 
     if (selectedFile) {

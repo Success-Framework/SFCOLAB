@@ -11,12 +11,12 @@ const NavBar = () => {
   const menuRef = useRef(null);
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
-  
+
   // Connection status state
   const [connectionStatus, setConnectionStatus] = useState({
     isConnected: false,
     status: "disconnected",
-    lastError: null
+    lastError: null,
   });
 
   // Socket ref
@@ -26,7 +26,7 @@ const NavBar = () => {
   // Get user ID from URL or default (same as chat.jsx)
   const getSessionUserKey = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("testUserId") || "1"; 
+    return urlParams.get("testUserId") || "1";
   };
 
   // Initialize socket connection
@@ -36,7 +36,8 @@ const NavBar = () => {
 
     if (!sessionUserId) return;
 
-    const SOCKET_URL = import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
+    const SOCKET_URL =
+      import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
 
     const socket = io(SOCKET_URL, {
       transports: ["websocket"],
@@ -44,7 +45,7 @@ const NavBar = () => {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      timeout: 10000
+      timeout: 10000,
     });
 
     socketRef.current = socket;
@@ -55,9 +56,9 @@ const NavBar = () => {
       setConnectionStatus({
         isConnected: true,
         status: "connected",
-        lastError: null
+        lastError: null,
       });
-      
+
       // Authenticate and subscribe to notifications
       socket.emit("setUser", sessionUserId);
       socket.emit("subscribeToNotifications", sessionUserId);
@@ -65,10 +66,10 @@ const NavBar = () => {
 
     const handleDisconnect = () => {
       console.log("❌ Socket disconnected");
-      setConnectionStatus(prev => ({
+      setConnectionStatus((prev) => ({
         ...prev,
         isConnected: false,
-        status: "disconnected"
+        status: "disconnected",
       }));
     };
 
@@ -77,46 +78,51 @@ const NavBar = () => {
       setConnectionStatus({
         isConnected: false,
         status: "error",
-        lastError: err.message
+        lastError: err.message,
       });
     };
 
     const handleReconnecting = (attempt) => {
       console.log(`Attempting to reconnect (${attempt}/5)`);
-      setConnectionStatus(prev => ({
+      setConnectionStatus((prev) => ({
         ...prev,
-        status: `reconnecting (${attempt}/5)`
+        status: `reconnecting (${attempt}/5)`,
       }));
     };
 
     const handleReconnectFailed = () => {
       console.error("Reconnection failed");
-      setConnectionStatus(prev => ({
+      setConnectionStatus((prev) => ({
         ...prev,
         status: "error",
-        lastError: "Reconnection failed"
+        lastError: "Reconnection failed",
       }));
     };
 
     // Notification handler
     const handleNotification = (notification) => {
       console.log("New notification received:", notification);
-      setNotifications(prev => [
+      setNotifications((prev) => [
         {
           ...notification,
-          id: notification.id || Date.now().toString(),
+          id: notification.id.startsWith("notif_")
+            ? notification.id
+            : `notif_${notification.id}`,
           isRead: false,
-          timestamp: notification.timestamp || new Date().toISOString()
+          timestamp: notification.timestamp || new Date().toISOString(),
         },
-        ...prev
+        ...prev,
       ]);
-      setUnreadCount(prev => prev + 1);
-      
+      setUnreadCount((prev) => prev + 1);
+
       // Show browser notification if permission granted and tab not focused
-      if (Notification.permission === "granted" && document.visibilityState !== "visible") {
+      if (
+        Notification.permission === "granted" &&
+        document.visibilityState !== "visible"
+      ) {
         new Notification(notification.title || "New Notification", {
           body: notification.message || notification.body,
-          icon: allimg.profileImg
+          icon: allimg.profileImg,
         });
       }
     };
@@ -147,7 +153,7 @@ const NavBar = () => {
   // Request notification permission on mount
   useEffect(() => {
     if (Notification.permission !== "granted") {
-      Notification.requestPermission().then(permission => {
+      Notification.requestPermission().then((permission) => {
         console.log("Notification permission:", permission);
       });
     }
@@ -159,15 +165,15 @@ const NavBar = () => {
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
 
     if (activeDropdown !== dropdownName && unreadCount > 0) {
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
-      
+
       // Notify server that notifications were read
       if (socketRef.current?.connected && currentUserId) {
         const unreadIds = notifications
-          .filter(n => !n.isRead)
-          .map(n => n.id);
-        
+          .filter((n) => !n.isRead)
+          .map((n) => (n.id.startsWith("notif_") ? n.id : `notif_${n.id}`));
+
         if (unreadIds.length > 0) {
           socketRef.current.emit("markAsRead", unreadIds);
         }
@@ -179,9 +185,15 @@ const NavBar = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        (activeDropdown === "menu" && menuRef.current && !menuRef.current.contains(event.target)) ||
-        (activeDropdown === "notification" && notificationRef.current && !notificationRef.current.contains(event.target)) ||
-        (activeDropdown === "profile" && profileRef.current && !profileRef.current.contains(event.target))
+        (activeDropdown === "menu" &&
+          menuRef.current &&
+          !menuRef.current.contains(event.target)) ||
+        (activeDropdown === "notification" &&
+          notificationRef.current &&
+          !notificationRef.current.contains(event.target)) ||
+        (activeDropdown === "profile" &&
+          profileRef.current &&
+          !profileRef.current.contains(event.target))
       ) {
         setActiveDropdown(null);
       }
@@ -208,7 +220,7 @@ const NavBar = () => {
   //     </div>
   //   );
   // };
-  
+
   return (
     <nav className="flex px-5 items-center w-full h-full justify-between relative">
       {/* Logo */}
@@ -221,17 +233,25 @@ const NavBar = () => {
         {/* Messages dropdown */}
         <div className="relative" ref={menuRef}>
           <button
-            onClick={() => setActiveDropdown(activeDropdown === "menu" ? null : "menu")}
+            onClick={() =>
+              setActiveDropdown(activeDropdown === "menu" ? null : "menu")
+            }
             className="text-xl font-medium text-[#C4C4C4]"
           >
             <SquareMenu />
           </button>
           {activeDropdown === "menu" && (
             <div className="absolute right-0 mt-2 w-48 bg-[black] rounded-lg shadow-lg py-2 z-50">
-              <Link to="/messages" className="block px-4 py-2 text-white hover:bg-white/10">
+              <Link
+                to="/messages"
+                className="block px-4 py-2 text-white hover:bg-white/10"
+              >
                 Messages
               </Link>
-              <Link to="/setting" className="block px-4 py-2 text-white hover:bg-white/10">
+              <Link
+                to="/setting"
+                className="block px-4 py-2 text-white hover:bg-white/10"
+              >
                 Settings
               </Link>
             </div>
@@ -256,22 +276,31 @@ const NavBar = () => {
               {notifications.length === 0 ? (
                 <div className="px-4 py-2 text-white">No notifications</div>
               ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`px-4 py-2 text-white border-b border-white/10 hover:bg-white/5 cursor-pointer ${
-                      !notification.isRead ? "bg-blue-900/20" : ""
-                    }`}
-                  >
-                    <p className="font-semibold">{notification.title || "Notification"}</p>
-                    <p className="text-sm text-gray-400 truncate">
-                      {notification.message || notification.body}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(notification.timestamp).toLocaleString()}
-                    </p>
-                  </div>
-                ))
+                notifications.map((notification) => {
+                  // Ensure we're using the correct ID format for keys
+                  const notificationId = notification.id.startsWith("notif_")
+                    ? notification.id
+                    : `notif_${notification.id}`;
+
+                  return (
+                    <div
+                      key={notificationId}
+                      className={`px-4 py-2 text-white border-b border-white/10 hover:bg-white/5 cursor-pointer ${
+                        !notification.isRead ? "bg-blue-900/20" : ""
+                      }`}
+                    >
+                      <p className="font-semibold">
+                        {notification.title || "Notification"}
+                      </p>
+                      <p className="text-sm text-gray-400 truncate">
+                        {notification.message || notification.body}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(notification.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  );
+                })
               )}
             </div>
           )}
@@ -280,7 +309,9 @@ const NavBar = () => {
         {/* Profile dropdown */}
         <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setActiveDropdown(activeDropdown === "profile" ? null : "profile")}
+            onClick={() =>
+              setActiveDropdown(activeDropdown === "profile" ? null : "profile")
+            }
             className="w-10 h-10 rounded-full overflow-hidden"
           >
             <img
@@ -291,13 +322,22 @@ const NavBar = () => {
           </button>
           {activeDropdown === "profile" && (
             <div className="absolute right-0 mt-2 w-48 bg-[#120C18] rounded-lg shadow-lg py-2 z-50">
-              <Link to="/profile" className="block px-4 py-2 text-white hover:bg-white/10">
+              <Link
+                to="/profile"
+                className="block px-4 py-2 text-white hover:bg-white/10"
+              >
                 Profile
               </Link>
-              <Link to="/setting" className="block px-4 py-2 text-white hover:bg-white/10">
+              <Link
+                to="/setting"
+                className="block px-4 py-2 text-white hover:bg-white/10"
+              >
                 Settings
               </Link>
-              <Link to="/logout" className="block px-4 py-2 text-white hover:bg-white/10">
+              <Link
+                to="/logout"
+                className="block px-4 py-2 text-white hover:bg-white/10"
+              >
                 Logout
               </Link>
             </div>

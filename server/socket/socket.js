@@ -43,7 +43,7 @@ export const initializeSocket = (server) => {
         if (!message.recipientId) throw new Error("No recipient specified");
 
         const fullMessage = {
-          id: uuidv4(),
+          id: `msg_${uuidv4()}`,
           senderId: socket.userId,
           senderName: message.senderName || "Unknown",
           recipientId: message.recipientId,
@@ -77,27 +77,27 @@ export const initializeSocket = (server) => {
       }
     });
 
-    socket.on("markAsRead", (messageIds, callback) => {
-      try {
-        if (!socket.userId) throw new Error("User not identified");
+socket.on("markAsRead", (messageIds, callback) => {
+  try {
+    // if (!socket.userId) throw new Error("User not identified");
 
-        const userUnread = unreadMessages.get(socket.userId) || new Set();
-        messageIds.forEach((id) => userUnread.delete(id));
+    const userUnread = unreadMessages.get(socket.userId) || new Set();
+    messageIds.forEach((id) => userUnread.delete(id));
 
-        io.to(socket.userId).emit("unreadCountUpdate", {
-          count: userUnread.size,
-        });
-
-        if (typeof callback === "function") {
-          callback({ status: "success", message: fullMessage });
-        }
-      } catch (err) {
-        console.error("Mark as read error:", err);
-        if (typeof callback === "function") {
-          callback({ status: "error", message: err.message });
-        }
-      }
+    io.to(socket.userId).emit("unreadCountUpdate", {
+      count: userUnread.size,
     });
+
+    if (typeof callback === "function") {
+      callback({ status: "success" }); // Removed the undefined fullMessage reference
+    }
+  } catch (err) {
+    console.error("Mark as read error:", err);
+    if (typeof callback === "function") {
+      callback({ status: "error", message: err.message });
+    }
+  }
+});
 
     socket.on("subscribeToNotifications", (userId) => {
       socket.join(`notifications_${userId}`);
@@ -124,7 +124,7 @@ export const initializeSocket = (server) => {
   io.sendNotification = (userId, notification) => {
     const notificationWithId = {
       ...notification,
-      id: uuidv4(),
+      id:`notif_${uuidv4()}`,
       timestamp: new Date().toISOString(),
     };
     io.to(`notifications_${userId}`).emit(
