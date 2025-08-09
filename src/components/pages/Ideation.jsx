@@ -173,9 +173,9 @@ const Ideation = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4 max-sm:p-0">
         {filteredProjects.map((content) => (
-          <Link
-            key={content.id}
-            to={`/ideation-details?id=${content.id}`}
+          <Link 
+            key={content.id} 
+            to={`/ideation-details?id=${content.id}`} 
             className="bg-[#232323] rounded-4xl h-full hover:bg-[#2a2a2a] transition-colors duration-200"
           >
             <div className="w-full h-full p-2 max-sm:p-1">
@@ -216,9 +216,9 @@ const Ideation = () => {
                         key={index}
                         className="bg-[#2A2A2A] rounded-lg p-2 text-center"
                       >
-                        <p className="text-xs text-gray-400 mb-1">{key}</p>
-                        <p className="text-sm font-medium">{value}</p>
-                      </div>
+                      <p className="text-xs text-gray-400 mb-1">{key}</p>
+                      <p className="text-sm font-medium">{value}</p>
+                    </div>
                     )
                   )}
                 </div>
@@ -280,7 +280,7 @@ const Ideation = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </div>  
           </Link>
         ))}
       </div>

@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import Home from '../components/pages/Home.jsx'
-import Layout from '../Layout/Layout.jsx'
+import Home from "../components/pages/Home.jsx";
+import Layout from "../Layout/Layout.jsx";
 import Project from "../components/pages/Project.jsx";
 import Profile from "../components/pages/Profile.jsx";
 import Dashboard from "../components/pages/dashboard.jsx";
@@ -26,128 +26,128 @@ import NotFound from "../components/NotFound.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
 
 export const router = createBrowserRouter([
-    // Authentication routes (accessible only when not logged in)
-    {
-        path: '/login',
-        element: (
-            <AuthRoute>
-                <Login />
-            </AuthRoute>
-        )
-    },
-    {
-        path: '/signup',
-        element: (
-            <AuthRoute>
-                <SignUp />
-            </AuthRoute>
-        )
-    },
-    // OAuth callback route
-    {
-        path: '/auth/callback',
-        element: <OAuthCallback />
-    },
-    // Protected routes (accessible only when logged in)
-    {
-        path:'/',
-        element:(
-            <ProtectedRoute>
-                <Layout/>
-            </ProtectedRoute>
-        ),
-        children:[
-            {
-                path:'/',
-                element:<Navigate to="/dashboard" replace />
-            },
-            {
-                path:'/home',
-                element:<Home/>
-            },
-            {
-                path:'/projects',
-                element:<Project/>
-            },
-            {
-                path:'/profile',
-                element:<Profile/>
-            },
-            {
-                path:'/dashboard',
-                element:<Dashboard/>
-            },
-            {
-                path:'/ideation',
-                element:<Ideation/>
-            },
-            {
-                path:'/knowledge',
-                element:<Knowledge/>
-            },
-            {
-                path:'/setting',
-                element:<Setting/>,
-                children:[
-                    {
-                        path:'/setting/',
-                        element:<ProfileSetting/>
-                    },
-                    {
-                        path:'/setting/preferences',
-                        element:<Preferences/>
-                    },
-                    {
-                        path:'/setting/account',
-                        element:<AccountandSecurity/>
-                    }
-                ]
-            },
-            {
-                path:'/register-startup',
-                element:<RegisterStartUp/>
-            },
-            {
-                path:'/startup',
-                element:<StartUp/>
-            },
-            {
-                path:"/help",
-                element:<Help/>
-            },
-            {
-                path:'/home-details',
-                element:<HomedetailsPage/>
-            },
-            {
-                path:'/ideation-details',
-                element:<Idationdetails/>
-            },
-            {
-                path:'/knowledge-details',
-                element:<Knowledgedetails/>
-            },
-            {
-            path:'/project-details',
-            element:<ProjectDetails/>
-            },
-            {
-                path:'/startup-details',
-                element:<StartUpdetails/>
-            },
-            {
-                path:'/messages',
-                element:<Chat/>
-            }
-        ]
-    },
-    // Catch all unmatched routes
-    {
-        path: '*',
-        element: (
-            <ProtectedRoute>
-                <NotFound />
-            </ProtectedRoute>
-        )
-    }
-]) 
+  // Authentication routes (accessible only when not logged in)
+  {
+    path: "/login",
+    element: (
+      <AuthRoute>
+        <Login />
+      </AuthRoute>
+    ),
+  },
+  {
+    path: "/signup",
+    element: (
+      <AuthRoute>
+        <SignUp />
+      </AuthRoute>
+    ),
+  },
+  // OAuth callback route
+  {
+    path: "/auth/callback",
+    element: <OAuthCallback />,
+  },
+  // Protected routes (accessible only when logged in)
+  {
+    path: "/",
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/home",
+        element: <Home />,
+      },
+      {
+        path: "/projects",
+        element: <Project />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "/ideation",
+        element: <Ideation />,
+      },
+      {
+        path: "/knowledge",
+        element: <Knowledge />,
+      },
+      {
+        path: "/setting",
+        element: <Setting />,
+        children: [
+          {
+            path: "/setting/",
+            element: <ProfileSetting />,
+          },
+          {
+            path: "/setting/preferences",
+            element: <Preferences />,
+          },
+          {
+            path: "/setting/account",
+            element: <AccountandSecurity />,
+          },
+        ],
+      },
+      {
+        path: "/register-startup",
+        element: <RegisterStartUp />,
+      },
+      {
+        path: "/startup",
+        element: <StartUp />,
+      },
+      {
+        path: "/help",
+        element: <Help />,
+      },
+      {
+        path: "/home-details",
+        element: <HomedetailsPage />,
+      },
+      {
+        path: "/ideation-details",
+        element: <Idationdetails />,
+      },
+      {
+        path: "/knowledge-details",
+        element: <Knowledgedetails />,
+      },
+      {
+        path: "/project-details",
+        element: <ProjectDetails />,
+      },
+      {
+        path: "/startup-details",
+        element: <StartUpdetails />,
+      },
+      {
+        path: "/messages",
+        element: <Chat />,
+      },
+    ],
+  },
+  // Catch all unmatched routes
+  {
+    path: "*",
+    element: (
+      <ProtectedRoute>
+        <NotFound />
+      </ProtectedRoute>
+    ),
+  },
+]);

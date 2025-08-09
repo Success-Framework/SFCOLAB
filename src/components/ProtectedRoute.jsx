@@ -1,7 +1,7 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import LoadingSpinner from './LoadingSpinner';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 // Component to protect routes that require authentication
 export const ProtectedRoute = ({ children }) => {
@@ -29,8 +29,8 @@ export const AuthRoute = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    // Redirect authenticated users to dashboard
-    return <Navigate to="/dashboard" replace />;
+    // Redirect authenticated users to home page instead of dashboard
+    return <Navigate to="/" replace />;
   }
 
   return children;
