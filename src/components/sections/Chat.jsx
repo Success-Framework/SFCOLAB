@@ -104,7 +104,7 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
 
   // Configuration
-  const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+  const SOCKET_URL = import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
 
   // Toggle search input
   const toggleInput = () => {

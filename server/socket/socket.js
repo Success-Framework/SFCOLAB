@@ -9,7 +9,8 @@ export const initializeSocket = (server) => {
     },
     // Increased the file upload size and ping time as websockets limit is 1mb
     // Based on the fact data are being stored in local-storage it may difficult uploading files of large size.
-    maxHttpBufferSize: 100e6, 
+    serveClient: false,
+    maxHttpBufferSize: 100e6,
     pingTimeout: 60000,
   });
 
@@ -20,27 +21,22 @@ export const initializeSocket = (server) => {
   io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
 
-    // Set user ID
     socket.on("setUser", (userId) => {
       socket.userId = userId;
       users.set(userId, socket.id);
       socket.join(userId);
 
-      // Initialize unread messages set if it doesn't exist
       if (!unreadMessages.has(userId)) {
         unreadMessages.set(userId, new Set());
       }
 
-      // Send complete online list to the new user
       socket.emit("initialOnlineStatus", Array.from(users.keys()));
 
-      // Broadcast to others that this user came online
       socket.broadcast.emit("userOnline", userId);
 
       console.log(`User ${userId} connected`);
     });
 
-    // Message relay
     socket.on("sendMessage", (message, callback) => {
       try {
         if (!socket.userId) throw new Error("User not identified");
@@ -58,29 +54,29 @@ export const initializeSocket = (server) => {
           isRead: false,
         };
 
-        // Add to recipient's unread messages if they're not currently viewing the chat
         if (users.has(message.recipientId)) {
           unreadMessages.get(message.recipientId).add(fullMessage.id);
         }
 
-        // Emit to recipient if they're connected
         if (users.has(message.recipientId)) {
           io.to(message.recipientId).emit("newMessage", fullMessage);
 
-          // Notify recipient about new unread message
           io.to(message.recipientId).emit("unreadCountUpdate", {
             count: unreadMessages.get(message.recipientId).size,
           });
         }
 
-        callback({ status: "success", message: fullMessage });
+        if (typeof callback === "function") {
+          callback({ status: "success", message: fullMessage });
+        }
       } catch (err) {
         console.error("Message error:", err);
-        callback({ status: "error", message: err.message });
+        if (typeof callback === "function") {
+          callback({ status: "error", message: err.message });
+        }
       }
     });
 
-    // Mark messages as read
     socket.on("markAsRead", (messageIds, callback) => {
       try {
         if (!socket.userId) throw new Error("User not identified");
@@ -88,16 +84,29 @@ export const initializeSocket = (server) => {
         const userUnread = unreadMessages.get(socket.userId) || new Set();
         messageIds.forEach((id) => userUnread.delete(id));
 
-        // Update unread count
         io.to(socket.userId).emit("unreadCountUpdate", {
           count: userUnread.size,
         });
 
-        callback({ status: "success" });
+        if (typeof callback === "function") {
+          callback({ status: "success", message: fullMessage });
+        }
       } catch (err) {
         console.error("Mark as read error:", err);
-        callback({ status: "error", message: err.message });
+        if (typeof callback === "function") {
+          callback({ status: "error", message: err.message });
+        }
       }
+    });
+
+    socket.on("subscribeToNotifications", (userId) => {
+      socket.join(`notifications_${userId}`);
+      console.log(`User ${userId} subscribed to notifications`);
+    });
+
+    socket.on("unsubscribeFromNotifications", (userId) => {
+      socket.leave(`notifications_${userId}`);
+      console.log(`User ${userId} unsubscribed from notifications`);
     });
 
     socket.on("disconnect", () => {
@@ -105,7 +114,6 @@ export const initializeSocket = (server) => {
         const userId = socket.userId;
         users.delete(userId);
 
-        // Broadcast to all clients that this user went offline
         io.emit("userOffline", userId);
         console.log(`User ${userId} disconnected`);
       }
@@ -113,5 +121,40 @@ export const initializeSocket = (server) => {
     });
   });
 
+  io.sendNotification = (userId, notification) => {
+    const notificationWithId = {
+      ...notification,
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+    };
+    io.to(`notifications_${userId}`).emit(
+      "newNotification",
+      notificationWithId
+    );
+  };
+  // test value
+  // io.sendTestNotification = (userId) => {
+  //   const testNotification = {
+  //     title: "SERVER-SIDE TEST",
+  //     message: `hello⌛ Server-generated at ${new Date().toLocaleTimeString()}`,
+  //     type: "server-test",
+  //     urgent: true,
+  //   };
+
+  //   io.to(`notifications_${userId}`).emit("newNotification", {
+  //     ...testNotification,
+  //     id: uuidv4(),
+  //     timestamp: new Date().toISOString(),
+  //   });
+
+  //   console.log(`📡 Sent test notification to user ${userId}`);
+  // };
+
+// Testing the server on automstic start
+  // setTimeout(() => {
+  //   const testUserId = "2"; 
+  //   console.log("Sending automatic test notification to user", testUserId);
+  //   io.sendTestNotification(testUserId);
+  // }, 3000);
   return io;
 };
