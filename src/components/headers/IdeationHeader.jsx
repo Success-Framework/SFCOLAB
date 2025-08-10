@@ -60,10 +60,10 @@ const IdeationHeader = ({
   ];
 
   const sortOptions = [
-    { value: "trending", label: "🔥 Trending", icon: TrendingUp },
-    { value: "latest", label: "🕒 Latest", icon: Clock },
-    { value: "popular", label: "❤️ Most Liked", icon: Heart },
-    { value: "discussed", label: "💬 Most Discussed", icon: MessageSquare },
+    { value: "trending", label: "Trending", icon: TrendingUp },
+    { value: "latest", label: "Latest", icon: Clock },
+    { value: "popular", label: "Most Liked", icon: Heart },
+    { value: "discussed", label: "Most Discussed", icon: MessageSquare },
   ];
 
   const toggleDropdown = (dropdownName) => {
@@ -125,7 +125,7 @@ const IdeationHeader = ({
     <div className="relative">
       <button
         onClick={() => toggleDropdown("sort")}
-        className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all duration-200 w-full sm:w-auto border border-blue-500/20"
+        className=" bg-[#1A1A1A] flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-200 w-full sm:w-auto border border-white/20"
       >
         <TrendingUp className="h-4 w-4" />
         <span className="text-sm font-medium">
@@ -314,19 +314,16 @@ const IdeationHeader = ({
     <div className="w-full p-4 space-y-4">
       {/* Header Section */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-xl">
-              <Lightbulb className="h-6 w-6 text-white" />
-            </div>
+        {/* <div className="flex items-center gap-4"> */}
+          {/* <div className="flex items-center gap-3"> */}
             <div>
               <h1 className="text-2xl font-bold">Ideation Hub</h1>
               <p className="text-sm text-gray-400">
                 Share, discover, and collaborate on innovative ideas
               </p>
             </div>
-          </div>
-        </div>
+          {/* </div> */}
+        {/* </div> */}
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -370,9 +367,13 @@ const IdeationHeader = ({
             }
             onSelect={setSelectedIndustry}
           />
+          {/* <button
+            onClick={() => setShowNewIdeaForm(true)}
+            className="flex items-center gap-2 rounded-xl transition-all duration-200 w-full m-0 p-0 px-6 -py-2 sm:w-auto font-medium shadow-lg bg-blue-800 text-sm"
+          > */}
           <button
             onClick={() => setShowNewIdeaForm(true)}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 rounded-xl transition-all duration-200 w-full sm:w-auto font-medium shadow-lg"
+            className="flex items-center gap-2 rounded-xl transition-all duration-200 w-full px-6 py-0 sm:w-auto font-medium shadow-lg bg-[#1A1A1A] text-sm border border-white/20"
           >
             <Plus className="h-4 w-4" />
             <span>Share Idea</span>

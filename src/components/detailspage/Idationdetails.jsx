@@ -1,107 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   ArrowLeft,
-  Share2,
-  Bookmark,
   MessageSquare,
   Heart,
   Users,
-  Calendar,
   Clock,
   Send,
-  Image as ImageIcon,
-  Link as LinkIcon,
-  Eye,
-  TrendingUp,
-  Star,
-  CheckCircle,
-  Plus,
-  MoreHorizontal,
-  Flag,
-  Edit,
-  Lightbulb,
-  Target,
-  Zap,
-  Award,
-  ThumbsUp,
-  MessageCircle,
-  User,
+  Bookmark,
+  Share2,
+  Tag,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Idationdetails = () => {
   const [comment, setComment] = useState("");
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [joinMessage, setJoinMessage] = useState("");
+  const [suggestMessage, setSuggestMessage] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(101);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [showShareMsg, setShowShareMsg] = useState(false);
+  const commentInputRef = useRef(null);
+  const discussionSectionRef = useRef(null);
 
   const ideaDetails = {
     id: 1,
     title: "Smart Parenting Assistant",
-    description: `A comprehensive mobile application designed to help parents manage their daily family activities, track children's development, and connect with other parents in their community. The app will feature AI-powered suggestions for age-appropriate activities, meal planning, and educational content.`,
-    longDescription: `This innovative app addresses the growing need for digital parenting solutions in today's fast-paced world. Key features include:
-
-• AI-powered activity recommendations based on child's age and interests
-• Development milestone tracking with pediatric insights
-• Community forum for parent-to-parent support and advice
-• Integrated calendar for family scheduling and appointments
-• Educational content library curated by child development experts
-• Safety features including emergency contacts and location sharing
-
-The app aims to reduce parenting stress while promoting healthy child development through evidence-based recommendations and community support.`,
-    category: "Technology",
+    description:
+      "A comprehensive mobile application designed to help parents manage their daily family activities, track children's development, and connect with other parents in their community. The app will feature AI-powered suggestions for age-appropriate activities, meal planning, and educational content.",
+    longDescription:
+      "This innovative app addresses the growing need for digital parenting solutions in today's fast-paced world. Key features include: \n\n• AI-powered activity recommendations based on child's age and interests\n• Development milestone tracking with pediatric insights\n• Community forum for parent-to-parent support and advice\n• Integrated calendar for family scheduling and appointments\n• Educational content library curated by child development experts\n• Safety features including emergency contacts and location sharing\n\nThe app aims to reduce parenting stress while promoting healthy child development through evidence-based recommendations and community support.",
     stage: "Idea Stage",
     createdAt: "March 15, 2024",
     timeAgo: "2 hours ago",
+    tags: ["Parenting", "Mobile App", "AI", "Education", "Community", "Health"],
+    comments: 18,
+    views: 892,
+    collaborators: 3,
     author: {
       name: "Sarah Johnson",
       role: "Product Designer",
       avatar: "https://i.pravatar.cc/150?img=5",
-      reputation: 4.8,
-      badges: ["🏆", "💡", "🎨"],
       bio: "Passionate product designer with 8+ years in family-focused tech solutions.",
-      followers: 1247,
-      projects: 23,
     },
-    tags: ["Parenting", "Mobile App", "AI", "Education", "Community", "Health"],
-    metrics: {
-      likes: 67,
-      hearts: 34,
-      comments: 18,
-      views: 892,
-      shares: 15,
-      bookmarks: 43,
-      viability: "85%",
-      timeline: "6 months",
-      impact: "High",
-      complexity: "Medium",
-    },
-    trendingScore: 89,
-    featured: true,
-    collaborators: [
+    team: [
       {
-        id: 1,
         name: "Mike Chen",
         role: "Developer",
         avatar: "https://i.pravatar.cc/150?img=1",
-        skills: ["React Native", "Node.js", "AI/ML"],
-        joinedAt: "2 days ago",
+        skills: ["React Native", "Node.js"],
       },
       {
-        id: 2,
         name: "Emma Davis",
         role: "UX Researcher",
         avatar: "https://i.pravatar.cc/150?img=2",
-        skills: ["User Research", "Prototyping", "Analytics"],
-        joinedAt: "1 day ago",
+        skills: ["User Research", "Prototyping"],
       },
       {
-        id: 3,
         name: "Alex Wong",
         role: "Business Analyst",
         avatar: "https://i.pravatar.cc/150?img=3",
-        skills: ["Market Research", "Strategy", "Finance"],
-        joinedAt: "4 hours ago",
+        skills: ["Market Research", "Strategy"],
       },
     ],
     feedback: [
@@ -111,14 +74,11 @@ The app aims to reduce parenting stress while promoting healthy child developmen
           name: "David Miller",
           avatar: "https://i.pravatar.cc/150?img=4",
           role: "Parent & Tech Enthusiast",
-          verified: true,
         },
         comment:
-          "Brilliant idea! As a parent of two, I can definitely see the value. Consider adding a feature for tracking children's health records and vaccination schedules. This could be a game-changer for busy parents.",
+          "Brilliant idea! As a parent of two, I can definitely see the value. Consider adding a feature for tracking children's health records and vaccination schedules.",
         timestamp: "2 hours ago",
-        likes: 12,
-        replies: 3,
-        helpful: true,
+        likes: 5,
       },
       {
         id: 2,
@@ -126,42 +86,79 @@ The app aims to reduce parenting stress while promoting healthy child developmen
           name: "Lisa Park",
           avatar: "https://i.pravatar.cc/150?img=6",
           role: "Pediatric Nurse",
-          verified: true,
         },
         comment:
-          "Love the concept! Would be amazing to see integration with popular calendar apps and the ability to share schedules with family members. Also, maybe partner with pediatricians for expert content validation?",
+          "Would love to see integration with popular calendar apps and the ability to share schedules with family members.",
         timestamp: "5 hours ago",
-        likes: 8,
-        replies: 2,
-        helpful: true,
-      },
-      {
-        id: 3,
-        user: {
-          name: "John Rodriguez",
-          avatar: "https://i.pravatar.cc/150?img=7",
-          role: "Mobile Developer",
-          verified: false,
-        },
-        comment:
-          "Great idea! I'd love to contribute to the development. Have you considered the technical architecture? React Native could be perfect for this cross-platform solution.",
-        timestamp: "1 day ago",
-        likes: 5,
-        replies: 1,
-        helpful: false,
+        likes: 3,
       },
     ],
   };
 
+  // Button handlers
   const handleJoinProject = () => {
     setShowJoinModal(true);
+    setSuccessMsg("");
+  };
+  const handleSuggestImprovement = () => {
+    setShowSuggestModal(true);
+    setSuccessMsg("");
+  };
+  const handleStartDiscussion = () => {
+    if (discussionSectionRef.current) {
+      discussionSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    setTimeout(() => {
+      if (commentInputRef.current) {
+        commentInputRef.current.focus();
+      }
+    }, 400);
+  };
+  const handleJoinSubmit = (e) => {
+    e.preventDefault();
+    setSuccessMsg("Request sent! The team will review your interest.");
+    setJoinMessage("");
+    setTimeout(() => setShowJoinModal(false), 1200);
+  };
+  const handleSuggestSubmit = (e) => {
+    e.preventDefault();
+    setSuccessMsg("Thank you for your suggestion!");
+    setSuggestMessage("");
+    setTimeout(() => setShowSuggestModal(false), 1200);
+  };
+  const handleLike = () => {
+    setLiked((prev) => {
+      const newLiked = !prev;
+      setLikeCount((count) => count + (newLiked ? 1 : -1));
+      return newLiked;
+    });
+  };
+  const handleBookmark = () => {
+    setBookmarked((prev) => !prev);
+  };
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: ideaDetails.title,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setShowShareMsg(true);
+        setTimeout(() => setShowShareMsg(false), 1500);
+      }
+    } catch (e) {
+      setShowShareMsg(true);
+      setTimeout(() => setShowShareMsg(false), 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Enhanced Header */}
+      {/* Header */}
       <div className="border-b border-white/10 bg-[#0A0A0A]">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-4 border">
           <div className="flex items-center justify-between">
             <Link
               to="/ideation"
@@ -172,417 +169,251 @@ The app aims to reduce parenting stress while promoting healthy child developmen
             </Link>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setIsLiked(!isLiked)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
-                  isLiked
-                    ? "bg-red-500/20 text-red-400"
-                    : "bg-white/10 hover:bg-white/20"
+                className={`p-2.5 rounded-xl transition-colors flex items-center gap-1 border border-white/20 ${
+                  liked
+                    ? "bg-red-500/10 text-red-400 border-red-400"
+                    : "hover:bg-white/10"
                 }`}
+                onClick={handleLike}
+                aria-label="Like"
               >
-                <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
-                <span>
-                  {ideaDetails.metrics.likes + ideaDetails.metrics.hearts}
+                <Heart className={`h-5 w-5 ${liked ? "fill-current" : ""}`} />
+                <span
+                  className="text-xs font-medium"
+                  style={{ minWidth: 24, textAlign: "center" }}
+                >
+                  {likeCount}
                 </span>
               </button>
-              <button className="p-2.5 hover:bg-white/10 rounded-xl transition-colors">
+              <button
+                className="p-2.5 rounded-xl transition-colors border border-white/20 hover:bg-white/10"
+                onClick={handleShare}
+                aria-label="Share"
+              >
                 <Share2 className="h-5 w-5" />
               </button>
               <button
-                onClick={() => setIsBookmarked(!isBookmarked)}
-                className={`p-2.5 rounded-xl transition-colors ${
-                  isBookmarked
-                    ? "bg-blue-500/20 text-blue-400"
+                className={`p-2.5 rounded-xl transition-colors border border-white/20 ${
+                  bookmarked
+                    ? "bg-blue-500/10 text-blue-400 border-blue-400"
                     : "hover:bg-white/10"
                 }`}
+                onClick={handleBookmark}
+                aria-label="Bookmark"
               >
                 <Bookmark
-                  className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
+                  className={`h-5 w-5 ${bookmarked ? "fill-current" : ""}`}
                 />
-              </button>
-              <button className="p-2.5 hover:bg-white/10 rounded-xl transition-colors">
-                <MoreHorizontal className="h-5 w-5" />
               </button>
             </div>
           </div>
+          {showShareMsg && (
+            <div className="absolute right-8 top-16 bg-[#232323] text-xs text-green-400 px-4 py-2 rounded shadow-lg border border-green-700 z-50">
+              Link copied!
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Hero Section */}
-            <div className="bg-gradient-to-br from-[#1A1A1A] to-[#151515] border border-white/10 rounded-2xl p-8 relative overflow-hidden">
-              {/* Featured Badge */}
-              {ideaDetails.featured && (
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-medium">
-                  <Star className="h-3 w-3" />
-                  Featured
-                </div>
-              )}
-
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-xl">
-                      <Lightbulb className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="bg-blue-500 text-white text-sm px-3 py-1.5 font-medium rounded-full">
-                      {ideaDetails.stage}
-                    </span>
-                    <div className="flex items-center gap-1 text-green-400 text-sm">
-                      <TrendingUp className="h-4 w-4" />
-                      <span>Trending #{ideaDetails.trendingScore}</span>
-                    </div>
-                  </div>
-                  <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-                    {ideaDetails.title}
-                  </h1>
-                  <p className="text-gray-300 text-lg leading-relaxed">
-                    {ideaDetails.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {ideaDetails.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-white/10 hover:bg-white/20 text-sm px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-red-400">
-                    {ideaDetails.metrics.likes + ideaDetails.metrics.hearts}
-                  </div>
-                  <div className="text-xs text-gray-400">Likes</div>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-400">
-                    {ideaDetails.metrics.comments}
-                  </div>
-                  <div className="text-xs text-gray-400">Comments</div>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-green-400">
-                    {ideaDetails.metrics.views}
-                  </div>
-                  <div className="text-xs text-gray-400">Views</div>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-400">
-                    {ideaDetails.collaborators.length}
-                  </div>
-                  <div className="text-xs text-gray-400">Team</div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={handleJoinProject}
-                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+      <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Idea Section */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-[#18181A] rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full font-medium">
+                {ideaDetails.stage}
+              </span>
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <Clock className="h-3 w-3" /> {ideaDetails.timeAgo}
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">
+              {ideaDetails.title}
+            </h1>
+            <p className="text-gray-300 text-base mb-4">
+              {ideaDetails.description}
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {ideaDetails.tags.map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="bg-white/5 text-gray-300 text-xs px-2 py-1 rounded-md hover:bg-white/10 transition-colors"
                 >
-                  <Plus className="h-5 w-5" />
-                  Join Project
-                </button>
-                <button className="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-medium transition-colors flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Start Discussion
-                </button>
-                <button className="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-medium transition-colors flex items-center gap-2">
-                  <Flag className="h-5 w-5" />
-                  Suggest Improvement
-                </button>
-              </div>
+                  #{tag}
+                </span>
+              ))}
             </div>
-
-            {/* Detailed Description */}
-            <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                <Target className="h-6 w-6 text-blue-400" />
-                Project Details
-              </h2>
-              <div className="prose prose-invert max-w-none">
-                <p className="text-gray-300 leading-relaxed whitespace-pre-line">
-                  {ideaDetails.longDescription}
-                </p>
-              </div>
+            <div className="flex items-center gap-6 text-xs text-gray-400 mb-4">
+              <span className="flex items-center gap-1">
+                <Heart className="h-4 w-4" /> {ideaDetails.likes} Likes
+              </span>
+              <span className="flex items-center gap-1">
+                <MessageSquare className="h-4 w-4" /> {ideaDetails.comments}{" "}
+                Comments
+              </span>
+              <span className="flex items-center gap-1">
+                <Users className="h-4 w-4" /> {ideaDetails.collaborators} Team
+              </span>
             </div>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-medium transition-colors"
+                onClick={handleJoinProject}
+              >
+                + Join Project
+              </button>
+              <button
+                className="bg-white/10 hover:bg-white/20 px-5 py-2 rounded-lg font-medium transition-colors"
+                onClick={handleStartDiscussion}
+              >
+                Start Discussion
+              </button>
+              <button
+                className="bg-white/10 hover:bg-white/20 px-5 py-2 rounded-lg font-medium transition-colors"
+                onClick={handleSuggestImprovement}
+              >
+                Suggest Improvement
+              </button>
+            </div>
+          </div>
 
-            {/* Enhanced Comments Section */}
-            <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <MessageCircle className="h-6 w-6 text-green-400" />
-                  Discussion ({ideaDetails.feedback.length})
-                </h2>
-                <div className="flex gap-2">
-                  <button className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">
-                    Newest
-                  </button>
-                  <button className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">
-                    Most Helpful
-                  </button>
-                </div>
-              </div>
+          {/* Project Details */}
+          <div className="bg-[#18181A] rounded-2xl p-8">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Tag className="h-5 w-5 text-blue-400" /> Project Details
+            </h2>
+            <div className="prose prose-invert max-w-none">
+              <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                {ideaDetails.longDescription}
+              </p>
+            </div>
+          </div>
 
-              <div className="space-y-6">
-                {ideaDetails.feedback.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white/5 rounded-xl p-6 hover:bg-white/10 transition-colors"
-                  >
-                    <div className="flex gap-4">
-                      <div className="relative">
-                        <img
-                          src={item.user.avatar}
-                          alt={item.user.name}
-                          className="w-12 h-12 rounded-full border-2 border-white/20"
-                        />
-                        {item.user.verified && (
-                          <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
-                            <CheckCircle className="h-3 w-3 text-white" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">{item.user.name}</h3>
-                            <span className="text-sm text-gray-400">•</span>
-                            <span className="text-sm text-gray-400">
-                              {item.user.role}
-                            </span>
-                            {item.helpful && (
-                              <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <Award className="h-3 w-3" />
-                                Helpful
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-sm text-gray-400">
-                            {item.timestamp}
-                          </span>
-                        </div>
-                        <p className="text-gray-300 mb-4 leading-relaxed">
-                          {item.comment}
-                        </p>
-                        <div className="flex items-center gap-6 text-gray-400">
-                          <button className="flex items-center gap-1 hover:text-white transition-colors">
-                            <ThumbsUp className="h-4 w-4" />
-                            <span>{item.likes}</span>
-                          </button>
-                          <button className="hover:text-white transition-colors">
-                            Reply ({item.replies})
-                          </button>
-                          <button className="hover:text-white transition-colors">
-                            Share
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Enhanced Comment Input */}
-              <div className="mt-8">
-                <h3 className="font-semibold mb-4">Add your thoughts</h3>
-                <div className="flex gap-4">
+          {/* Discussion Section */}
+          <div
+            className="bg-[#18181A] rounded-2xl p-8"
+            ref={discussionSectionRef}
+          >
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-green-400" /> Discussion (
+              {ideaDetails.feedback.length})
+            </h2>
+            <div className="space-y-6">
+              {ideaDetails.feedback.map((item) => (
+                <div key={item.id} className="flex gap-4">
                   <img
-                    src={ideaDetails.author.avatar}
-                    alt="Your avatar"
-                    className="w-12 h-12 rounded-full border-2 border-white/20"
+                    src={item.user.avatar}
+                    alt={item.user.name}
+                    className="w-10 h-10 rounded-full"
                   />
                   <div className="flex-1">
-                    <textarea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      placeholder="Share your feedback, suggestions, or questions..."
-                      className="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
-                      rows="4"
-                    />
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex gap-2">
-                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                          <ImageIcon className="h-5 w-5" />
-                        </button>
-                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                          <LinkIcon className="h-5 w-5" />
-                        </button>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium">{item.user.name}</h3>
+                        <span className="text-xs text-gray-400">
+                          {item.user.role}
+                        </span>
                       </div>
-                      <button className="bg-blue-600 hover:bg-blue-700 px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 font-medium">
-                        <Send className="h-4 w-4" />
-                        Post Comment
+                      <span className="text-xs text-gray-400">
+                        {item.timestamp}
+                      </span>
+                    </div>
+                    <p className="text-gray-300 mb-2">{item.comment}</p>
+                    <div className="flex items-center gap-4 text-gray-400">
+                      <button className="flex items-center gap-1 hover:text-white transition-colors">
+                        <Heart className="h-4 w-4" /> {item.likes}
+                      </button>
+                      <button className="hover:text-white transition-colors">
+                        Reply
                       </button>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Comment Input */}
+            <div className="mt-8">
+              <div className="flex gap-4">
+                <img
+                  src={ideaDetails.author.avatar}
+                  alt={ideaDetails.author.name}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div className="flex-1">
+                  <textarea
+                    ref={commentInputRef}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Add your comment..."
+                    className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                  />
+                  <div className="flex items-center justify-end mt-2">
+                    <button className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium">
+                      <Send className="h-4 w-4" /> Post Comment
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6">
-            {/* Author Card */}
-            <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <User className="h-5 w-5 text-blue-400" />
-                Idea Creator
-              </h2>
-              <div className="text-center">
-                <div className="relative inline-block mb-4">
+        {/* Sidebar */}
+        <div className="space-y-8 max-w-2xl">
+          {/* Author Card */}
+          <div className="bg-[#18181A] rounded-2xl p-6 text-center">
+            <h2 className="text-lg font-bold mb-4">Idea Creator</h2>
+            <img
+              src={ideaDetails.author.avatar}
+              alt={ideaDetails.author.name}
+              className="w-16 h-16 rounded-full mx-auto mb-2"
+            />
+            <h3 className="font-semibold text-base">
+              {ideaDetails.author.name}
+            </h3>
+            <p className="text-xs text-gray-400 mb-2">
+              {ideaDetails.author.role}
+            </p>
+            <p className="text-xs text-gray-300 mb-4">
+              {ideaDetails.author.bio}
+            </p>
+          </div>
+
+          {/* Team Section */}
+          <div className="bg-[#18181A] rounded-2xl p-6">
+            <h2 className="text-lg font-bold mb-4">
+              Team ({ideaDetails.team.length})
+            </h2>
+            <div className="space-y-4">
+              {ideaDetails.team.map((member, idx) => (
+                <div key={idx} className="flex items-center gap-3">
                   <img
-                    src={ideaDetails.author.avatar}
-                    alt={ideaDetails.author.name}
-                    className="w-20 h-20 rounded-full border-3 border-white/20 mx-auto"
+                    src={member.avatar}
+                    alt={member.name}
+                    className="w-10 h-10 rounded-full"
                   />
-                  <div className="absolute -bottom-1 -right-1 flex gap-1">
-                    {ideaDetails.author.badges.map((badge, index) => (
-                      <span key={index} className="text-sm">
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <h3 className="font-bold text-lg mb-1">
-                  {ideaDetails.author.name}
-                </h3>
-                <p className="text-gray-400 mb-2">{ideaDetails.author.role}</p>
-                <div className="flex items-center justify-center gap-1 text-yellow-400 mb-3">
-                  <Star className="h-4 w-4 fill-current" />
-                  <span className="font-medium">
-                    {ideaDetails.author.reputation}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-300 mb-4">
-                  {ideaDetails.author.bio}
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                  <div className="text-center">
-                    <div className="font-bold text-blue-400">
-                      {ideaDetails.author.followers}
-                    </div>
-                    <div className="text-gray-400">Followers</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-green-400">
-                      {ideaDetails.author.projects}
-                    </div>
-                    <div className="text-gray-400">Projects</div>
-                  </div>
-                </div>
-                <button className="w-full bg-white/10 hover:bg-white/20 py-2.5 rounded-xl transition-colors font-medium">
-                  View Profile
-                </button>
-              </div>
-            </div>
-
-            {/* Project Team */}
-            <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <Users className="h-5 w-5 text-purple-400" />
-                  Team ({ideaDetails.collaborators.length})
-                </h2>
-                <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-                  View All
-                </button>
-              </div>
-              <div className="space-y-4">
-                {ideaDetails.collaborators.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
-                  >
-                    <img
-                      src={member.avatar}
-                      alt={member.name}
-                      className="w-12 h-12 rounded-full border-2 border-white/20"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium truncate">{member.name}</h3>
-                      <p className="text-gray-400 text-sm truncate">
-                        {member.role}
-                      </p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {member.skills.slice(0, 2).map((skill, index) => (
-                          <span
-                            key={index}
-                            className="bg-blue-500/20 text-blue-300 text-xs px-2 py-0.5 rounded"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                        {member.skills.length > 2 && (
-                          <span className="text-gray-400 text-xs">
-                            +{member.skills.length - 2}
-                          </span>
-                        )}
-                      </div>
+                  <div>
+                    <h3 className="font-medium text-sm">{member.name}</h3>
+                    <p className="text-xs text-gray-400">{member.role}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {member.skills.map((skill, i) => (
+                        <span
+                          key={i}
+                          className="bg-blue-500/20 text-blue-300 text-xs px-2 py-0.5 rounded"
+                        >
+                          {skill}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-              <button
-                onClick={handleJoinProject}
-                className="w-full mt-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 py-2.5 rounded-xl transition-all duration-200 font-medium flex items-center justify-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Join Team
-              </button>
+                </div>
+              ))}
             </div>
-
-            {/* Project Metrics */}
-            <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Zap className="h-5 w-5 text-yellow-400" />
-                Project Stats
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Viability Score</span>
-                  <span className="font-bold text-green-400">
-                    {ideaDetails.metrics.viability}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Timeline</span>
-                  <span className="font-medium">
-                    {ideaDetails.metrics.timeline}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Impact Level</span>
-                  <span className="font-medium text-orange-400">
-                    {ideaDetails.metrics.impact}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Complexity</span>
-                  <span className="font-medium text-blue-400">
-                    {ideaDetails.metrics.complexity}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Category</span>
-                  <span className="font-medium">{ideaDetails.category}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Created</span>
-                  <span className="font-medium">{ideaDetails.timeAgo}</span>
-                </div>
-              </div>
-            </div>
+            <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl transition-colors font-medium flex items-center justify-center gap-2">
+              + Join Team
+            </button>
           </div>
         </div>
       </div>
@@ -591,27 +422,76 @@ The app aims to reduce parenting stress while promoting healthy child developmen
       {showJoinModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-              Join Smart Parenting Assistant
-            </h2>
-            <p className="text-gray-300 mb-6">
-              Express your interest to collaborate on this exciting project. The
-              team will review your profile and get back to you.
-            </p>
-            <div className="flex gap-3">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Join Project</h2>
               <button
                 onClick={() => setShowJoinModal(false)}
-                className="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-xl transition-colors"
+                className="p-2 hover:bg-white/10 rounded-lg"
               >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowJoinModal(false)}
-                className="flex-1 bg-green-600 hover:bg-green-700 py-3 rounded-xl transition-colors font-medium"
-              >
-                Send Request
+                <X className="h-5 w-5" />
               </button>
             </div>
+            {successMsg ? (
+              <div className="text-green-400 text-center py-6">
+                {successMsg}
+              </div>
+            ) : (
+              <form onSubmit={handleJoinSubmit} className="space-y-4">
+                <textarea
+                  value={joinMessage}
+                  onChange={(e) => setJoinMessage(e.target.value)}
+                  placeholder="Tell the team why you want to join..."
+                  className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
+                >
+                  Send Request
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Suggest Improvement Modal */}
+      {showSuggestModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Suggest Improvement</h2>
+              <button
+                onClick={() => setShowSuggestModal(false)}
+                className="p-2 hover:bg-white/10 rounded-lg"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {successMsg ? (
+              <div className="text-green-400 text-center py-6">
+                {successMsg}
+              </div>
+            ) : (
+              <form onSubmit={handleSuggestSubmit} className="space-y-4">
+                <textarea
+                  value={suggestMessage}
+                  onChange={(e) => setSuggestMessage(e.target.value)}
+                  placeholder="Share your suggestion for improvement..."
+                  className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
+                >
+                  Send Suggestion
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
