@@ -307,13 +307,21 @@ const Ideation = () => {
 
             {/* Quick Action Buttons */}
             <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <button className="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition-colors">
+                <Bookmark className="h-4 w-4 text-white" />
+              </button>
+              <button className="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition-colors">
+                <Share2 className="h-4 w-4 text-white" />
+              </button>
+            </div>
+            {/* <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <button className="bg-white/20 backdrop-blur-sm p-2 rounded-lg hover:bg-white/30 transition-colors">
                 <Bookmark className="h-4 w-4 text-white" />
               </button>
               <button className="bg-white/20 backdrop-blur-sm p-2 rounded-lg hover:bg-white/30 transition-colors">
                 <Share2 className="h-4 w-4 text-white" />
               </button>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
