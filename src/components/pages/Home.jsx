@@ -317,7 +317,7 @@ const Home = () => {
 
       {/* Fixed Chat Button */}
       <Link
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-50 max-sm:hidden"
         to="/messages"
       >
         <MessageCircle size={24} />

@@ -26,19 +26,14 @@ const SideBar = () => {
       href: "/",
     },
     {
-      id: 3,
-      icon: <FileChartColumnIncreasing />,
-      href: "/ideation",
-    },
-    {
-      id: 4,
+      id: 2,
       icon: <BriefcaseBusiness />,
       href: "/knowledge",
     },
     {
-      id: 5,
+      id: 3,
       icon: <SquareChartGantt />,
-      href: "/projects",
+      href: "/ideation",
     },
   ];
 

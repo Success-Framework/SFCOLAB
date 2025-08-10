@@ -65,7 +65,7 @@ const ScrollToTop = () => {
     <>
       {showScrollTop && (
         <button
-          className="fixed bottom-25 right-6 w-12 h-12 bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
+          className="fixed bottom-25 right-6 w-12 h-12 bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-50 "
           onClick={scrollToTop}
         >
           <ArrowUp size={20} />
