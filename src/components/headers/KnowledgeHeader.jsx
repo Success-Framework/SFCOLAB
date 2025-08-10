@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Search, Plus, X, ChevronDown, Menu } from "lucide-react";
+import { Search, Plus, X, Filter, Tag } from "lucide-react";
+import { IoOptionsOutline } from "react-icons/io5";
 
 const KnowledgeHeader = ({
   searchQuery,
@@ -224,7 +225,7 @@ const KnowledgeHeader = ({
   }, [openDropdown]);
 
   return (
-    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[130px] p-4 gap-4 sm:gap-0">
+    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[100px] max-sm:min-h-[80px] p-4 gap-4 sm:gap-0">
       <div className="flex items-center justify-between w-full sm:w-auto">
         <h1 className="text-2xl font-semibold">Knowledge Base</h1>
         <button
@@ -234,7 +235,7 @@ const KnowledgeHeader = ({
           {isMobileMenuOpen ? (
             <X className="h-6 w-6" />
           ) : (
-            <Menu className="h-6 w-6" />
+            <IoOptionsOutline className="h-6 w-6" />
           )}
         </button>
       </div>
@@ -245,14 +246,16 @@ const KnowledgeHeader = ({
         } sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}
       >
         <div className="relative w-full sm:w-auto">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search knowledge base..."
-            className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search knowledge base..."
+              className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          </div>
         </div>
         {/* All Categories Dropdown */}
         <div className="relative dropdown-btn">
@@ -263,7 +266,8 @@ const KnowledgeHeader = ({
             }
             type="button"
           >
-            {selectedCategory}
+            <Tag className="h-4 w-4" />
+            <span>{selectedCategory}</span>
           </button>
           {openDropdown === "category" && (
             <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
@@ -288,7 +292,8 @@ const KnowledgeHeader = ({
             }
             type="button"
           >
-            {selectedSort}
+            <Filter className="h-4 w-4" />
+            <span>{selectedSort}</span>
           </button>
           {openDropdown === "sort" && (
             <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">

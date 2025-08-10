@@ -39,16 +39,6 @@ const Options = () => {
         </Link>
         <Link
           className={`px-3 py-1 rounded-full transition-colors ${
-            location.pathname === "/projects"
-              ? "border border-white text-white"
-              : "text-gray-400 hover:text-white"
-          }`}
-          to="/projects"
-        >
-          Projects
-        </Link>
-        <Link
-          className={`px-3 py-1 rounded-full transition-colors ${
             location.pathname === "/startup"
               ? "border border-white text-white"
               : "text-gray-400 hover:text-white"

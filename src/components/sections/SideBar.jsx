@@ -26,11 +26,6 @@ const SideBar = () => {
       href: "/",
     },
     {
-      id: 2,
-      icon: <CalendarCog />,
-      href: "/dashboard",
-    },
-    {
       id: 3,
       icon: <FileChartColumnIncreasing />,
       href: "/ideation",
@@ -44,16 +39,6 @@ const SideBar = () => {
       id: 5,
       icon: <SquareChartGantt />,
       href: "/projects",
-    },
-    {
-      id: 6,
-      icon: <File />,
-      href: "/register-startup",
-    },
-    {
-      id: 7,
-      icon: <User />,
-      href: "/startup",
     },
   ];
 

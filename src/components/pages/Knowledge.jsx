@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import Options from "../sections/Options";
 
 const Knowledge = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,6 +179,7 @@ const Knowledge = () => {
 
   return (
     <div className="min-h-screen bg-black">
+      <Options />
       <KnowledgeHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -186,22 +188,22 @@ const Knowledge = () => {
         selectedSort={selectedSort}
         setSelectedSort={setSelectedSort}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4 max-sm:p-0">
         {filteredAndSortedContent.map((content) => (
           <Link
             key={content.id}
             to={`/knowledge-details?id=${content.id}`}
             className="bg-[#232323] rounded-4xl h-full hover:bg-[#2a2a2a] transition-colors duration-200"
           >
-            <div className="w-full h-full p-2">
-              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6">
+            <div className="w-full h-full p-2 max-sm:p-1">
+              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6 max-sm:p-5">
                 {/* header */}
                 <div className="flex w-full justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-700 flex items-center justify-center">
                       <FileType className="h-6 w-6 text-gray-400" />
                     </div>
-                    <h1 className="text-lg font-bold">{content.title}</h1>
+                    <h1 className="text-lg max-sm:text-base font-bold">{content.title}</h1>
                   </div>
                   <button
                     className={`${getFileTypeColor(
@@ -213,7 +215,7 @@ const Knowledge = () => {
                 </div>
 
                 {/* content */}
-                <div className="text-sm font-medium leading-relaxed text-[#C4C4C4] line-clamp-3">
+                <div className="text-sm font-medium max-sm:font-normal leading-relaxed text-[#C4C4C4] line-clamp-3">
                   {content.description}
                 </div>
 
