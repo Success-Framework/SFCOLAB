@@ -5,34 +5,34 @@ import SideBar from "../components/sections/SideBar";
 import MobileNavBar from "../components/sections/MobileNavBar";
 
 const Layout = () => {
-  const location = useLocation();
+    const location = useLocation();
   const isChatPage = location.pathname === "/messages";
-  return (
+    return (
     <div className="h-screen w-screen bg-[#000000] overflow-hidden">
       <div className="w-full h-[10%]">
-        <NavBar />
-      </div>
-      {isChatPage ? (
+                <NavBar />
+            </div>
+            {isChatPage ? (
         <div className="w-full h-[90%] overflow-hidden pb-16 sm:pb-0">
-          <Outlet />
-        </div>
-      ) : (
+                    <Outlet />
+                </div>
+            ) : (
         <div className="relative h-[90%] w-full flex overflow-hidden">
           {/* Desktop Sidebar - Hidden on mobile */}
           <div className="hidden sm:block">
-            <SideBar />
+                    <SideBar />
           </div>
           {/* Main Content Area */}
           <div className="text-white flex flex-col w-full p-5 max-sm:px-4 max-sm:py-0 gap-10 overflow-hidden pb-16 sm:pb-0">
             <div className="w-full h-[100%] pt-3.5 overflow-y-auto overflow-x-hidden">
-              <Outlet />
-            </div>
-          </div>
-        </div>
-      )}
+                            <Outlet />
+                        </div>
+                    </div>
+                </div>
+            )}
       {/* Mobile Navigation Bar - Only visible on mobile */}
       <MobileNavBar />
-    </div>
+        </div>
   );
 };
 

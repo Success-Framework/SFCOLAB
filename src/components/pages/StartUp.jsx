@@ -159,9 +159,9 @@ const StartUp = () => {
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4 max-sm:p-0">
         {filteredStartups.map((startup) => (
-          <Link
-            key={startup.id}
-            to={`/startup-details?id=${startup.id}`}
+          <Link 
+            key={startup.id} 
+            to={`/startup-details?id=${startup.id}`} 
             className="bg-[#232323] rounded-4xl h-full hover:bg-[#2A2A2A] transition-colors"
           >
             <div className="w-full h-full p-2 max-sm:p-1">
@@ -202,9 +202,9 @@ const StartUp = () => {
                         key={index}
                         className="bg-[#2A2A2A] rounded-lg p-2 text-center"
                       >
-                        <p className="text-xs text-gray-400 mb-1">{key}</p>
-                        <p className="text-sm font-medium">{value}</p>
-                      </div>
+                      <p className="text-xs text-gray-400 mb-1">{key}</p>
+                      <p className="text-sm font-medium">{value}</p>
+                    </div>
                     )
                   )}
                 </div>
@@ -242,7 +242,7 @@ const StartUp = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>  
           </Link>
         ))}
       </div>

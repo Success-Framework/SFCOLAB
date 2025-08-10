@@ -1,6 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Brain, Lightbulb, MessageCircle, BellDot } from "lucide-react";
+import { AiOutlineHome, AiFillHome } from "react-icons/ai";
+import {
+  HiOutlineUsers,
+  HiUsers,
+  HiOutlineLightBulb,
+  HiLightBulb,
+} from "react-icons/hi";
+import { IoNotificationsOutline, IoNotifications } from "react-icons/io5";
+import { BsChatDots, BsChatDotsFill } from "react-icons/bs";
 
 const MobileNavBar = () => {
   const location = useLocation();
@@ -8,52 +16,55 @@ const MobileNavBar = () => {
   const navItems = [
     {
       path: "/",
-      icon: Home,
+      icon: AiOutlineHome,
+      activeIcon: AiFillHome,
       label: "Home",
       isActive: location.pathname === "/" || location.pathname === "/home",
     },
     {
       path: "/projects",
-      icon: Users,
+      icon: HiOutlineUsers,
+      activeIcon: HiUsers,
       label: "Contributors",
       isActive: location.pathname === "/projects",
     },
     {
       path: "/knowledge",
-      icon: Lightbulb,
+      icon: HiOutlineLightBulb,
+      activeIcon: HiLightBulb,
       label: "K.Base",
       isActive: location.pathname === "/knowledge",
     },
     {
       path: "/notification",
-      icon: BellDot,
+      icon: IoNotificationsOutline,
+      activeIcon: IoNotifications,
       label: "Notifications",
       isActive: location.pathname === "/notification",
     },
     {
       path: "/messages",
-      icon: MessageCircle,
+      icon: BsChatDots,
+      activeIcon: BsChatDotsFill,
       label: "Messages",
       isActive: location.pathname === "/messages",
     },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-[#262626] px-4 py-2 z-50 sm:hidden">
-      <div className="flex items-center justify-around">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-[#262626] px-1 py-2 z-50 sm:hidden">
+      <div className="flex items-center justify-between">
         {navItems.map((item) => {
-          const IconComponent = item.icon;
+          const IconComponent = item.isActive ? item.activeIcon : item.icon;
           return (
             <Link
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors ${
-                item.isActive
-                  ? "text-white bg-white/10"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                item.isActive ? "text-white" : "text-gray-400 hover:text-white"
               }`}
             >
-              <IconComponent size={20} strokeWidth={1.5} />
+              <IconComponent size={20} />
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           );

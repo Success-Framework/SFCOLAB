@@ -58,7 +58,7 @@ export default function Project() {
     {
       id: 2,
       name: "Mask ho",
-      username: "mask",
+      username: "mask", 
       avatar: allimg.profileImg,
       bio: "Engineer, founder, ceo & Developer that can be found inhabiting coffee houses",
       joined: "March 6, 2024",
@@ -88,7 +88,7 @@ export default function Project() {
       id: 3,
       name: "Nom Na",
       username: "nomna",
-      avatar: allimg.profileImg,
+      avatar: allimg.profileImg, 
       bio: "Engineer, founder, ceo & Developer that can be found inhabiting coffee houses",
       joined: "March 6, 2024",
       role: "Employee",
@@ -125,7 +125,7 @@ export default function Project() {
       name: "Lipp",
       username: "lipp",
       avatar: allimg.profileImg,
-      bio: "Engineer, founder, ceo & Developer that can be found inhabiting coffee houses",
+      bio: "Engineer, founder, ceo & Developer that can be found inhabiting coffee houses", 
       joined: "March 6, 2024",
       role: "Employee",
       userType: "Product Manager",
@@ -225,7 +225,7 @@ export default function Project() {
       <div className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
           {filteredEmployees.map((employee) => (
-            <Link
+            <Link 
               key={employee.id}
               to={`/project-details?id=${employee.id}`}
               className="bg-zinc-900 p-3 min-h-[330px] rounded-xl flex flex-col h-full hover:bg-zinc-800 transition-colors"
@@ -296,9 +296,9 @@ export default function Project() {
                         key={index}
                         className="bg-zinc-800 rounded-lg p-2 text-center"
                       >
-                        <p className="text-xs text-gray-400 mb-1">{key}</p>
-                        <p className="text-sm font-medium">{value}</p>
-                      </div>
+                      <p className="text-xs text-gray-400 mb-1">{key}</p>
+                      <p className="text-sm font-medium">{value}</p>
+                    </div>
                     )
                   )}
                 </div>
