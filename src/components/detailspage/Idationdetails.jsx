@@ -158,7 +158,7 @@ const Idationdetails = () => {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="border-b border-white/10 bg-[#0A0A0A]">
-        <div className="max-w-6xl mx-auto px-4 py-4 border">
+        <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link
               to="/ideation"

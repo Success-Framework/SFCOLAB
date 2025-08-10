@@ -214,7 +214,7 @@ const Ideation = () => {
       {/* Ideas Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 max-sm:p-2">
         {filteredAndSortedProjects.map((content) => (
-          <div key={content.id} className="group">
+          <div key={content.id} className="group relative">
             <Link
               to={`/ideation-details?id=${content.id}`}
               className="block bg-[#1A1A1A] border border-white/10 rounded-xl hover:border-white/20 hover:bg-[#212121] transition-all duration-300 group-hover:scale-[1.02] h-full"
