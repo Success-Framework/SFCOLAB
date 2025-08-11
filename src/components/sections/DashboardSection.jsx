@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import {  Users, Target, TrendingUp, Award,  } from 'lucide-react'
+import React, { useMemo } from 'react'
+import { Users, Target, TrendingUp, Award, } from 'lucide-react'
 
 
-const DashboardSection = () => {
+const DashboardSection = ({ searchQuery = '' }) => {
 
   const dashboardCards = [
     {
@@ -54,43 +54,61 @@ const DashboardSection = () => {
       ]
     }
   ]
+
+  const filteredCards = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return dashboardCards
+    return dashboardCards.filter(card => {
+      const inTitle = card.title.toLowerCase().includes(q)
+      const inValue = String(card.value).toLowerCase().includes(q)
+      const inChange = String(card.change).toLowerCase().includes(q)
+      const inMetrics = card.metrics?.some(m => (
+        String(m.label).toLowerCase().includes(q) ||
+        String(m.value).toLowerCase().includes(q)
+      ))
+      return inTitle || inValue || inChange || inMetrics
+    })
+  }, [searchQuery])
+
   return (
     <>
 
 
-         {/* Dashboard Cards */}
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-          {dashboardCards.map((card) => (
-            <div key={card.id} className="bg-[#1A1A1A] rounded-4xl p-6 hover:bg-[#232323] transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  {card.icon}
-                  <h3 className="text-lg font-semibold">{card.title}</h3>
-                </div>
-                <span className={`text-sm ${
-                  card.change.startsWith('+') ? 'text-green-500' : 'text-blue-500'
+      {/* Dashboard Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+        {filteredCards.map((card) => (
+          <div key={card.id} className="bg-[#1A1A1A] rounded-4xl p-6 hover:bg-[#232323] transition-colors">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                {card.icon}
+                <h3 className="text-lg font-semibold">{card.title}</h3>
+              </div>
+              <span className={`text-sm ${String(card.change).startsWith('+') ? 'text-green-500' : 'text-blue-500'
                 }`}>
-                  {card.change}
-                </span>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-3xl font-bold">{card.value}</p>
-              </div>
-
-              <div className="space-y-3">
-                {card.metrics.map((metric, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">{metric.label}</span>
-                    <span className="font-medium">{metric.value}</span>
-                  </div>
-                ))}
-              </div>
+                {card.change}
+              </span>
             </div>
-          ))}
-        </div>
 
-</>
+            <div className="mb-4">
+              <p className="text-3xl font-bold">{card.value}</p>
+            </div>
+
+            <div className="space-y-3">
+              {card.metrics.map((metric, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400">{metric.label}</span>
+                  <span className="font-medium">{metric.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {filteredCards.length === 0 && (
+          <div className="text-sm text-gray-400 col-span-full">No dashboard metrics match your search</div>
+        )}
+      </div>
+
+    </>
   )
 }
 

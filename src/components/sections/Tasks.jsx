@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { ChevronRight, Loader2 } from "lucide-react";
 
-export default function Tasks() {
+export default function Tasks({ searchQuery = "" }) {
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollRef = useRef(null);
 
@@ -154,14 +154,31 @@ export default function Tasks() {
     },
   ];
 
+  const filterList = useCallbackFilter();
+
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
+      return {
+        tasks,
+        inProgressTasks,
+        completedTasks,
+      };
+    }
+    return {
+      tasks: filterList(tasks, q),
+      inProgressTasks: filterList(inProgressTasks, q),
+      completedTasks: filterList(completedTasks, q),
+    };
+  }, [searchQuery]);
+
   const TaskCard = ({ task }) => (
     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 w-[280px] lg:w-[300px] xl:w-[320px] min-h-[342px] max-sm:min-h-[280px] flex-shrink-0 relative">
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <div
-            className={`w-2 h-2 rounded-full flex-shrink-0 ${
-              task.status === "Completed" ? "bg-green-500" : "bg-orange-500"
-            }`}
+            className={`w-2 h-2 rounded-full flex-shrink-0 ${task.status === "Completed" ? "bg-green-500" : "bg-orange-500"
+              }`}
           />
           <span className="font-medium truncate">{task.title}</span>
         </div>
@@ -227,6 +244,9 @@ export default function Tasks() {
             {tasks.map((task) => (
               <TaskCard key={task.id} task={task} />
             ))}
+            {tasks.length === 0 && (
+              <div className="text-sm text-gray-400 py-6">No tasks match your search</div>
+            )}
           </div>
         </div>
         {showScrollIndicator && (
@@ -245,22 +265,40 @@ export default function Tasks() {
       <div className="flex-1 flex flex-col gap-6 w-full">
         <TaskSection
           title="Today's Tasks"
-          tasks={tasks}
-          badgeCount={tasks.length}
+          tasks={filtered.tasks}
+          badgeCount={filtered.tasks.length}
         />
 
         <TaskSection
           title="In Progress"
-          tasks={inProgressTasks}
-          badgeCount={inProgressTasks.length}
+          tasks={filtered.inProgressTasks}
+          badgeCount={filtered.inProgressTasks.length}
         />
 
         <TaskSection
           title="Completed"
-          tasks={completedTasks}
-          badgeCount={completedTasks.length}
+          tasks={filtered.completedTasks}
+          badgeCount={filtered.completedTasks.length}
         />
       </div>
     </div>
   );
+}
+
+function useCallbackFilter() {
+  return useMemo(() => {
+    return (list, q) =>
+      list.filter((t) => {
+        const title = t.title?.toLowerCase() || "";
+        const description = t.description?.toLowerCase() || "";
+        const status = t.status?.toLowerCase() || "";
+        const date = t.date?.toLowerCase() || "";
+        return (
+          title.includes(q) ||
+          description.includes(q) ||
+          status.includes(q) ||
+          date.includes(q)
+        );
+      });
+  }, []);
 }

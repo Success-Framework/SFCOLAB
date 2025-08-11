@@ -29,19 +29,7 @@ const Ideation = () => {
   const [selectedStage, setSelectedStage] = useState("All Stages");
   const [selectedIndustry, setSelectedIndustry] = useState("All Industries");
   const [sortBy, setSortBy] = useState("trending"); // trending, latest, popular, discussed
-
-  const getStageColor = (stage) => {
-    const colors = {
-      "Idea Stage": "bg-blue-500/20 text-blue-400",
-      "Concept Stage": "bg-amber-500/20 text-amber-400",
-      "Development Stage": "bg-green-500/20 text-green-400",
-      "Research Stage": "bg-purple-500/20 text-purple-400",
-      "MVP Stage": "bg-red-500/20 text-red-400",
-    };
-    return colors[stage] || "bg-gray-500/20 text-gray-400";
-  };
-
-  const cardContent = [
+  const [ideas, setIdeas] = useState(() => [
     {
       id: 1,
       title: "Smart Parenting Assistant",
@@ -150,11 +138,47 @@ const Ideation = () => {
         avatar: "https://i.pravatar.cc/150?img=9",
       },
     },
-  ];
+  ]);
+
+  const handleCreateIdea = (payload) => {
+    const now = new Date();
+    const newIdea = {
+      id: Date.now(),
+      title: payload.title,
+      description: payload.description,
+      createdAt: now.toISOString(),
+      timeAgo: "just now",
+      stage: payload.stage,
+      category: payload.industry,
+      tags: payload.tags,
+      likes: 0,
+      comments: 0,
+      collaborators: 1,
+      author: {
+        name: "You",
+        role: "Contributor",
+        avatar: "https://i.pravatar.cc/150?img=11",
+      },
+    };
+    setIdeas((prev) => [newIdea, ...prev]);
+    setSortBy("latest");
+    setSearchQuery("");
+  };
+
+  const getStageColor = (stage) => {
+    const colors = {
+      "Idea Stage": "bg-blue-500/20 text-blue-400",
+      "Concept Stage": "bg-amber-500/20 text-amber-400",
+      "Development Stage": "bg-green-500/20 text-green-400",
+      "Research Stage": "bg-purple-500/20 text-purple-400",
+      "MVP Stage": "bg-red-500/20 text-red-400",
+    };
+    return colors[stage] || "bg-gray-500/20 text-gray-400";
+  };
 
   // Filter projects based on search query and filters
   const filteredAndSortedProjects = useMemo(() => {
-    let filtered = cardContent.filter((project) => {
+    let filtered = ideas.filter((project) => {
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
         searchQuery === "" ||
@@ -192,7 +216,7 @@ const Ideation = () => {
       default:
         return filtered;
     }
-  }, [searchQuery, selectedStage, selectedIndustry, sortBy]);
+  }, [ideas, searchQuery, selectedStage, selectedIndustry, sortBy]);
 
   return (
     <div className="min-h-screen bg-black">
@@ -206,6 +230,7 @@ const Ideation = () => {
           setSelectedIndustry={setSelectedIndustry}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          onCreateIdea={handleCreateIdea}
         />
       </div>
 
@@ -312,14 +337,6 @@ const Ideation = () => {
                 <Share2 className="h-4 w-4 text-white" />
               </button>
             </div>
-            {/* <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button className="bg-white/20 backdrop-blur-sm p-2 rounded-lg hover:bg-white/30 transition-colors">
-                <Bookmark className="h-4 w-4 text-white" />
-              </button>
-              <button className="bg-white/20 backdrop-blur-sm p-2 rounded-lg hover:bg-white/30 transition-colors">
-                <Share2 className="h-4 w-4 text-white" />
-              </button>
-            </div> */}
           </div>
         ))}
       </div>

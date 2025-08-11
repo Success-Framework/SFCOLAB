@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   ChevronDown,
   Filter,
   Building2,
-  Search,
   Plus,
   X,
   TrendingUp,
@@ -15,6 +14,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { IoOptionsOutline } from "react-icons/io5";
+import SearchBar from "../sections/SearchBar";
 
 const IdeationHeader = ({
   searchQuery,
@@ -25,17 +25,19 @@ const IdeationHeader = ({
   setSelectedIndustry,
   sortBy,
   setSortBy,
+  onCreateIdea,
 }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [showNewIdeaForm, setShowNewIdeaForm] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    industry: "",
-    stage: "",
-    tags: "",
-  });
+
+  // Use refs instead of controlled state to prevent focus loss
+  const titleRef = useRef("");
+  const descriptionRef = useRef("");
+  const industryRef = useRef("");
+  const stageRef = useRef("");
+  const tagsRef = useRef("");
+  const searchTimeoutRef = useRef(null);
 
   const stages = [
     "All Stages",
@@ -72,16 +74,26 @@ const IdeationHeader = ({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+    const payload = {
+      title: titleRef.current.trim(),
+      description: descriptionRef.current.trim(),
+      industry: industryRef.current || "Technology",
+      stage: stageRef.current || "Idea Stage",
+      tags: tagsRef.current
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+    };
+    if (typeof onCreateIdea === "function") {
+      onCreateIdea(payload);
+    }
     setShowNewIdeaForm(false);
-    setFormData({
-      title: "",
-      description: "",
-      industry: "",
-      stage: "",
-      tags: "",
-    });
+    // Clear refs
+    titleRef.current = "";
+    descriptionRef.current = "";
+    industryRef.current = "";
+    stageRef.current = "";
+    tagsRef.current = "";
   };
 
   const FilterButton = ({
@@ -154,31 +166,13 @@ const IdeationHeader = ({
     </div>
   );
 
-  const SearchBar = () => (
-    <div className="relative w-full sm:w-auto">
-      <div className="relative">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search brilliant ideas..."
-          className="w-full sm:w-[320px] px-4 py-2.5 pl-12 bg-white/10 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-400 transition-all duration-200"
-        />
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-      </div>
-    </div>
-  );
+
 
   const NewIdeaForm = () => (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-lg max-h-[500px] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-xl">
-              <Lightbulb className="h-5 w-5 text-white" />
-            </div>
-            <h2 className="text-xl font-bold">Share Your Brilliant Idea</h2>
-          </div>
+          <h2 className="text-xl font-semibold">Share Your Brilliant Idea</h2>
           <button
             onClick={() => setShowNewIdeaForm(false)}
             className="p-2 hover:bg-white/10 rounded-xl transition-colors"
@@ -187,20 +181,21 @@ const IdeationHeader = ({
           </button>
         </div>
 
-        <form onSubmit={handleFormSubmit} className="space-y-5">
+        <form onSubmit={handleFormSubmit} className="space-y-5" noValidate>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Idea Title *
             </label>
             <input
               type="text"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              defaultValue=""
+              onChange={(e) => {
+                titleRef.current = e.target.value;
+              }}
               placeholder="What's your big idea?"
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
               required
+              autoFocus
             />
           </div>
 
@@ -209,12 +204,12 @@ const IdeationHeader = ({
               Description *
             </label>
             <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              defaultValue=""
+              onChange={(e) => {
+                descriptionRef.current = e.target.value;
+              }}
               placeholder="Describe your idea in detail. What problem does it solve? How does it work?"
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 h-32 resize-none"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 h-32 resize-none placeholder:text-xs"
               required
             />
           </div>
@@ -225,11 +220,11 @@ const IdeationHeader = ({
                 Industry *
               </label>
               <select
-                value={formData.industry}
-                onChange={(e) =>
-                  setFormData({ ...formData, industry: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white"
+                defaultValue=""
+                onChange={(e) => {
+                  industryRef.current = e.target.value;
+                }}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white text-xs"
                 required
               >
                 <option value="" className="bg-gray-800">
@@ -254,11 +249,11 @@ const IdeationHeader = ({
                 Stage *
               </label>
               <select
-                value={formData.stage}
-                onChange={(e) =>
-                  setFormData({ ...formData, stage: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white"
+                defaultValue=""
+                onChange={(e) => {
+                  stageRef.current = e.target.value;
+                }}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white text-xs"
                 required
               >
                 <option value="" className="bg-gray-800">
@@ -281,26 +276,26 @@ const IdeationHeader = ({
             </label>
             <input
               type="text"
-              value={formData.tags}
-              onChange={(e) =>
-                setFormData({ ...formData, tags: e.target.value })
-              }
+              defaultValue=""
+              onChange={(e) => {
+                tagsRef.current = e.target.value;
+              }}
               placeholder="e.g., AI, Mobile, Sustainability (comma separated)"
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 max-sm:text-sm">
             <button
               type="button"
               onClick={() => setShowNewIdeaForm(false)}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors font-medium"
+              className="px-6 py-2.5 bg-white/10 shadow-md hover:bg-white/20 rounded-xl transition-colors font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all duration-200 font-medium text-white shadow-lg"
+              className="px-6 py-2.5 bg-gray-200 shadow-md hover:bg-gray-300 rounded-xl transition-all duration-200 font-medium text-black shadow-lg"
             >
               Share Idea
             </button>
@@ -315,14 +310,14 @@ const IdeationHeader = ({
       {/* Header Section */}
       <div className="flex items-center justify-between">
         {/* <div className="flex items-center gap-4"> */}
-          {/* <div className="flex items-center gap-3"> */}
-            <div>
-              <h1 className="text-2xl font-bold">Ideation Hub</h1>
-              <p className="text-xs text-gray-400">
-                Share, discover, and collaborate on innovative ideas
-              </p>
-            </div>
-          {/* </div> */}
+        {/* <div className="flex items-center gap-3"> */}
+        <div>
+          <h1 className="text-2xl font-bold">Ideation Hub</h1>
+          <p className="text-xs text-gray-400">
+            Share, discover, and collaborate on innovative ideas
+          </p>
+        </div>
+        {/* </div> */}
         {/* </div> */}
 
         <button
@@ -339,12 +334,15 @@ const IdeationHeader = ({
 
       {/* Controls Section */}
       <div
-        className={`${
-          isMobileMenuOpen ? "flex" : "hidden"
-        } sm:flex flex-col sm:flex-row gap-3 w-full`}
+        className={`${isMobileMenuOpen ? "flex" : "hidden"
+          } sm:flex flex-col sm:flex-row gap-3 w-full`}
       >
         <div className="flex-1">
-          <SearchBar />
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchTimeoutRef={searchTimeoutRef}
+          />
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
@@ -367,13 +365,9 @@ const IdeationHeader = ({
             }
             onSelect={setSelectedIndustry}
           />
-          {/* <button
-            onClick={() => setShowNewIdeaForm(true)}
-            className="flex items-center gap-2 rounded-xl transition-all duration-200 w-full m-0 p-0 px-6 -py-2 sm:w-auto font-medium shadow-lg bg-blue-800 text-sm"
-          > */}
           <button
             onClick={() => setShowNewIdeaForm(true)}
-            className="flex items-center gap-2 rounded-xl transition-all duration-200 w-full px-6 py-0 sm:w-auto font-medium shadow-lg bg-[#1A1A1A] text-sm border border-white/20"
+            className="flex items-center justify-center gap-2 rounded-lg transition-all duration-200 w-full px-4 py-2.5  sm:w-auto font-medium shadow-lg bg-gray-200 text-black text-sm border border-white/20"
           >
             <Plus className="h-4 w-4" />
             <span>Share Idea</span>

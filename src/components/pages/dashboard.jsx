@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import WorldClock from "../sections/WorldClock";
 import Calendar from "../sections/Calendar";
 import Tasks from "../sections/Tasks";
@@ -9,9 +9,11 @@ import DashboardSection from "../sections/DashboardSection";
 import TaskProgress from "../sections/TaskProgress";
 
 const Dashboard = () => {
+  const [query, setQuery] = useState("");
+
   return (
     <div className="min-h-screen bg-black text-white w-full overflow-x-hidden">
-      <DashboardHeader />
+      <DashboardHeader searchQuery={query} onSearchChange={setQuery} />
 
       {/* Main Content */}
       <div className="w-full mx-auto py-4 mb-4 overflow-x-hidden">
@@ -29,11 +31,11 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="w-full overflow-x-hidden">
-        <Tasks />
+        <Tasks searchQuery={query} />
       </div>
 
       <div className="w-full overflow-x-hidden">
-        <DashboardSection />
+        <DashboardSection searchQuery={query} />
       </div>
     </div>
   );
