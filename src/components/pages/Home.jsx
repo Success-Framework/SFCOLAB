@@ -16,7 +16,7 @@ import {
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import FilterHeader from "../headers/HomeHeader";
-import Options from "../sections/Options";
+// import Options from "../sections/Options";
 import ScrollToTop from "../sections/ScrollToTop";
 
 const Home = () => {
@@ -176,7 +176,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Options />
+      {/* <Options /> */}
       <FilterHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

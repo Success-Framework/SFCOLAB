@@ -71,21 +71,21 @@ const StartUpHeader = ({
   }) => (
     <div className="relative dropdown-btn">
       <button
-        className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
+        className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 w-full sm:w-auto border border-white/10 hover:border-white/20"
         onClick={() =>
           setOpenDropdown(openDropdown === dropdownName ? null : dropdownName)
         }
         type="button"
       >
         {icon}
-        <span>{selected}</span>
+        <span className="text-sm font-medium">{selected && !selected.startsWith("All") ? selected : label}</span>
       </button>
       {openDropdown === dropdownName && (
-        <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg py-2 z-50">
+        <div className="absolute top-full left-0 mt-2 w-48 bg-[#1A1A1A] border border-white/20 rounded-xl shadow-2xl py-2 z-50 backdrop-blur-sm">
           {options.map((option, index) => (
             <button
               key={index}
-              className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10"
+              className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
               onClick={() => {
                 onSelect(option);
                 setOpenDropdown(null);
@@ -100,12 +100,17 @@ const StartUpHeader = ({
   );
 
   return (
-    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-end min-h-[100px] max-sm:min-h-[80px] p-4 gap-4 sm:gap-0">
-      <div className="flex items-center justify-between w-full sm:w-auto">
-        <h1 className="text-2xl font-medium">Startups</h1>
+    <div className="w-full p-4 px-2 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Startups</h1>
+          <p className="text-xs text-gray-400">
+            Explore startup companies and their profiles — filter by industry, stage, and location.
+          </p>
+        </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="sm:hidden p-2 hover:bg-white/10 rounded-lg"
+          className="sm:hidden p-2 hover:bg-white/10 rounded-xl transition-colors"
         >
           {isMobileMenuOpen ? (
             <X className="h-6 w-6" />
@@ -116,46 +121,49 @@ const StartUpHeader = ({
       </div>
 
       <div
-        className={`${
-          isMobileMenuOpen ? "flex" : "hidden"
-        } sm:flex flex-col sm:flex-row gap-4 w-full sm:w-auto`}
+        className={`${isMobileMenuOpen ? "flex" : "hidden"} sm:flex flex-col sm:flex-row gap-3 w-full`}
       >
-        <div className="relative w-full sm:w-auto">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search startups..."
-              className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex-1">
+          <div className="relative w-full sm:w-auto">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search startups..."
+                className="w-full sm:w-[320px] px-4 py-2.5 pl-12 bg-white/10 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-400 transition-all duration-200"
+              />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            </div>
           </div>
         </div>
-        <DropdownButton
-          label="Industry"
-          options={industries}
-          selected={selectedIndustry}
-          onSelect={setSelectedIndustry}
-          dropdownName="industry"
-          icon={<Building2 className="h-4 w-4" />}
-        />
-        <DropdownButton
-          label="Stage"
-          options={stages}
-          selected={selectedStage}
-          onSelect={setSelectedStage}
-          dropdownName="stage"
-          icon={<Filter className="h-4 w-4" />}
-        />
-        <DropdownButton
-          label="Location"
-          options={locations}
-          selected={selectedLocation}
-          onSelect={setSelectedLocation}
-          dropdownName="location"
-          icon={<MapPin className="h-4 w-4" />}
-        />
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <DropdownButton
+            label="Industry"
+            options={industries}
+            selected={selectedIndustry}
+            onSelect={setSelectedIndustry}
+            dropdownName="industry"
+            icon={<Building2 className="h-4 w-4" />}
+          />
+          <DropdownButton
+            label="Stage"
+            options={stages}
+            selected={selectedStage}
+            onSelect={setSelectedStage}
+            dropdownName="stage"
+            icon={<Filter className="h-4 w-4" />}
+          />
+          <DropdownButton
+            label="Location"
+            options={locations}
+            selected={selectedLocation}
+            onSelect={setSelectedLocation}
+            dropdownName="location"
+            icon={<MapPin className="h-4 w-4" />}
+          />
+        </div>
       </div>
     </div>
   );

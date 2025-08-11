@@ -13,7 +13,6 @@ import {
   Clock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import Options from "../sections/Options";
 
 const Knowledge = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -179,7 +178,6 @@ const Knowledge = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Options />
       <KnowledgeHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

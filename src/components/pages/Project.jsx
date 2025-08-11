@@ -15,7 +15,6 @@ import { Link } from "react-router-dom";
 import { allimg } from "../../utils";
 import FindContributionHeader from "../headers/FindContributionHeader";
 import React, { useState, useMemo } from "react";
-import Options from "../sections/Options";
 import ScrollToTop from "../sections/ScrollToTop";
 
 export default function Project() {
@@ -209,8 +208,6 @@ export default function Project() {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="mb-0">
-        <Options />
-
         <FindContributionHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

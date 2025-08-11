@@ -22,7 +22,6 @@ import {
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import IdeationHeader from "../headers/IdeationHeader";
-import Options from "../sections/Options";
 import ScrollToTop from "../sections/ScrollToTop";
 
 const Ideation = () => {
@@ -198,7 +197,6 @@ const Ideation = () => {
   return (
     <div className="min-h-screen bg-black">
       <div className="mb-0">
-        <Options />
         <IdeationHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

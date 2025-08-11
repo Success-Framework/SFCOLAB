@@ -311,14 +311,14 @@ const IdeationHeader = ({
   );
 
   return (
-    <div className="w-full p-4 space-y-4">
+    <div className="w-full p-4 px-2 space-y-4">
       {/* Header Section */}
       <div className="flex items-center justify-between">
         {/* <div className="flex items-center gap-4"> */}
           {/* <div className="flex items-center gap-3"> */}
             <div>
               <h1 className="text-2xl font-bold">Ideation Hub</h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-xs text-gray-400">
                 Share, discover, and collaborate on innovative ideas
               </p>
             </div>

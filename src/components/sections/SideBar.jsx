@@ -8,7 +8,7 @@ import {
   Menu,
   Settings,
   SquareChartGantt,
-  User,
+  Users,
   X,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -27,13 +27,13 @@ const SideBar = () => {
     },
     {
       id: 2,
-      icon: <BriefcaseBusiness />,
-      href: "/knowledge",
+      icon: <Users />,
+      href: "/projects",
     },
     {
       id: 3,
-      icon: <SquareChartGantt />,
-      href: "/ideation",
+      icon: <BriefcaseBusiness />,
+      href: "/knowledge",
     },
   ];
 

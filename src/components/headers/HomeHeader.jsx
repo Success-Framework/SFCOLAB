@@ -111,9 +111,15 @@ const FilterHeader = ({
   );
 
   return (
-    <div className="w-full flex flex-col sm:flex-row justify-end items-end min-h-[80px] p-4">
+    <div className="w-full flex flex-col sm:flex-col justify-end items-end min-h-[80px] p-4 px-2">
+      {/* page hint */}
+      <div className="w-full self-start mb-4">
+        <p className="text-xs text-gray-400">
+          Discover active projects and open roles. Filter by location, stage, and industry.
+        </p>
+      </div>
       <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
-        <div className="flex items-center justify-between w-full sm:w-auto">
+        <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
           <SearchBar />
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
