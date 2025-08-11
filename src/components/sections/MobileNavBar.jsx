@@ -36,11 +36,11 @@ const MobileNavBar = ({ isHidden = false }) => {
       isActive: location.pathname === "/knowledge",
     },
     {
-      path: "/notification",
+      path: "/notifications",
       icon: IoNotificationsOutline,
       activeIcon: IoNotifications,
       label: "Notifications",
-      isActive: location.pathname === "/notification",
+      isActive: location.pathname === "/notifications",
     },
     {
       path: "/messages",

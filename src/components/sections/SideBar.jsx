@@ -10,6 +10,7 @@ import {
   SquareChartGantt,
   Users,
   X,
+  Bell,
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -51,15 +52,14 @@ const SideBar = () => {
             <Link
               key={link.id}
               to={link.href}
-              className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
-                location.pathname === link.href
+              className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${location.pathname === link.href
                   ? "bg-[#2A2A2A] text-white"
                   : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
-              }`}
+                }`}
               onClick={onLinkClick}
             >
               <div className="flex items-center justify-center">
-                {link.icon} 
+                {link.icon}
               </div>
             </Link>
           ))}
@@ -70,23 +70,35 @@ const SideBar = () => {
       <div className="flex flex-col gap-2 items-center">
         <Link
           to="/setting"
-          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
-            location.pathname === "/settings"
+          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${location.pathname === "/settings"
               ? "bg-[#2A2A2A] text-white"
               : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
-          }`}
+            }`}
           onClick={onLinkClick}
         >
           <div className="flex items-center justify-center">
             <Settings size={20} />
           </div>
         </Link>
+                <Link
+          to="/notifications"
+          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${location.pathname === "/notifications"
+            ? "bg-[#2A2A2A] text-white"
+            : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+          }`}
+          onClick={onLinkClick}
+        >
+          <div className="flex items-center justify-center relative">
+            <Bell size={20} />
+            {/* Notification badge */}
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </div>
+        </Link>
         <Link
           to="/help"
-          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${
-            location.pathname === "/help"
-              ? "bg-[#2A2A2A] text-white"
-              : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${location.pathname === "/help"
+            ? "bg-[#2A2A2A] text-white"
+            : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
           }`}
           onClick={onLinkClick}
         >
@@ -121,9 +133,8 @@ const SideBar = () => {
       >
         {/* Backdrop */}
         <div
-          className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-            isOpen ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"
+            }`}
           onClick={() => setIsOpen(false)}
         />
 

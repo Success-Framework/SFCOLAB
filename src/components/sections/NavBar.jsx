@@ -70,15 +70,29 @@ const NavBar = ({ isHidden = false }) => {
 
         {/* notification dropdown */}
         <div className="relative max-sm:hidden" ref={notificationRef}>
-          <button
-            onClick={() => handleDropdownClick("notification")}
-            className="text-xl font-medium text-[#C4C4C4]"
-          >
-            <BellDot className="text-2xl" />
-          </button>
+          <Link to="/notifications" className="relative">
+            <button
+              onClick={() => handleDropdownClick("notification")}
+              className="text-xl font-medium text-[#C4C4C4] hover:text-white transition-colors"
+            >
+              <BellDot className="text-2xl" />
+            </button>
+            {/* Notification badge */}
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+          </Link>
           {activeDropdown === "notification" && (
             <div className="absolute right-0 mt-2 w-48 bg-[#120C18] rounded-lg shadow-lg py-2 z-50">
-              <div className="px-4 py-2 text-white">No new notifications</div>
+              <Link
+                to="/notifications"
+                className="block px-4 py-2 text-white hover:bg-white/10 transition-colors"
+              >
+                View all notifications
+              </Link>
+              <div className="px-4 py-2 text-gray-400 text-sm border-t border-white/10">
+                <Link to="/notifications" className="block hover:text-white transition-colors">
+                  View all notifications
+                </Link>
+              </div>
             </div>
           )}
         </div>

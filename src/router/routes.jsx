@@ -21,6 +21,7 @@ import Knowledgedetails from "../components/detailspage/Knowledgedetails.jsx";
 import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
 import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
 import Help from "../components/pages/Help.jsx";
+import Notifications from "../components/pages/Notifications.jsx";
 import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
@@ -114,6 +115,10 @@ export const router = createBrowserRouter([
       {
         path: "/help",
         element: <Help />,
+      },
+      {
+        path: "/notifications",
+        element: <Notifications />,
       },
       {
         path: "/home-details",
