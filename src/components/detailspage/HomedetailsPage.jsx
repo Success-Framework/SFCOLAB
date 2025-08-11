@@ -107,25 +107,25 @@ const HomedetailsPage = () => {
                   </button>
                 </div>
               </div>
-              <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
+              <p className="text-gray-300 text-xs sm:text-base leading-relaxed mb-6">
                 {projectDetails.description}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">{projectDetails.people} Roles</span>
+                  <User className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">{projectDetails.people} Roles</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <BriefcaseBusiness className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">{projectDetails.technology}</span>
+                  <BriefcaseBusiness className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">{projectDetails.technology}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <LocateIcon className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">{projectDetails.location}</span>
+                  <LocateIcon className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">{projectDetails.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">Created: {projectDetails.createdAt}</span>
+                  <Calendar className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">Created: {projectDetails.createdAt}</span>
                 </div>
               </div>
             </div>
@@ -171,32 +171,32 @@ const HomedetailsPage = () => {
               <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Quick Info</h2>
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Status</span>
-                  <span className="text-green-500 text-sm sm:text-base">Active</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Status</span>
+                  <span className="text-green-500 text-xs sm:text-base">Active</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Posted</span>
-                  <span className="text-sm sm:text-base">{projectDetails.createdAt}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Posted</span>
+                  <span className="text-xs sm:text-base">{projectDetails.createdAt}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Location</span>
-                  <span className="text-sm sm:text-base">{projectDetails.location}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Location</span>
+                  <span className="text-xs sm:text-base">{projectDetails.location}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Team Size</span>
-                  <span className="text-sm sm:text-base">{projectDetails.people} members</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Team Size</span>
+                  <span className="text-xs sm:text-base">{projectDetails.people} members</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Progress</span>
-                  <span className="text-sm sm:text-base">{projectDetails.metrics.progress}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Progress</span>
+                  <span className="text-xs sm:text-base">{projectDetails.metrics.progress}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Deadline</span>
-                  <span className="text-sm sm:text-base">{projectDetails.metrics.deadline}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Deadline</span>
+                  <span className="text-xs sm:text-base">{projectDetails.metrics.deadline}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Budget</span>
-                  <span className="text-sm sm:text-base">{projectDetails.metrics.budget}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Budget</span>
+                  <span className="text-xs sm:text-base">{projectDetails.metrics.budget}</span>
                 </div>
               </div>
             </div>
