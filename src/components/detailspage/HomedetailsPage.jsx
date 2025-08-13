@@ -82,7 +82,7 @@ const HomedetailsPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 max-sm:px-2 py-4 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-8">
@@ -107,7 +107,7 @@ const HomedetailsPage = () => {
                   </button>
                 </div>
               </div>
-              <p className="text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
+              <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
                 {projectDetails.description}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

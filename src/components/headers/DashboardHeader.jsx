@@ -2,8 +2,18 @@ import React, { useState } from 'react'
 import { Search, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const DashboardHeader = () => {
-  const [searchQuery, setSearchQuery] = useState('')
+const DashboardHeader = ({ searchQuery, onSearchChange }) => {
+  const [localQuery, setLocalQuery] = useState('')
+  const value = typeof searchQuery === 'string' ? searchQuery : localQuery
+
+  const handleChange = (e) => {
+    const v = e.target.value
+    if (typeof onSearchChange === 'function') {
+      onSearchChange(v)
+    } else {
+      setLocalQuery(v)
+    }
+  }
 
   return (
     <>
@@ -18,22 +28,21 @@ const DashboardHeader = () => {
             <div className="relative w-full sm:w-auto">
               <input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={value}
+                onChange={handleChange}
                 placeholder="Search..."
                 className="w-full sm:w-[300px] px-4 py-2 pl-10 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder-gray-400"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
 
-            {/* Register Startup Button */}
-            <Link 
+            {/* <Link 
               to="/register-startup"
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/20 rounded-lg transition-colors w-full sm:w-auto "
             >
               <Plus className="h-4 w-4" />
               <span>Register Startup</span>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

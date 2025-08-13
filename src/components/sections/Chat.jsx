@@ -105,7 +105,7 @@ export default function Chat() {
 
   // Configuration
   const SOCKET_URL =
-    import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
+    import.meta.env.REACT_APP_SOCKET_URL || "http://localhost:5000";
 
   // Toggle search input
   const toggleInput = () => {
@@ -633,7 +633,7 @@ export default function Chat() {
   // };
 
   return (
-    <div className="flex flex-col h-screen bg-[#181818] text-white md:flex-row">
+    <div className="flex flex-col h-screen bg-[#181818] text-white md:flex-row pt-13">
       {/* Mobile Topbar */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#000] border-b border-[#222]">
         <button

@@ -28,4 +28,3 @@ To maintain organized development, follow these rules:
 ⚠️ Important Notes: 
 - Never force-push to shared branches
 - Always pull latest changes before pushing.
-

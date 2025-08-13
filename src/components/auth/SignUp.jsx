@@ -3,10 +3,14 @@
 import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../contexts/AuthContext"
 
 export default function SignUp() {
   const navigate = useNavigate()
+  const { signup, loginWithGoogle } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState({})
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -16,6 +20,80 @@ export default function SignUp() {
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ""
+      }))
+    }
+  }
+
+  const handleGoogleSignUp = () => {
+    try {
+      loginWithGoogle();
+    } catch (error) {
+      console.error('Google sign up error:', error);
+      setErrors(prev => ({
+        ...prev,
+        submit: "Failed to initiate Google sign up"
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {}
+    
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required"
+    }
+    
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required"
+    }
+    
+    if (!formData.email) {
+      newErrors.email = "Email is required"
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid"
+    }
+    
+    if (!formData.password) {
+      newErrors.password = "Password is required"
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters"
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateForm()) return
+
+    setIsLoading(true)
+    try {
+      const result = await signup(formData)
+      
+      if (result.success) {
+        // Navigate to dashboard after successful signup
+        navigate('/dashboard', { replace: true })
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          submit: result.error || "Signup failed"
+        }))
+      }
+    } catch (error) {
+      console.error('Signup error:', error)
+      setErrors(prev => ({
+        ...prev,
+        submit: "An unexpected error occurred"
+      }))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -35,9 +113,13 @@ export default function SignUp() {
             <p className="text-gray-400 text-sm">Enter your personal data to create your account.</p>
           </div>
 
-          <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Google Sign Up Button */}
-            <button className="w-full bg-transparent border border-gray-700 text-white  flex items-center justify-center py-2 rounded">
+            <button 
+              type="button"
+              onClick={handleGoogleSignUp}
+              className="w-full bg-transparent border border-gray-700 text-white flex items-center justify-center py-2 rounded hover:bg-gray-800 transition-colors"
+            >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -67,8 +149,9 @@ export default function SignUp() {
                   placeholder="eg: John"
                   value={formData.firstName}
                   onChange={(e) => handleInputChange("firstName", e.target.value)}
-                  className="border border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2"
+                  className={`border ${errors.firstName ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2`}
                 />
+                {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
                 <label htmlFor="lastName" className="text-white text-sm">Last Name</label>
@@ -78,8 +161,9 @@ export default function SignUp() {
                   placeholder="eg: Francisco"
                   value={formData.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
-                  className=" border border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2"
+                  className={`border ${errors.lastName ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2`}
                 />
+                {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName}</p>}
               </div>
             </div>
 
@@ -92,8 +176,9 @@ export default function SignUp() {
                 placeholder="eg: johnfrancisco@gmail.com"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className=" border border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2"
+                className={`border ${errors.email ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2`}
               />
+              {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
             </div>
 
             {/* Password Field */}
@@ -106,7 +191,7 @@ export default function SignUp() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
-                  className=" border border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2 pr-10"
+                  className={`border ${errors.password ? 'border-red-500' : 'border-gray-700'} text-white placeholder:text-gray-500 focus:border-gray-600 focus:ring-gray-600 w-full rounded px-3 py-2 pr-10`}
                 />
                 <button
                   type="button"
@@ -116,20 +201,35 @@ export default function SignUp() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
               <p className="text-xs text-gray-500">Must be at least 8 characters.</p>
             </div>
 
+            {errors.submit && (
+              <p className="text-red-500 text-sm text-center">{errors.submit}</p>
+            )}
+
             {/* Sign Up Button */}
-            <button className="w-full bg-white text-black hover:bg-gray-100 font-medium py-2 rounded">
-              Sign Up
+            <button 
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-white text-black hover:bg-gray-100 font-medium py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Creating Account..." : "Sign Up"}
             </button>
 
             {/* Login Link */}
             <p className="text-center text-sm text-gray-400">
               Already have an account?{" "}
-              <button className="text-white hover:underline font-medium" onClick={() => navigate("/login")}>Log in</button>
+              <button 
+                type="button"
+                onClick={() => navigate("/login")}
+                className="text-white hover:underline font-medium"
+              >
+                Log in
+              </button>
             </p>
-          </div>
+          </form>
         </div>
       </div>
     </div>

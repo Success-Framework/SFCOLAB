@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-
 *{
     box-sizing: border-box;
 }
@@ -11,8 +10,51 @@ html, body{
     height: 100%;
     color: white;
     background-color: black;
+    overflow-x: hidden;
 }
 
 ::-webkit-scrollbar{
     display: none;
 }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Ensure no horizontal overflow */
+.overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+/* Responsive container */
+.container-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
