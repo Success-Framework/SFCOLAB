@@ -105,6 +105,20 @@ const StartUp = () => {
     },
   ];
 
+  // Add a cover image for each startup (mock for now)
+  const coverImages = [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+  ];
+  // Funding breakdown mock for each card
+  const fundingStages = [
+    { stage: "Seed", amount: 1000000 },
+    { stage: "Series A", amount: 3000000 },
+    { stage: "Goal", amount: 8000000 },
+  ];
+
   // Filter startups based on search query and filters
   const filteredStartups = useMemo(() => {
     return startupContent.filter((startup) => {
@@ -157,90 +171,51 @@ const StartUp = () => {
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4 max-sm:p-0">
-        {filteredStartups.map((startup) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-7 p-4 max-sm:p-0">
+        {filteredStartups.map((startup, idx) => (
           <Link
             key={startup.id}
             to={`/startup-details?id=${startup.id}`}
-            className="bg-[#232323] rounded-4xl h-full hover:bg-[#2A2A2A] transition-colors"
+            className="group bg-[#18181A] rounded-3xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col relative min-h-[340px] hover:scale-[1.025] focus:scale-[1.025] focus:outline-none"
+            style={{ minHeight: 340 }}
           >
-            <div className="w-full h-full p-2 max-sm:p-1">
-              <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6 max-sm:p-5">
-                {/* header */}
-                <div className="flex w-full justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-700">
-                      <img
-                        src={startup.logo}
-                        alt={startup.name}
-                        className="h-full w-full object-cover"
-                      />
+            {/* Cover Image with gradient overlay */}
+            <div className="relative w-full h-32 sm:h-36">
+              <img src={coverImages[idx % coverImages.length]} alt="cover" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              {/* Badges */}
+              <div className="absolute top-3 left-3 flex gap-2 z-10">
+                <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">{startup.industry}</span>
+                <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">{startup.stage}</span>
                     </div>
-                    <h1 className="text-lg max-sm:text-base font-bold">
-                      {startup.name}
-                    </h1>
-                  </div>
-                  <button
-                    className={`${getStageColor(
-                      startup.stage
-                    )} text-xs max-sm:text-[10px] px-2 py-1 font-medium rounded-full`}
-                  >
-                    {startup.stage}
-                  </button>
+              {/* Logo - overlaps cover */}
+              <div className="absolute left-4 -bottom-7 z-20">
+                <div className="h-14 w-14 rounded-full border-4 border-[#18181A] bg-zinc-800 overflow-hidden shadow-lg">
+                  <img src={startup.logo} alt={startup.name} className="h-full w-full object-cover" />
                 </div>
-
-                {/* content */}
-                <div className="text-sm font-medium max-sm:font-normal leading-relaxed text-[#C4C4C4] line-clamp-3">
-                  {startup.description}
                 </div>
-
-                {/* metrics */}
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.entries(startup.metrics).map(
-                    ([key, value], index) => (
-                      <div
-                        key={index}
-                        className="bg-[#2A2A2A] rounded-lg p-2 text-center"
-                      >
-                        <p className="text-xs text-gray-400 mb-1">{key}</p>
-                        <p className="text-sm font-medium">{value}</p>
                       </div>
-                    )
-                  )}
+            {/* Card Content */}
+            <div className="flex-1 flex flex-col justify-between pt-10 pb-4 px-4">
+              {/* Name & One-liner */}
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-white mb-1 line-clamp-1">{startup.name}</h1>
+                <p className="text-xs sm:text-sm text-gray-300 mb-3 line-clamp-2">{startup.description}</p>
                 </div>
-
-                {/* metadata */}
-                <div className="grid grid-cols-2 font-medium text-[#C4C4C4] gap-4">
-                  <div className="space-y-3">
-                    <p className="flex items-center gap-2 text-sm">
-                      <Users size={18} className="text-blue-500" />
-                      <span>{startup.teamSize} Team</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-sm">
-                      <Building2 size={18} className="text-green-500" />
-                      <span>{startup.industry}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-sm">
-                      <MapPin size={18} className="text-red-500" />
-                      <span>{startup.location}</span>
-                    </p>
+              {/* Meta: Location & Team */}
+              <div className="flex items-center gap-3 mb-4">
+                <span className="flex items-center gap-1 text-xs text-gray-400">
+                  <MapPin size={14} /> {startup.location}
+                </span>
+                <span className="flex items-center gap-1 text-xs text-gray-400">
+                  <Users size={14} /> {startup.teamSize} team
+                </span>
                   </div>
-                  <div className="space-y-3">
-                    <p className="flex items-center gap-2 text-sm">
-                      <Calendar size={18} className="text-purple-500" />
-                      <span>Founded {startup.founded}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-sm text-green-500">
-                      <DollarSign size={18} />
-                      <span>{startup.funding} Raised</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-sm text-blue-500">
-                      <Target size={18} />
-                      <span>View Details</span>
-                      <ArrowUpRight size={14} />
-                    </p>
-                  </div>
-                </div>
+              {/* View Details Button */}
+              <div className="flex justify-end">
+                <span className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-full shadow transition-colors">
+                  View Details <ArrowUpRight size={14} />
+                </span>
               </div>
             </div>
           </Link>

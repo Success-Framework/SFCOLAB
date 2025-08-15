@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
-import { ArrowLeft, Share2, BookmarkPlus, Users, Briefcase, Star, Calendar, Clock, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, CheckCircle2, MapPin, Building2, DollarSign, Target } from 'lucide-react'
+import { ArrowLeft, Share2, BookmarkPlus, Users, Briefcase, Star, Calendar, Clock, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, CheckCircle2, MapPin, Building2, DollarSign, Target, UserPlus, PhoneOutgoing } from 'lucide-react'
+import { IoPersonAdd } from "react-icons/io5";
+import { FaMessage } from "react-icons/fa6";
+
 import { Link } from 'react-router-dom'
 import { allimg } from "../../utils"
 
@@ -85,26 +88,55 @@ const StartUpdetails = () => {
     ]
   }
 
+  const coverImage = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
+  // Funding breakdown mock data
+  const fundingStages = [
+    { stage: "Seed", amount: 1500000 },
+    { stage: "Series A", amount: 5200000 },
+    { stage: "Goal", amount: 10000000 },
+  ];
+  // Documents mock data
+  const documents = [
+    { type: "Pitch Deck", url: "#", icon: <ImageIcon className="inline mr-2" /> },
+    { type: "Business Plan", url: "#", icon: <LinkIcon className="inline mr-2" /> },
+    { type: "Intro Video", url: "#", icon: <ImageIcon className="inline mr-2" /> },
+  ];
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Header */}
-      <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <Link to="/startup" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft className="h-5 w-5" />
-              <span className="hidden sm:inline">Back to Startups</span>
-            </Link>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <Share2 className="h-5 w-5" />
-              </button>
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <BookmarkPlus className="h-5 w-5" />
-              </button>
+      {/* Cover + Hero */}
+      <div className="relative w-full h-48 sm:h-64 mb-8">
+        <img src={coverImage} alt="Cover" className="w-full h-full object-cover rounded-b-3xl" />
+        <div className="absolute inset-0 bg-black/40 rounded-b-3xl flex flex-col justify-end p-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden bg-zinc-700 border-4 border-white">
+              <img src={startupDetails.logo} alt={startupDetails.name} className="h-full w-full object-cover" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              {/* <div className="flex items-center max-sm:justify-center text-xs sm:text-sm gap-x-6"> */}
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1">{startupDetails.name}</h1>
+              {/* </div> */}
+              
+              <p className="text-gray-200 text-sm sm:text-base mb-1">{startupDetails.description}</p>
+              <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-3">
+                <span className="bg-blue-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full">{startupDetails.industry}</span>
+                <span className="bg-green-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full">{startupDetails.stage}</span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+      {/* Action Buttons */}
+      <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-3 mb-6 items-center justify-center sm:justify-end">
+        <button className="bg-white hover:bg-white text-black px-4 py-2 rounded-md font-medium">Support</button>
+        <button className="hover:bg-white/10 text-white border border-white px-4 py-2 rounded-md font-medium">Apply to Join</button>
+        <button className="border border-white rounded-md text-white p-2 font-medium">
+<PhoneOutgoing />
+        </button>
+        <button className="border border-white rounded-md text-white p-2 font-medium">
+<UserPlus />
+
+        </button>
       </div>
 
       {/* Main Content */}
@@ -112,127 +144,45 @@ const StartUpdetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-8">
-            {/* Startup Header */}
-            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 mb-6">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-                  <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden bg-zinc-700">
-                    <img src={startupDetails.logo} alt={startupDetails.name} className="h-full w-full object-cover" />
-                  </div>
-                  <div className="text-center sm:text-left">
-                    <h1 className="text-xl sm:text-2xl font-bold mb-2">{startupDetails.name}</h1>
-                    <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-3">
-                      <span className="bg-blue-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full">
-                        {startupDetails.industry}
-                      </span>
-                      <span className="bg-green-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full">
-                        {startupDetails.stage}
-                      </span>
+            {/* Funding Breakdown */}
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8 mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Funding Breakdown</h2>
+              <div className="flex flex-col gap-4">
+                {fundingStages.map((stage, idx) => (
+                  <div key={stage.stage} className="flex items-center gap-4">
+                    <span className="w-20 text-xs sm:text-sm font-semibold text-gray-300">{stage.stage}</span>
+                    <div className="flex-1 h-3 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${idx === fundingStages.length - 1 ? 'bg-yellow-500' : 'bg-blue-500'}`}
+                        style={{ width: `${Math.min(100, (stage.amount / fundingStages[fundingStages.length - 1].amount) * 100)}%` }}
+                      ></div>
                     </div>
+                    <span className="text-xs sm:text-sm font-bold text-white">${(stage.amount / 1000).toLocaleString()}k</span>
                   </div>
-                </div>
-                <button
-                  onClick={() => setIsJoined(!isJoined)}
-                  className={`px-4 sm:px-6 py-2 rounded-lg transition-colors text-sm sm:text-base ${
-                    isJoined
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                >
-                  {isJoined ? (
-                    <span className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                      Joined
-                    </span>
-                  ) : (
-                    'Join Startup'
-                  )}
-                </button>
-              </div>
-
-              <p className="text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
-                {startupDetails.description}
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-[#2A2A2A] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="h-5 w-5 text-blue-500" />
-                    <span className="text-xs sm:text-sm text-gray-400">Location</span>
-                  </div>
-                  <p className="font-medium text-sm sm:text-base">{startupDetails.location}</p>
-                </div>
-                <div className="bg-[#2A2A2A] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building2 className="h-5 w-5 text-blue-500" />
-                    <span className="text-xs sm:text-sm text-gray-400">Team Size</span>
-                  </div>
-                  <p className="font-medium text-sm sm:text-base">{startupDetails.teamSize}</p>
-                </div>
-                <div className="bg-[#2A2A2A] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="h-5 w-5 text-blue-500" />
-                    <span className="text-xs sm:text-sm text-gray-400">Funding</span>
-                  </div>
-                  <p className="font-medium text-sm sm:text-base">{startupDetails.funding}</p>
-                </div>
-                <div className="bg-[#2A2A2A] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-5 w-5 text-blue-500" />
-                    <span className="text-xs sm:text-sm text-gray-400">Founded</span>
-                  </div>
-                  <p className="font-medium text-sm sm:text-base">{startupDetails.founded}</p>
+                ))}
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href={startupDetails.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-400 transition-colors text-sm sm:text-base"
-                >
-                  Visit Website
-                </a>
-                <a
-                  href={startupDetails.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-400 transition-colors text-sm sm:text-base"
-                >
-                  LinkedIn
-                </a>
-                <a
-                  href={startupDetails.social.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-400 transition-colors text-sm sm:text-base"
-                >
-                  Twitter
-                </a>
+            {/* Documents Section */}
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8 mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Documents</h2>
+              <div className="flex flex-wrap gap-4">
+                {documents.map((doc, idx) => (
+                  <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#232323] hover:bg-[#333] px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    {doc.icon} {doc.type}
+                  </a>
+                ))}
               </div>
             </div>
 
-            {/* Key Metrics */}
-            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8">
-              <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Key Metrics</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                <div className="bg-[#2A2A2A] rounded-xl p-4 sm:p-6 text-center">
-                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 mx-auto mb-2 sm:mb-3" />
-                  <p className="text-xl sm:text-2xl font-bold mb-1">{startupDetails.metrics.users}</p>
-                  <p className="text-gray-400 text-sm sm:text-base">Active Users</p>
-                </div>
-                <div className="bg-[#2A2A2A] rounded-xl p-4 sm:p-6 text-center">
-                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 mx-auto mb-2 sm:mb-3" />
-                  <p className="text-xl sm:text-2xl font-bold mb-1">{startupDetails.metrics.accuracy}</p>
-                  <p className="text-gray-400 text-sm sm:text-base">Diagnostic Accuracy</p>
-                </div>
-                <div className="bg-[#2A2A2A] rounded-xl p-4 sm:p-6 text-center">
-                  <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 mx-auto mb-2 sm:mb-3" />
-                  <p className="text-xl sm:text-2xl font-bold mb-1">{startupDetails.metrics.hospitals}</p>
-                  <p className="text-gray-400 text-sm sm:text-base">Partner Hospitals</p>
-                </div>
+            {/* AI Matchmaking Widget (placeholder) */}
+            <div className="bg-[#1A1A1A] rounded-2xl sm:rounded-4xl p-4 sm:p-8 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Users className="text-blue-400" size={24} />
+                <span className="text-white font-semibold">AI Matchmaking</span>
+                <span className="text-gray-400 text-xs sm:text-sm">Suggested contributors and investors for this startup!</span>
               </div>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Get Suggestions</button>
             </div>
 
             {/* Team */}
@@ -245,10 +195,10 @@ const StartUpdetails = () => {
                       <img
                         src={member.avatar}
                         alt={member.name}
-                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-full"
+                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-blue-500"
                       />
                       <div>
-                        <h3 className="font-medium text-sm sm:text-base">{member.name}</h3>
+                        <h3 className="font-medium text-sm sm:text-base flex items-center gap-2">{member.name} <span className="bg-blue-700 text-white text-xs px-2 py-0.5 rounded-full">@{member.role.split(' ')[0].toLowerCase()}</span></h3>
                         <p className="text-gray-400 text-xs sm:text-sm">{member.role}</p>
                       </div>
                     </div>
