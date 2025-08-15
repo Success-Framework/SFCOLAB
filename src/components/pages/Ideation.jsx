@@ -19,7 +19,7 @@ import {
   Plus,
   Tag,
 } from "lucide-react";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import IdeationHeader from "../headers/IdeationHeader";
 import ScrollToTop from "../sections/ScrollToTop";
@@ -140,7 +140,32 @@ const Ideation = () => {
     },
   ]);
 
+  // Voting state for each idea (local only)
+  const [votes, setVotes] = useState({});
+  // Premium posting modal state
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [premiumIdeaPayload, setPremiumIdeaPayload] = useState(null);
+  // Events tab state
+  const [activeEventTab, setActiveEventTab] = useState("ideathon");
+  // Countdown for event (mock)
+  const [countdown, setCountdown] = useState(3600 * 24 * 2 + 3600 * 5 + 60 * 30); // 2d 5h 30m
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+  const formatCountdown = (s) => {
+    const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    return `${d}d ${h}h ${m}m ${sec}s`;
+  };
+
   const handleCreateIdea = (payload) => {
+    if (payload.premium) {
+      setShowPremiumModal(true);
+      setPremiumIdeaPayload(payload);
+      return;
+    }
     const now = new Date();
     const newIdea = {
       id: Date.now(),
@@ -163,6 +188,36 @@ const Ideation = () => {
     setIdeas((prev) => [newIdea, ...prev]);
     setSortBy("latest");
     setSearchQuery("");
+  };
+
+  const handlePremiumConfirm = () => {
+    if (premiumIdeaPayload) {
+      const now = new Date();
+      const newIdea = {
+        id: Date.now(),
+        title: premiumIdeaPayload.title,
+        description: premiumIdeaPayload.description,
+        createdAt: now.toISOString(),
+        timeAgo: "just now",
+        stage: premiumIdeaPayload.stage,
+        category: premiumIdeaPayload.industry,
+        tags: premiumIdeaPayload.tags,
+        likes: 0,
+        comments: 0,
+        collaborators: 1,
+        author: {
+          name: "You",
+          role: "Contributor (Premium)",
+          avatar: "https://i.pravatar.cc/150?img=11",
+        },
+        premium: true,
+      };
+      setIdeas((prev) => [newIdea, ...prev]);
+      setSortBy("latest");
+      setSearchQuery("");
+      setShowPremiumModal(false);
+      setPremiumIdeaPayload(null);
+    }
   };
 
   const getStageColor = (stage) => {
@@ -234,6 +289,80 @@ const Ideation = () => {
         />
       </div>
 
+      {/* Events Tab */}
+      <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 pt-4 mb-4">
+        <div className="flex gap-2 mb-2">
+          <button
+            className={`px-4 py-2 rounded-t-lg font-semibold text-sm ${activeEventTab === "ideathon" ? "bg-blue-600 text-white" : "bg-[#232323] text-gray-300"}`}
+            onClick={() => setActiveEventTab("ideathon")}
+          >
+            Ideathon
+          </button>
+          <button
+            className={`px-4 py-2 rounded-t-lg font-semibold text-sm ${activeEventTab === "hackathon" ? "bg-purple-600 text-white" : "bg-[#232323] text-gray-300"}`}
+            onClick={() => setActiveEventTab("hackathon")}
+          >
+            Hackathon
+          </button>
+        </div>
+        <div className="bg-[#18181A] rounded-b-2xl rounded-tr-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow">
+          {activeEventTab === "ideathon" ? (
+            <>
+              <div>
+                <h3 className="text-lg font-bold text-blue-400 mb-1">Ideathon: "Innovate for Impact"</h3>
+                <div className="text-xs text-gray-300 mb-1">Prize: $5,000 + Fast-track to Startup Profile</div>
+                <div className="text-xs text-gray-400">Theme: Social Good | Dates: May 20–25, 2024</div>
+                <div className="text-xs text-gray-400">Rules: Submit original ideas, no plagiarism, team size 1–5.</div>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-xs text-gray-400">Time left:</span>
+                <span className="text-lg font-bold text-blue-400">{formatCountdown(countdown)}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <h3 className="text-lg font-bold text-purple-400 mb-1">Hackathon: "Build for the Future"</h3>
+                <div className="text-xs text-gray-300 mb-1">Prize: $10,000 + Jury Award</div>
+                <div className="text-xs text-gray-400">Theme: AI & Sustainability | Dates: June 10–15, 2024</div>
+                <div className="text-xs text-gray-400">Rules: Build in 5 days, open source, team size 2–6.</div>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-xs text-gray-400">Time left:</span>
+                <span className="text-lg font-bold text-purple-400">{formatCountdown(countdown)}</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {/* AI Matchmaking Widget */}
+      <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 mb-4">
+        <div className="bg-[#18181A] rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow">
+          <div className="flex items-center gap-3">
+            <Users className="text-blue-400" size={22} />
+            <span className="text-white font-semibold">AI Matchmaking</span>
+            <span className="text-gray-400 text-xs sm:text-sm">Suggested mentors and advisors for your idea development!</span>
+          </div>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Get Suggestions</button>
+        </div>
+      </div>
+      {/* Premium Posting Modal */}
+      {showPremiumModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="bg-[#18181A] rounded-2xl p-8 max-w-lg w-full shadow-xl border border-white/10">
+            <h2 className="text-xl font-bold mb-4 text-white">Premium Idea Posting</h2>
+            <p className="text-gray-300 mb-4 text-sm">Premium posting requires a token buy-in. This will highlight your idea and give it priority in the Ideathon/Hackathon.</p>
+            <div className="bg-[#232323] rounded-lg p-4 text-xs text-gray-400 mb-4">Token required: <span className="text-green-400 font-bold">1 SFC Token</span></div>
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors" onClick={handlePremiumConfirm}>
+              Buy Token & Post Idea
+            </button>
+            <button className="w-full mt-2 bg-white/10 hover:bg-white/20 text-white font-semibold py-2 rounded-lg transition-colors" onClick={() => setShowPremiumModal(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Ideas Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 max-sm:p-2">
         {filteredAndSortedProjects.map((content) => (
@@ -268,7 +397,6 @@ const Ideation = () => {
                     {content.stage}
                   </span>
                 </div>
-
                 {/* Idea Title & Description */}
                 <div className="space-y-2">
                   <h2 className="text-lg font-bold text-white leading-tight line-clamp-2">
@@ -278,7 +406,6 @@ const Ideation = () => {
                     {content.description}
                   </p>
                 </div>
-
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5">
                   {content.tags.slice(0, 3).map((tag, index) => (
@@ -295,7 +422,6 @@ const Ideation = () => {
                     </span>
                   )}
                 </div>
-
                 {/* Subtle Engagement Metrics */}
                 <div className="flex items-center justify-between pt-3 border-t border-white/5">
                   <div className="flex items-center gap-4 text-xs text-gray-400">
@@ -317,7 +443,17 @@ const Ideation = () => {
                     {content.timeAgo}
                   </span>
                 </div>
-
+                {/* +1 Voting */}
+                <div className="flex items-center justify-center pt-2">
+                  <button
+                    className={`px-3 py-1 rounded-full text-xs font-semibold mr-2 ${votes[content.id] ? 'bg-green-600 text-white' : 'bg-white/10 text-green-400 hover:bg-green-600 hover:text-white transition-colors'}`}
+                    disabled={votes[content.id]}
+                    onClick={e => { e.preventDefault(); setVotes({ ...votes, [content.id]: true }); }}
+                  >
+                    +1 Vote
+                  </button>
+                  <span className="text-green-400 font-bold">{(content.votes || 0) + (votes[content.id] ? 1 : 0)}</span>
+                </div>
                 {/* Discussion CTA */}
                 <div className="flex items-center justify-center pt-2">
                   <span className="text-blue-400 text-sm font-medium flex items-center gap-1 group-hover:text-blue-300 transition-colors">
@@ -327,7 +463,6 @@ const Ideation = () => {
                 </div>
               </div>
             </Link>
-
             {/* Quick Action Buttons */}
             <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <button className="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition-colors">

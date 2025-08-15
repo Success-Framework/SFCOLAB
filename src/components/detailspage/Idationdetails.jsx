@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   MessageSquare,
@@ -24,8 +24,26 @@ const Idationdetails = () => {
   const [likeCount, setLikeCount] = useState(101);
   const [bookmarked, setBookmarked] = useState(false);
   const [showShareMsg, setShowShareMsg] = useState(false);
+  const [ndaAccepted, setNdaAccepted] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voteCount, setVoteCount] = useState(23); // mock initial votes
+  const [privateComments, setPrivateComments] = useState([
+    { id: 1, user: "SFORGER Team", text: "We recommend adding a competitive analysis section." },
+    { id: 2, user: "Sarah Johnson", text: "Thanks! Will update the pitch deck." },
+  ]);
+  const [privateComment, setPrivateComment] = useState("");
   const commentInputRef = useRef(null);
   const discussionSectionRef = useRef(null);
+
+  // NDA unlock: block page until accepted
+  useEffect(() => {
+    if (!ndaAccepted) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [ndaAccepted]);
 
   const ideaDetails = {
     id: 1,
@@ -154,6 +172,24 @@ const Idationdetails = () => {
     }
   };
 
+  // NDA Modal
+  if (!ndaAccepted) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+        <div className="bg-[#18181A] rounded-2xl p-8 max-w-lg w-full shadow-xl border border-white/10">
+          <h2 className="text-xl font-bold mb-4 text-white">NDA Required</h2>
+          <p className="text-gray-300 mb-4 text-sm">To view this idea, you must accept our Non-Disclosure Agreement (NDA). All information is confidential and may not be shared or used outside SFCollab.</p>
+          <div className="bg-[#232323] rounded-lg p-4 text-xs text-gray-400 mb-4 max-h-40 overflow-y-auto">
+            <strong>NDA Summary:</strong> By clicking Accept, you agree not to disclose, copy, or use any information from this idea for any purpose other than evaluation within SFCollab. Breach may result in legal action.
+          </div>
+          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors" onClick={() => setNdaAccepted(true)}>
+            Accept NDA & View Idea
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -249,11 +285,21 @@ const Idationdetails = () => {
                 <Heart className="h-4 w-4" /> {ideaDetails.likes} Likes
               </span>
               <span className="flex items-center gap-1">
-                <MessageSquare className="h-4 w-4" /> {ideaDetails.comments}{" "}
-                Comments
+                <MessageSquare className="h-4 w-4" /> {ideaDetails.comments} Comments
               </span>
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" /> {ideaDetails.collaborators} Team
+              </span>
+              {/* +1 Voting */}
+              <span className="flex items-center gap-1 ml-4">
+                <button
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${hasVoted ? 'bg-green-600 text-white' : 'bg-white/10 text-green-400 hover:bg-green-600 hover:text-white transition-colors'}`}
+                  disabled={hasVoted}
+                  onClick={() => { setHasVoted(true); setVoteCount(v => v + 1); }}
+                >
+                  +1 Vote
+                </button>
+                <span className="text-green-400 font-bold">{voteCount}</span>
               </span>
             </div>
             <div className="flex flex-wrap gap-3 pt-2">
@@ -357,6 +403,43 @@ const Idationdetails = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* AI Matchmaking Widget (placeholder) */}
+          <div className="bg-[#18181A] rounded-2xl p-6 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Users className="text-blue-400" size={22} />
+              <span className="text-white font-semibold">AI Matchmaking</span>
+              <span className="text-gray-400 text-xs sm:text-sm">Suggested mentors and advisors for this idea!</span>
+            </div>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Get Suggestions</button>
+          </div>
+
+          {/* Private Comments Section (mock) */}
+          <div className="bg-[#18181A] rounded-2xl p-6 mb-4">
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-yellow-400" /> Private Comments (Creator & SFORGER Team Only)
+            </h2>
+            <div className="space-y-3 mb-3">
+              {privateComments.map((c) => (
+                <div key={c.id} className="flex items-center gap-2 text-sm text-gray-300">
+                  <span className="font-semibold text-blue-400">{c.user}:</span> {c.text}
+                </div>
+              ))}
+            </div>
+            <form
+              onSubmit={e => { e.preventDefault(); if (privateComment.trim()) { setPrivateComments([...privateComments, { id: Date.now(), user: "You", text: privateComment }]); setPrivateComment(""); } }}
+              className="flex gap-2 mt-2"
+            >
+              <input
+                type="text"
+                value={privateComment}
+                onChange={e => setPrivateComment(e.target.value)}
+                placeholder="Add a private comment..."
+                className="flex-1 bg-[#232323] rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Send</button>
+            </form>
           </div>
         </div>
 
