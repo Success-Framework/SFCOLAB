@@ -1197,7 +1197,15 @@ export default function Chat() {
                 disabled={!isConnected && unsentMessages.length > 0}
               />
               <button
-                onClick={isRecording ? stopRecording : startRecording}
+                onClick={() => {
+                  // If there is a message or file and not recording, send the message
+                  if ((newMessage.trim() || selectedFile) && !isRecording) {
+                    sendMessage();
+                  } else {
+                    // Otherwise, toggle recording
+                    isRecording ? stopRecording() : startRecording();
+                  }
+                }}
                 disabled={!isConnected && unsentMessages.length > 0}
                 className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded ${
                   isConnected || unsentMessages.length > 0
@@ -1235,7 +1243,6 @@ const VoiceNotePlayer = React.memo(({ file }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
-  const playPromiseRef = useRef(null); // Track play promise to handle interruptions
 
   const audioSrc = useMemo(() => {
     if (!file.data || !file.type) {
@@ -1260,34 +1267,17 @@ const VoiceNotePlayer = React.memo(({ file }) => {
     const handleError = () => {
       setError("Failed to load audio");
       setIsPlaying(false);
-      playPromiseRef.current = null;
     };
 
     audio.addEventListener("error", handleError);
 
     return () => {
       audio.removeEventListener("error", handleError);
-      // Clean up play promise and pause audio safely
-      if (playPromiseRef.current) {
-        playPromiseRef.current
-          .then(() => {
-            if (!audio.paused && !audio.ended) {
-              audio.pause();
-            }
-          })
-          .catch(() => {
-            // Ignore errors during cleanup
-          })
-          .finally(() => {
-            playPromiseRef.current = null;
-            URL.revokeObjectURL(audioSrc);
-          });
-      } else {
-        if (!audio.paused && !audio.ended) {
-          audio.pause();
-        }
-        URL.revokeObjectURL(audioSrc);
+      // Only revoke if not playing
+      if (!audio.paused && !audio.ended) {
+        audio.pause();
       }
+      URL.revokeObjectURL(audioSrc);
     };
   }, [audioSrc]);
 
@@ -1297,43 +1287,20 @@ const VoiceNotePlayer = React.memo(({ file }) => {
       return;
     }
 
-    const audio = audioRef.current;
-
     if (isPlaying) {
-      // Pause audio and wait for any pending play promise
-      if (playPromiseRef.current) {
-        playPromiseRef.current
-          .then(() => {
-            audio.pause();
-            audio.currentTime = 0; // Reset to start
-            setIsPlaying(false);
-            playPromiseRef.current = null;
-          })
-          .catch(() => {
-            // Ignore errors during pause
-            setIsPlaying(false);
-            playPromiseRef.current = null;
-          });
-      } else {
-        audio.pause();
-        audio.currentTime = 0; // Reset to start
-        setIsPlaying(false);
-      }
+      audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      // Start playing from the beginning
-      audio.currentTime = 0; // Reset to start
-      playPromiseRef.current = audio.play();
-      playPromiseRef.current
+      audioRef.current
+        .play()
         .then(() => {
           setIsPlaying(true);
           setError(null);
-          playPromiseRef.current = null; // Clear promise after successful play
         })
         .catch((err) => {
           console.error("Play error:", err);
           setError("Failed to play audio");
           setIsPlaying(false);
-          playPromiseRef.current = null;
         });
     }
   }, [isPlaying, audioSrc]);
@@ -1349,32 +1316,12 @@ const VoiceNotePlayer = React.memo(({ file }) => {
     if (!audio) return;
 
     const updateProgress = () => {
-      if (!audio.paused && !audio.ended) {
-        setProgress((audio.currentTime / audio.duration) * 100 || 0);
-      }
+      setProgress((audio.currentTime / audio.duration) * 100 || 0);
     };
 
     const handleEnded = () => {
-      // Wait for any pending play promise before resetting
-      if (playPromiseRef.current) {
-        playPromiseRef.current
-          .then(() => {
-            audio.currentTime = 0; 
-            setIsPlaying(false);
-            setProgress(0);
-            playPromiseRef.current = null;
-          })
-          .catch(() => {
-            // Ignore errors during end
-            setIsPlaying(false);
-            setProgress(0);
-            playPromiseRef.current = null;
-          });
-      } else {
-        audio.currentTime = 0; // Reset to start
-        setIsPlaying(false);
-        setProgress(0);
-      }
+      setIsPlaying(false);
+      setProgress(0);
     };
 
     audio.addEventListener("timeupdate", updateProgress);
