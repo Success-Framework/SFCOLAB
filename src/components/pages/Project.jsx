@@ -376,104 +376,59 @@ export default function Project() {
               <Link 
                 key={employee.id}
                 to={`/project-details?id=${employee.id}`}
-                className="bg-zinc-900 p-3 min-h-[330px] rounded-xl flex flex-col h-full hover:bg-zinc-800 transition-colors"
+                className="bg-zinc-900 p-3 min-h-[120px] rounded-xl flex flex-col sm:flex-col h-full hover:bg-zinc-800 transition-colors"
               >
-                <div className="bg-[#1A1A1A] min-h-[270px] rounded-4xl p-5 max-sm:p-4">
-                  <div className="flex items-center justify-end mb-4">
-                    <Link
-                      to={`/profile?username=${employee.username}`}
-                      className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1 "
-                    >
-                      View Profile
-                      <ArrowUpRight size={12} />
-                    </Link>
-                  </div>
-                  <div className="flex flex-row-reverse justify-between  gap-4 items-start mb-4">
-                    <div className="h-20 w-20 rounded-full overflow-hidden bg-zinc-700 flex items-center justify-center text-white text-lg font-bold">
+                <div className="bg-[#1A1A1A] min-h-[100px] rounded-4xl p-4 flex flex-col sm:flex-col max-sm:flex-row max-sm:items-center max-sm:gap-4">
+                  {/* Avatar (left on mobile) */}
+                  <div className="flex-shrink-0 flex justify-center items-center max-sm:mr-4">
+                    <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden bg-zinc-700 flex items-center justify-center text-white text-lg font-bold">
                       <img
                         src={employee.avatar}
                         alt={employee.name}
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{employee.name}</h3>
-                        <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full uppercase">
-                          {employee.role}
-                        </span>
-                      </div>
-                      <p className="text-gray-400 text-sm">
-                        @{employee.username}
-                      </p>
-                      <p className="text-gray-500 text-xs mt-1">
-                        {employee.position}
-                      </p>
-                    </div>
                   </div>
-                  <p className="text-sm text-gray-300 mb-4 line-clamp-2">
-                    {employee.bio}
-                  </p>
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {Object.entries(employee.metrics).map(
-                      ([key, value], index) => (
-                        <div
-                          key={index}
-                          className="bg-zinc-800 rounded-lg p-2 text-center"
-                        >
-                        <p className="text-xs text-gray-400 mb-1">{key}</p>
-                        <p className="text-sm font-medium">{value}</p>
+                  {/* Main Info (right on mobile) */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-base sm:text-lg">{employee.name}</h3>
+                          <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full uppercase">{employee.role}</span>
+                        </div>
+                        <p className="text-gray-400 text-xs sm:text-sm">@{employee.username}</p>
+                        <p className="text-gray-500 text-xs mt-1">{employee.position}</p>
                       </div>
-                      )
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {employee.skills.slice(0, 3).map((skill, index) => (
-                      <span
-                        key={index}
-                        className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full"
+                      {/* View Profile Button (mobile: bottom, desktop: top right) */}
+                      <Link
+                        to={`/profile?username=${employee.username}`}
+                        className="text-xs text-blue-400 hover:text-white transition-colors flex items-center gap-1 max-sm:mt-2 max-sm:w-fit max-sm:self-end"
                       >
-                        {skill}
-                      </span>
-                    ))}
-                    {employee.skills.length > 3 && (
-                      <span className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full">
-                        +{employee.skills.length - 3}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-auto">
-                    <div className="flex gap-4 mb-3">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3 text-blue-500" />
-                        <span className="text-xs text-gray-400">
-                          {employee.follower} followers
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Briefcase className="h-3 w-3 text-green-500" />
-                        <span className="text-xs text-gray-400">
-                          {employee.project} projects
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-yellow-500" />
-                        <span className="text-xs text-gray-400">
-                          {employee.rating} rating
-                        </span>
-                      </div>
+                        View Profile
+                        <ArrowUpRight size={12} />
+                      </Link>
                     </div>
-                  </div>
-                  <div className="border-t border-white/10 pt-3">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Code2 className="h-4 w-4 text-purple-500" />
-                      <span className="text-gray-400">
-                        {employee.experience[0].title}
-                      </span>
+                    {/* Skills (show 2 on mobile, 3 on desktop) */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {employee.skills.slice(0, 2).map((skill, index) => (
+                        <span
+                          key={index}
+                          className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {employee.skills.length > 2 && (
+                        <span className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full">
+                          +{employee.skills.length - 2}
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{employee.experience[0].duration}</span>
+                    {/* Rating (always show) */}
+                    <div className="flex items-center gap-1 text-xs text-yellow-400 mb-2">
+                      <Star className="h-4 w-4" />
+                      <span>{employee.rating} rating</span>
                     </div>
                   </div>
                 </div>
