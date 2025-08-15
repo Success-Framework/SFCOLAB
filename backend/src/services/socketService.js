@@ -1,5 +1,5 @@
 const socketIo = require("socket.io");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 class SocketService {
   constructor(server) {
@@ -32,6 +32,13 @@ class SocketService {
 
       // Set user handler - now the first thing that happens
       socket.on("setUser", (userId) => {
+        if (!userId) {
+          console.error("setUser failed: No userId provided", {
+            socketId: socket.id,
+          });
+          return;
+        }
+        console.log(`Received setUser for userId: ${userId}`);
         socket.userId = userId;
         this.connectedUsers.set(userId, socket);
         socket.join(userId);
@@ -41,20 +48,23 @@ class SocketService {
         }
 
         // Initialize user status
-        this.userStatus.set(userId, 'online');
+        this.userStatus.set(userId, "online");
 
         // Notify others
         socket.broadcast.emit("userOnline", userId);
-        
+
         // Send initial data
         socket.emit("connection:established", {
           userId,
           onlineUsers: this.getOnlineUsers(),
-          unreadCount: this.unreadMessages.get(userId).size
+          unreadCount: this.unreadMessages.get(userId).size,
         });
 
         // Emit initial online status to the connected user
-        socket.emit("initialOnlineStatus", Array.from(this.connectedUsers.keys()));
+        socket.emit(
+          "initialOnlineStatus",
+          Array.from(this.connectedUsers.keys())
+        );
 
         console.log(`User ${userId} connected via setUser`);
       });
@@ -83,7 +93,7 @@ class SocketService {
 
     // Update tracking
     this.connectedUsers.delete(userId);
-    this.userStatus.set(userId, 'offline');
+    this.userStatus.set(userId, "offline");
 
     // Notify others
     this.io.emit("user:offline", { userId });
@@ -149,7 +159,7 @@ class SocketService {
         if (!userId) throw new Error("User not identified");
 
         const userUnread = this.unreadMessages.get(userId) || new Set();
-        
+
         messageIds.forEach((id) => userUnread.delete(id));
 
         this.io.to(userId).emit("unreadCountUpdate", {
@@ -172,7 +182,7 @@ class SocketService {
       if (typeof callback === "function") {
         callback({
           status: "success",
-          messages: this.messages.get(recipientId) || []
+          messages: this.messages.get(recipientId) || [],
         });
       }
     });
@@ -197,9 +207,9 @@ class SocketService {
 
   // Utility methods
   getOnlineUsers() {
-    return Array.from(this.connectedUsers.keys()).map(userId => ({
+    return Array.from(this.connectedUsers.keys()).map((userId) => ({
       userId,
-      status: this.userStatus.get(userId) || 'online'
+      status: this.userStatus.get(userId) || "online",
     }));
   }
 
@@ -211,7 +221,9 @@ class SocketService {
       timestamp: new Date().toISOString(),
     };
 
-    this.io.to(`notifications_${userId}`).emit("newNotification", notificationWithId);
+    this.io
+      .to(`notifications_${userId}`)
+      .emit("newNotification", notificationWithId);
   }
 }
 
