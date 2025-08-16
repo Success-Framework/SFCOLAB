@@ -241,7 +241,7 @@ export default function Chat() {
 
       for (const message of unsentMessages) {
         try {
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             socket.emit(
               "sendMessage",
               {
@@ -259,11 +259,12 @@ export default function Chat() {
                     "delivered",
                     response.message
                   );
+                  resolve();
                 } else {
                   failedMessages.push(message.tempId);
                   updateMessageStatus(message.tempId, "failed");
+                  reject(new Error("Failed to send message"));
                 }
-                resolve();
               }
             );
           });
@@ -407,7 +408,11 @@ export default function Chat() {
 
     const onConnect = () => {
       console.log("Socket connected, emitting setUser");
-      socket.emit("setUser", currentUserId);
+      socket.emit("setUser", currentUserId, (response) => {
+        if (response?.status !== "success") {
+          console.error("Failed to set user:", response);
+        }
+      });
     };
 
     const onDisconnect = () => {
@@ -432,7 +437,7 @@ export default function Chat() {
       console.error("Reconnection failed");
     };
 
-    const handleIncomingMessage = (message) => {
+    const handleIncomingMessage = (message, callback) => {
       const normalizedMessage = {
         ...message,
         id: message.id.startsWith("msg_") ? message.id : `msg_${message.id}`,
@@ -449,6 +454,11 @@ export default function Chat() {
         localStorage.setItem("chatMessages", JSON.stringify(updatedMessages));
         return updatedMessages;
       });
+
+      // Acknowledge receipt of the message
+      if (callback) {
+        callback({ status: "success" });
+      }
     };
 
     const handleInitialOnlineStatus = (onlineUserIds) => {
@@ -655,10 +665,10 @@ export default function Chat() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const options = {
-        mimeType: "audio/webm",
-        recorderType: window.OpusRecorder,
+        type: "audio",
+        mimeType: "audio/webm;codecs=opus",
+        recorderType: RecordRTC.StereoAudioRecorder,
         desiredSampRate: 16000,
-        bufferSize: 4096,
         numberOfAudioChannels: 1,
       };
 
@@ -702,6 +712,8 @@ export default function Chat() {
 
     recorder.stopRecording(() => {
       setIsRecording(false);
+      setAudioBlob(null);
+      setAudioURL("");
       recorder.stream?.getTracks().forEach((track) => track.stop());
     });
   };
@@ -711,16 +723,16 @@ export default function Chat() {
     if (!selectedContact || !currentUserId) return;
 
     const tempId = `temp_voice_${Date.now()}`;
-    const fileName = `voice_note_${Date.now()}.opus`;
+    const fileName = `voice_note_${Date.now()}.webm`;
 
     const arrayBuffer = await blob.arrayBuffer();
     const fileData = {
       name: fileName,
-      type: "audio/ogg",
+      type: "audio/webm;codecs=opus",
       size: blob.size,
       data: Array.from(new Uint8Array(arrayBuffer)),
       isVoiceNote: true,
-      duration: recordingTime || 1, // Fallback to 1 to avoid zero duration
+      duration: recordingTime || 1,
     };
 
     const message = {
@@ -753,6 +765,17 @@ export default function Chat() {
             setMessages((prev) =>
               prev.map((m) => (m.id === tempId ? response.message : m))
             );
+
+            const savedMessages = JSON.parse(
+              localStorage.getItem("chatMessages") || "[]"
+            );
+            const updatedMessages = savedMessages
+              .filter((m) => m.id !== tempId)
+              .concat(response.message);
+            localStorage.setItem(
+              "chatMessages",
+              JSON.stringify(updatedMessages)
+            );
           } else {
             setMessages((prev) =>
               prev.map((m) =>
@@ -764,6 +787,9 @@ export default function Chat() {
       );
     } else {
       setUnsentMessages((prev) => [...prev, { ...message, tempId }]);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, status: "queued" } : m))
+      );
     }
 
     setAudioBlob(null);
@@ -1070,7 +1096,7 @@ export default function Chat() {
                         </div>
                       )}
                       {message.file && message.file.isVoiceNote ? (
-                        <VoiceNotePlayer file={message.file} />
+                        <VoiceNotePlayer file={message.file} key={message.id} />
                       ) : message.file ? (
                         <div className="mb-1 bg-gray-200 text-black p-2 rounded">
                           <div className="text-xs text-gray-600">
@@ -1244,55 +1270,85 @@ const VoiceNotePlayer = React.memo(({ file }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const blobUrlRef = useRef(null);
 
   const audioSrc = useMemo(() => {
-    if (!file.data || !file.type) {
+    if (!file?.data || !file?.type || !Array.isArray(file.data)) {
       console.error("Invalid file data or type:", file);
       setError("Invalid audio file");
       return null;
     }
     try {
-      const blob = new Blob([new Uint8Array(file.data)], { type: file.type });
-      return URL.createObjectURL(blob);
+      const byteArray = new Uint8Array(file.data);
+      if (byteArray.length === 0) {
+        console.error("Empty file data:", file);
+        setError("Empty audio file");
+        return null;
+      }
+      const blob = new Blob([byteArray], { type: file.type });
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url; // Store the URL in a ref to manage it
+      return url;
     } catch (err) {
       console.error("Error creating blob:", err);
       setError("Failed to load audio");
       return null;
     }
-  }, [file.data, file.type]);
+  }, [file]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !audioSrc) return;
 
-    const handleError = () => {
+    const handleError = (e) => {
+      console.error("Audio error:", e);
       setError("Failed to load audio");
       setIsPlaying(false);
     };
 
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+      if (audio) {
+        audio.currentTime = 0; // Reset audio to start
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      setProgress((audio.currentTime / audio.duration) * 100 || 0);
+    };
+
     audio.addEventListener("error", handleError);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+
+    // Load the audio source
+    audio.src = audioSrc;
 
     return () => {
       audio.removeEventListener("error", handleError);
-      // Only revoke if not playing
-      if (!audio.paused && !audio.ended) {
-        audio.pause();
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      // Only revoke the blob URL when the component unmounts
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
       }
-      URL.revokeObjectURL(audioSrc);
     };
   }, [audioSrc]);
 
   const togglePlay = useCallback(() => {
-    if (!audioRef.current || !audioSrc) {
+    const audio = audioRef.current;
+    if (!audio || !audioSrc) {
       setError("Audio source not available");
       return;
     }
 
     if (isPlaying) {
-      audioRef.current.pause();
+      audio.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current
+      audio
         .play()
         .then(() => {
           setIsPlaying(true);
@@ -1311,28 +1367,6 @@ const VoiceNotePlayer = React.memo(({ file }) => {
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateProgress = () => {
-      setProgress((audio.currentTime / audio.duration) * 100 || 0);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-    };
-
-    audio.addEventListener("timeupdate", updateProgress);
-    audio.addEventListener("ended", handleEnded);
-
-    return () => {
-      audio.removeEventListener("timeupdate", updateProgress);
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, []);
 
   if (error) {
     return (
@@ -1370,7 +1404,7 @@ const VoiceNotePlayer = React.memo(({ file }) => {
         </div>
       </div>
 
-      {audioSrc && <audio ref={audioRef} src={audioSrc} hidden />}
+      {audioSrc && <audio ref={audioRef} hidden />}
     </div>
   );
 });
