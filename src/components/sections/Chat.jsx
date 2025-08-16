@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import io from "socket.io-client";
 import RecordRTC from "recordrtc";
-import OpusRecorder from "opus-recorder";
 import React from "react";
 
 // Default contacts data
@@ -158,45 +157,52 @@ export default function Chat() {
   useEffect(() => {
     const initializeApp = () => {
       const sessionUserId = getSessionUserKey();
-      if (!sessionUserId) {
-        console.error("No session user ID found");
-        return;
-      }
       setCurrentUserId(sessionUserId);
 
-      // Load data from localStorage
-      const savedContacts = localStorage.getItem("chatContacts");
-      const savedMessages = localStorage.getItem("chatMessages");
-
+      // Load contacts from localStorage or use default
       let initialContacts = defaultContacts;
+      const savedContacts = localStorage.getItem("chatContacts");
       if (savedContacts) {
-        initialContacts = JSON.parse(savedContacts);
+        try {
+          initialContacts = JSON.parse(savedContacts);
+        } catch (err) {
+          console.error("Error parsing savedContacts:", err);
+          localStorage.removeItem("chatContacts"); // Clear corrupted data
+          localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
+          initialContacts = defaultContacts;
+        }
+      } else {
+        localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
       }
 
       const updatedContacts = updateContactsWithOnlineStatus(initialContacts);
       setContacts(updatedContacts);
+      console.log("Initial contacts set:", updatedContacts);
 
       const firstContact = updatedContacts.find(
         (contact) => contact.id !== sessionUserId
       );
       setSelectedContact(firstContact || null);
 
-      if (!savedContacts) {
-        localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
-      }
-
+      // Load messages from localStorage
+      const savedMessages = localStorage.getItem("chatMessages");
       if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages).map((msg) => ({
-          ...msg,
-          id:
-            msg.id.startsWith("msg_") || msg.id.startsWith("temp_msg_")
-              ? msg.id
-              : `msg_${msg.id}`,
-        }));
-        const sortedMessages = parsedMessages.sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-        );
-        setMessages(sortedMessages);
+        try {
+          const parsedMessages = JSON.parse(savedMessages).map((msg) => ({
+            ...msg,
+            id:
+              msg.id.startsWith("msg_") || msg.id.startsWith("temp_msg_")
+                ? msg.id
+                : `msg_${msg.id}`,
+          }));
+          const sortedMessages = parsedMessages.sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+          setMessages(sortedMessages);
+        } catch (err) {
+          console.error("Error parsing savedMessages:", err);
+          localStorage.removeItem("chatMessages"); // Clear corrupted data
+        }
       }
 
       // Initialize socket connection
@@ -210,7 +216,6 @@ export default function Chat() {
 
       setSocket(newSocket);
 
-      // Wait for connection confirmation
       newSocket.on("connection:established", ({ userId }) => {
         console.log(`Connection established for user ${userId}`);
         setIsConnected(true);
@@ -324,8 +329,8 @@ export default function Chat() {
   useEffect(() => {
     const newUnreadCounts = calculateUnreadCounts();
 
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) => {
+    setContacts((prevContacts) => {
+      const updatedContacts = prevContacts.map((contact) => {
         const relevantMessages = messages
           .filter(
             (msg) =>
@@ -347,13 +352,13 @@ export default function Chat() {
           lastMessage,
           unreadCount: newUnreadCounts[contact.id] || 0,
         };
-      })
-    );
+      });
+
+      localStorage.setItem("chatContacts", JSON.stringify(updatedContacts));
+      return updatedContacts;
+    });
 
     setUnreadCounts(newUnreadCounts);
-
-    // Update localStorage with the updated contacts
-    localStorage.setItem("chatContacts", JSON.stringify(contacts));
   }, [messages, currentUserId]);
 
   // Mark messages as read when a contact is selected
@@ -515,7 +520,11 @@ export default function Chat() {
 
   // Update contacts when onlineUsers changes
   useEffect(() => {
-    setContacts((prevContacts) => updateContactsWithOnlineStatus(prevContacts));
+    setContacts((prevContacts) => {
+      const updatedContacts = updateContactsWithOnlineStatus(prevContacts);
+      console.log("Updated contacts with online status:", updatedContacts);
+      return updatedContacts;
+    });
 
     if (selectedContact) {
       setSelectedContact((prev) => ({
@@ -871,6 +880,9 @@ export default function Chat() {
 
         {/* Contacts List */}
         <div className="overflow-y-auto flex-1">
+          {contacts.length === 0 && (
+            <div className="p-4 text-gray-400">No contacts available</div>
+          )}
           {contacts
             .filter(
               (c) =>
@@ -1225,11 +1237,9 @@ export default function Chat() {
               />
               <button
                 onClick={() => {
-                  // If there is a message or file and not recording, send the message
                   if ((newMessage.trim() || selectedFile) && !isRecording) {
                     sendMessage();
                   } else {
-                    // Otherwise, toggle recording
                     isRecording ? stopRecording() : startRecording();
                   }
                 }}
@@ -1287,7 +1297,7 @@ const VoiceNotePlayer = React.memo(({ file }) => {
       }
       const blob = new Blob([byteArray], { type: file.type });
       const url = URL.createObjectURL(blob);
-      blobUrlRef.current = url; // Store the URL in a ref to manage it
+      blobUrlRef.current = url;
       return url;
     } catch (err) {
       console.error("Error creating blob:", err);
@@ -1310,7 +1320,7 @@ const VoiceNotePlayer = React.memo(({ file }) => {
       setIsPlaying(false);
       setProgress(0);
       if (audio) {
-        audio.currentTime = 0; // Reset audio to start
+        audio.currentTime = 0;
       }
     };
 
@@ -1322,14 +1332,12 @@ const VoiceNotePlayer = React.memo(({ file }) => {
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("timeupdate", handleTimeUpdate);
 
-    // Load the audio source
     audio.src = audioSrc;
 
     return () => {
       audio.removeEventListener("error", handleError);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
-      // Only revoke the blob URL when the component unmounts
       if (blobUrlRef.current) {
         URL.revokeObjectURL(blobUrlRef.current);
         blobUrlRef.current = null;
