@@ -167,7 +167,7 @@ export default function Chat() {
           initialContacts = JSON.parse(savedContacts);
         } catch (err) {
           console.error("Error parsing savedContacts:", err);
-          localStorage.removeItem("chatContacts"); // Clear corrupted data
+          localStorage.removeItem("chatContacts");
           localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
           initialContacts = defaultContacts;
         }
