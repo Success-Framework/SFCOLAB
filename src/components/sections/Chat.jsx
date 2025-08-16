@@ -158,6 +158,10 @@ export default function Chat() {
   useEffect(() => {
     const initializeApp = () => {
       const sessionUserId = getSessionUserKey();
+      if (!sessionUserId) {
+        console.error("No session user ID found");
+        return;
+      }
       setCurrentUserId(sessionUserId);
 
       // Load data from localStorage
@@ -205,6 +209,19 @@ export default function Chat() {
       });
 
       setSocket(newSocket);
+
+      // Wait for connection confirmation
+      newSocket.on("connection:established", ({ userId }) => {
+        console.log(`Connection established for user ${userId}`);
+        setIsConnected(true);
+        setConnectionStatus("connected");
+      });
+
+      newSocket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err);
+        setConnectionStatus("error");
+        setIsConnected(false);
+      });
 
       return () => {
         newSocket.disconnect();
@@ -315,7 +332,7 @@ export default function Chat() {
                 msg.recipientId === currentUserId) ||
               (msg.senderId === currentUserId && msg.recipientId === contact.id)
           )
-          .sort((a, b) => new Date(b.timestamp) - new Date(b.timestamp));
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         const lastMessage = relevantMessages[0]
           ? relevantMessages[0].content ||
@@ -333,11 +350,14 @@ export default function Chat() {
     );
 
     setUnreadCounts(newUnreadCounts);
+
+    // Update localStorage with the updated contacts
+    localStorage.setItem("chatContacts", JSON.stringify(contacts));
   }, [messages, currentUserId]);
 
   // Mark messages as read when a contact is selected
   useEffect(() => {
-    if (!selectedContact || !socket || !currentUserId) return;
+    if (!selectedContact || !socket || !currentUserId || !isConnected) return;
 
     const unreadMessageIds = messages
       .filter(
@@ -349,42 +369,44 @@ export default function Chat() {
       .map((msg) => (msg.id.startsWith("msg_") ? msg.id : `msg_${msg.id}`));
 
     if (unreadMessageIds.length > 0) {
-      setMessages((prevMessages) => {
-        const updatedMessages = prevMessages.map((msg) =>
-          unreadMessageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
-        );
-        localStorage.setItem("chatMessages", JSON.stringify(updatedMessages));
-        return updatedMessages;
-      });
+      const timeout = setTimeout(() => {
+        setMessages((prevMessages) => {
+          const updatedMessages = prevMessages.map((msg) =>
+            unreadMessageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
+          );
+          localStorage.setItem("chatMessages", JSON.stringify(updatedMessages));
+          return updatedMessages;
+        });
 
-      socket.emit("markAsRead", unreadMessageIds, (response) => {
-        if (response?.status !== "success") {
-          console.error("Failed to mark messages as read on server");
-          setMessages((prevMessages) => {
-            const revertedMessages = prevMessages.map((msg) =>
-              unreadMessageIds.includes(msg.id)
-                ? { ...msg, isRead: false }
-                : msg
-            );
-            localStorage.setItem(
-              "chatMessages",
-              JSON.stringify(revertedMessages)
-            );
-            return revertedMessages;
-          });
-        }
-      });
+        socket.emit("markAsRead", unreadMessageIds, (response) => {
+          if (response?.status !== "success") {
+            console.error("Failed to mark messages as read on server:", response);
+            setMessages((prevMessages) => {
+              const revertedMessages = prevMessages.map((msg) =>
+                unreadMessageIds.includes(msg.id)
+                  ? { ...msg, isRead: false }
+                  : msg
+              );
+              localStorage.setItem(
+                "chatMessages",
+                JSON.stringify(revertedMessages)
+              );
+              return revertedMessages;
+            });
+          }
+        });
+      }, 500); // Delay by 500ms to ensure socket is ready
+
+      return () => clearTimeout(timeout);
     }
-  }, [selectedContact, messages, socket, currentUserId]);
+  }, [selectedContact, messages, socket, currentUserId, isConnected]);
 
   // Socket event handlers
   useEffect(() => {
     if (!socket || !currentUserId) return;
 
     const onConnect = () => {
-      setIsConnected(true);
-      setConnectionStatus("connected");
-      console.log("Connected to server");
+      console.log("Socket connected, emitting setUser");
       socket.emit("setUser", currentUserId);
     };
 
@@ -397,6 +419,7 @@ export default function Chat() {
     const onConnectError = (err) => {
       console.error("Connection error:", err);
       setConnectionStatus("error");
+      setIsConnected(false);
     };
 
     const onReconnectAttempt = (attempt) => {
@@ -426,28 +449,6 @@ export default function Chat() {
         localStorage.setItem("chatMessages", JSON.stringify(updatedMessages));
         return updatedMessages;
       });
-
-      if (!message.isOwn) {
-        setContacts((prevContacts) => {
-          const updatedContacts = prevContacts.map((contact) => {
-            if (
-              contact.id === message.senderId &&
-              (message.recipientId === currentUserId ||
-                message.senderId === currentUserId)
-            ) {
-              return {
-                ...contact,
-                lastMessage:
-                  message.content ||
-                  (message.file ? `File: ${message.file.name}` : ""),
-              };
-            }
-            return contact;
-          });
-          localStorage.setItem("chatContacts", JSON.stringify(updatedContacts));
-          return updatedContacts;
-        });
-      }
     };
 
     const handleInitialOnlineStatus = (onlineUserIds) => {
