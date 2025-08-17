@@ -20,7 +20,7 @@ const dashboardRoutes = require('./src/routes/dashboard');
 
 // Import middleware
 const { errorHandler } = require('./src/middleware/errorHandler');
-const { notFound } = require('./src/middleware/notFound');
+// const { notFound } = require('./src/middleware/notFound');
 
 // Import WebSocket service
 const SocketService = require('./src/services/socketService');
@@ -76,7 +76,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware
-app.use(notFound);
+// app.use(notFound);
 app.use(errorHandler);
 
 // Database connection
