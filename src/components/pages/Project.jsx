@@ -370,24 +370,24 @@ export default function Project() {
       )}
       {/* Freelancers Tab (default) */}
       {activeTab === "freelancers" && (
-        <div className="w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-            {filteredEmployees.map((employee) => (
-              <Link 
-                key={employee.id}
-                to={`/project-details?id=${employee.id}`}
+      <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+          {filteredEmployees.map((employee) => (
+            <Link 
+              key={employee.id}
+              to={`/project-details?id=${employee.id}`}
                 className="bg-zinc-900 p-3 min-h-[120px] rounded-xl flex flex-col sm:flex-col h-full hover:bg-zinc-800 transition-colors"
-              >
+            >
                 <div className="bg-[#1A1A1A] min-h-[100px] rounded-4xl p-4 flex flex-col sm:flex-col max-sm:flex-row max-sm:items-center max-sm:gap-4">
                   {/* Avatar (left on mobile) */}
                   <div className="flex-shrink-0 flex justify-center items-center max-sm:mr-4">
                     <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden bg-zinc-700 flex items-center justify-center text-white text-lg font-bold">
-                      <img
-                        src={employee.avatar}
-                        alt={employee.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                    <img
+                      src={employee.avatar}
+                      alt={employee.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                   </div>
                   {/* Main Info (right on mobile) */}
                   <div className="flex-1 flex flex-col justify-between">
@@ -402,28 +402,28 @@ export default function Project() {
                       </div>
                       {/* View Profile Button (mobile: bottom, desktop: top right) */}
                       <Link
-                        to={`/profile?username=${employee.username}`}
+                    to={`/profile?username=${employee.username}`}
                         className="text-xs text-blue-400 hover:text-white transition-colors flex items-center gap-1 max-sm:mt-2 max-sm:w-fit max-sm:self-end"
-                      >
-                        View Profile
-                        <ArrowUpRight size={12} />
+                  >
+                    View Profile
+                    <ArrowUpRight size={12} />
                       </Link>
                     </div>
                     {/* Skills (show 2 on mobile, 3 on desktop) */}
                     <div className="flex flex-wrap gap-2 mb-2">
                       {employee.skills.slice(0, 2).map((skill, index) => (
-                        <span
-                          key={index}
-                          className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                    <span
+                      key={index}
+                      className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full"
+                    >
+                      {skill}
+                    </span>
+                  ))}
                       {employee.skills.length > 2 && (
-                        <span className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full">
+                    <span className="bg-zinc-800 text-xs px-2 py-0.5 rounded-full">
                           +{employee.skills.length - 2}
-                        </span>
-                      )}
+                    </span>
+                  )}
                     </div>
                     {/* Rating (always show) */}
                     <div className="flex items-center gap-1 text-xs text-yellow-400 mb-2">
@@ -432,10 +432,10 @@ export default function Project() {
                     </div>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
+            </Link>
+          ))}
         </div>
+      </div>
       )}
       {/* Show message when no results found */}
       {activeTab === "freelancers" && filteredEmployees.length === 0 && (

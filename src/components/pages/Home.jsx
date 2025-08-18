@@ -228,16 +228,16 @@ const Home = () => {
       </div>
       {/* Filters Row (add Funding Status and Hiring Now) */}
       <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 items-stretch sm:items-center mb-4 px-2 sm:px-4">
-        <FilterHeader
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          selectedStage={selectedStage}
-          setSelectedStage={setSelectedStage}
-          selectedIndustry={selectedIndustry}
-          setSelectedIndustry={setSelectedIndustry}
-        />
+      <FilterHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        selectedStage={selectedStage}
+        setSelectedStage={setSelectedStage}
+        selectedIndustry={selectedIndustry}
+        setSelectedIndustry={setSelectedIndustry}
+      />
         {/* Funding Status Filter */}
         <div className="relative w-full sm:w-auto">
           <select
@@ -309,13 +309,13 @@ const Home = () => {
                     </h1>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <button
-                      className={`${getStageColor(
-                        content.stage
+                  <button
+                    className={`${getStageColor(
+                      content.stage
                       )} text-xs max-sm:text-[10px] px-2 py-1 font-medium rounded-full mb-1`}
-                    >
-                      {content.stage}
-                    </button>
+                  >
+                    {content.stage}
+                  </button>
                     {/* Funding Status Badge */}
                     <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[#232323] border border-blue-700 text-blue-400 font-semibold">
                       <DollarSign size={14} />

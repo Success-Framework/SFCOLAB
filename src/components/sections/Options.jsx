@@ -38,6 +38,15 @@ const Options = ({ isHidden = false }) => {
           Ideation
         </Link>
         <Link
+          className={`px-3 py-1 rounded-full transition-colors ${location.pathname === "/community"
+              ? "border border-white text-white"
+              : "text-gray-400 hover:text-white"
+            }`}
+          to="/community"
+        >
+          Community
+        </Link>
+        <Link
           className={`px-3 py-1 rounded-full transition-colors ${location.pathname === "/startup"
               ? "border border-white text-white"
               : "text-gray-400 hover:text-white"

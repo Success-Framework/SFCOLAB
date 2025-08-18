@@ -24,6 +24,7 @@ import Help from "../components/pages/Help.jsx";
 import Notifications from "../components/pages/Notifications.jsx";
 import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
+import Community from "../components/pages/Community.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
 
 export const router = createBrowserRouter([
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
       {
         path: "/projects",
         element: <Project />,
+      },
+      {
+        path: "/community",
+        element: <Community />,
       },
       {
         path: "/profile",
@@ -119,6 +124,10 @@ export const router = createBrowserRouter([
       {
         path: "/notifications",
         element: <Notifications />,
+      },
+      {
+        path: "/community",
+        element: <Community />,
       },
       {
         path: "/home-details",
