@@ -149,6 +149,60 @@ const Ideation = () => {
   const [activeEventTab, setActiveEventTab] = useState("ideathon");
   // Countdown for event (mock)
   const [countdown, setCountdown] = useState(3600 * 24 * 2 + 3600 * 5 + 60 * 30); // 2d 5h 30m
+  
+  // Hackathon specific states
+  const [hackathonTeams, setHackathonTeams] = useState([
+    {
+      id: 1,
+      name: "Team Alpha",
+      description: "Looking for AI developers and UI/UX designers",
+      skills: ["AI", "UI/UX"],
+      currentSize: 2,
+      maxSize: 6,
+      members: ["John Doe", "Jane Smith"]
+    },
+    {
+      id: 2,
+      name: "GreenTech Squad",
+      description: "Sustainability focused team, need backend devs",
+      skills: ["Backend", "DevOps"],
+      currentSize: 4,
+      maxSize: 6,
+      members: ["Mike Chen", "Sarah Lee", "Alex Kim", "Tom Wilson"]
+    }
+  ]);
+  
+  const [hackathonProjects, setHackathonProjects] = useState([
+    {
+      id: 1,
+      title: "EcoAI Monitor",
+      description: "AI-powered environmental monitoring system",
+      team: "GreenTech Squad",
+      status: "Submitted",
+      votes: 45,
+      percentage: 75,
+      submittedAt: "2 hours ago",
+      githubUrl: "https://github.com/greentech/ecoai-monitor",
+      demoUrl: "https://demo.ecoai-monitor.com"
+    },
+    {
+      id: 2,
+      title: "SmartCity Hub",
+      description: "Urban planning optimization platform",
+      team: "Team Alpha",
+      status: "In Review",
+      votes: 32,
+      percentage: 53,
+      submittedAt: "5 hours ago",
+      githubUrl: "https://github.com/teamalpha/smartcity-hub",
+      demoUrl: null
+    }
+  ]);
+  
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [newTeam, setNewTeam] = useState({ name: "", description: "", maxSize: 6 });
+  const [newProject, setNewProject] = useState({ title: "", description: "", githubUrl: "", demoUrl: "" });
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -208,7 +262,7 @@ const Ideation = () => {
         author: {
           name: "You",
           role: "Contributor (Premium)",
-          avatar: "https://i.pravatar.cc/150?img=11",
+          avatar: "https://i.pravatar.cc/150?img/11",
         },
         premium: true,
       };
@@ -218,6 +272,64 @@ const Ideation = () => {
       setShowPremiumModal(false);
       setPremiumIdeaPayload(null);
     }
+  };
+  
+  // Hackathon handlers
+  const handleJoinTeam = (teamId) => {
+    setHackathonTeams(prev => prev.map(team => 
+      team.id === teamId 
+        ? { ...team, currentSize: Math.min(team.currentSize + 1, team.maxSize) }
+        : team
+    ));
+    alert("Successfully joined the team!");
+  };
+  
+  const handleCreateTeam = () => {
+    if (newTeam.name && newTeam.description) {
+      const team = {
+        id: Date.now(),
+        name: newTeam.name,
+        description: newTeam.description,
+        skills: [],
+        currentSize: 1,
+        maxSize: newTeam.maxSize,
+        members: ["You"]
+      };
+      setHackathonTeams(prev => [team, ...prev]);
+      setNewTeam({ name: "", description: "", maxSize: 6 });
+      setShowTeamModal(false);
+      alert("Team created successfully!");
+    }
+  };
+  
+  const handleSubmitProject = () => {
+    if (newProject.title && newProject.description && newProject.githubUrl) {
+      const project = {
+        id: Date.now(),
+        title: newProject.title,
+        description: newProject.description,
+        team: "Your Team",
+        status: "Submitted",
+        votes: 0,
+        percentage: 0,
+        submittedAt: "just now",
+        githubUrl: newProject.githubUrl,
+        demoUrl: newProject.demoUrl
+      };
+      setHackathonProjects(prev => [project, ...prev]);
+      setNewProject({ title: "", description: "", githubUrl: "", demoUrl: "" });
+      setShowProjectModal(false);
+      alert("Project submitted successfully!");
+    }
+  };
+  
+  const handleVoteProject = (projectId) => {
+    setHackathonProjects(prev => prev.map(project => 
+      project.id === projectId 
+        ? { ...project, votes: project.votes + 1, percentage: Math.min(100, ((project.votes + 1) / 100) * 100) }
+        : project
+    ));
+    alert("Vote recorded! Thank you for participating.");
   };
 
   const getStageColor = (stage) => {
@@ -334,6 +446,243 @@ const Ideation = () => {
             </>
           )}
         </div>
+        
+        {/* Ideathon Content */}
+        {activeEventTab === "ideathon" && (
+          <div className="mt-4 space-y-4">
+            <div className="bg-[#232323] rounded-xl p-4">
+              <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-blue-400" />
+                Submit Your Idea
+              </h4>
+              <div className="bg-[#18181A] rounded-lg p-4">
+                <p className="text-gray-300 text-sm mb-3">
+                  Share your innovative idea for the Ideathon. The best ideas will be fast-tracked to startup profiles!
+                </p>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  Submit Idea
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Hackathon Content */}
+        {activeEventTab === "hackathon" && (
+          <div className="mt-4 space-y-4">
+            {/* Team Builder Section */}
+            <div className="bg-[#232323] rounded-xl p-4">
+              <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Users className="h-5 w-5 text-purple-400" />
+                Team Builder
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[#18181A] rounded-lg p-4">
+                  <h5 className="font-medium text-white mb-2">Join a Team</h5>
+                  <div className="space-y-2">
+                    {hackathonTeams.map(team => (
+                      <div key={team.id} className="bg-[#2B2D31] rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-white">{team.name}</span>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            team.currentSize < team.maxSize ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+                          }`}>
+                            {team.currentSize}/{team.maxSize} spots
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-2">{team.description}</p>
+                        <div className="flex gap-1 mb-2">
+                          {team.skills.map((skill, index) => (
+                            <span key={index} className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                        <button 
+                          className={`w-full text-xs py-2 rounded-lg transition-colors ${
+                            team.currentSize < team.maxSize 
+                              ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                              : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                          }`}
+                          disabled={team.currentSize >= team.maxSize}
+                          onClick={() => handleJoinTeam(team.id)}
+                        >
+                          {team.currentSize >= team.maxSize ? 'Team Full' : 'Join Team'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-[#18181A] rounded-lg p-4">
+                  <h5 className="font-medium text-white mb-2">Create Your Team</h5>
+                  <div className="space-y-3">
+                    <input 
+                      type="text" 
+                      placeholder="Team Name" 
+                      value={newTeam.name}
+                      onChange={(e) => setNewTeam({...newTeam, name: e.target.value})}
+                      className="w-full bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    />
+                    <textarea 
+                      placeholder="Team Description & Skills Needed" 
+                      value={newTeam.description}
+                      onChange={(e) => setNewTeam({...newTeam, description: e.target.value})}
+                      rows={3}
+                      className="w-full bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                    />
+                    <div className="flex gap-2">
+                      <input 
+                        type="number" 
+                        min="2"
+                        max="6"
+                        placeholder="Max Team Size (2-6)" 
+                        value={newTeam.maxSize}
+                        onChange={(e) => setNewTeam({...newTeam, maxSize: parseInt(e.target.value) || 6})}
+                        className="flex-1 bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                      />
+                      <button 
+                        className="bg-purple-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                        onClick={handleCreateTeam}
+                      >
+                        Create Team
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Project Submissions */}
+            <div className="bg-[#232323] rounded-xl p-4">
+              <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Zap className="h-5 w-5 text-purple-400" />
+                Project Submissions
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[#18181A] rounded-lg p-4">
+                  <h5 className="font-medium text-white mb-2">Submit Your Project</h5>
+                  <div className="space-y-3">
+                    <input 
+                      type="text" 
+                      placeholder="Project Title" 
+                      value={newProject.title}
+                      onChange={(e) => setNewProject({...newProject, title: e.target.value})}
+                      className="w-full bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    />
+                    <textarea 
+                      placeholder="Project Description" 
+                      value={newProject.description}
+                      onChange={(e) => setNewProject({...newProject, description: e.target.value})}
+                      rows={3}
+                      className="w-full bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                    />
+                    <input 
+                      type="url" 
+                      placeholder="GitHub Repository URL" 
+                      value={newProject.githubUrl}
+                      onChange={(e) => setNewProject({...newProject, githubUrl: e.target.value})}
+                      className="w-full bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    />
+                    <input 
+                      type="url" 
+                      placeholder="Demo Video URL (optional)" 
+                      value={newProject.demoUrl}
+                      onChange={(e) => setNewProject({...newProject, demoUrl: e.target.value})}
+                      className="w-full bg-[#2B2D31] text-white text-sm px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    />
+                    <button 
+                      className="w-full bg-purple-600 text-white text-sm py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                      onClick={handleSubmitProject}
+                    >
+                      Submit Project
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-[#18181A] rounded-lg p-4">
+                  <h5 className="font-medium text-white mb-2">Recent Submissions</h5>
+                  <div className="space-y-2">
+                    {hackathonProjects.map(project => (
+                      <div key={project.id} className="bg-[#2B2D31] rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-white">{project.title}</span>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            project.status === 'Submitted' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'
+                          }`}>
+                            {project.status}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-2">{project.description}</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>Team: {project.team}</span>
+                          <span>• {project.submittedAt}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Voting & Leaderboard */}
+            <div className="bg-[#232323] rounded-xl p-4">
+              <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-purple-400" />
+                Voting & Leaderboard
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[#18181A] rounded-lg p-4">
+                  <h5 className="font-medium text-white mb-2">Public Voting</h5>
+                  <div className="space-y-3">
+                    {hackathonProjects.map(project => (
+                      <div key={project.id} className="bg-[#2B2D31] rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-white">{project.title}</span>
+                          <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded-full">{project.votes} votes</span>
+                        </div>
+                        <div className="w-full bg-[#40444B] rounded-full h-2 mb-2">
+                          <div className="bg-purple-600 h-2 rounded-full" style={{width: `${project.percentage}%`}}></div>
+                        </div>
+                        <button 
+                          className="w-full bg-purple-600 text-white text-xs py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                          onClick={() => handleVoteProject(project.id)}
+                        >
+                          Vote for Project
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-[#18181A] rounded-lg p-4">
+                  <h5 className="font-medium text-white mb-2">Current Leaderboard</h5>
+                  <div className="space-y-2">
+                    {hackathonProjects
+                      .sort((a, b) => b.percentage - a.percentage)
+                      .map((project, index) => (
+                        <div key={project.id} className="flex items-center justify-between p-2 bg-[#2B2D31] rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold">
+                              {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}
+                            </span>
+                            <span className="text-sm font-medium text-white">{project.title}</span>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            index === 0 ? 'bg-yellow-600 text-white' : 
+                            index === 1 ? 'bg-gray-300 text-black' : 
+                            index === 2 ? 'bg-amber-600 text-white' : 'bg-purple-600 text-white'
+                          }`}>
+                            {project.percentage}%
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {/* AI Matchmaking Widget */}
       <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 mb-4">
