@@ -29,10 +29,15 @@ const SettingSidebar = () => {
             href: '/setting/preferences'
         },
         {
+            id: 5,
+            name: 'Saved',
+            href: '/setting/saved'
+        },
+        {
             id: 4,
             name: 'Logout',
             isLogout: true
-        }
+        },
     ]
 
     return (
