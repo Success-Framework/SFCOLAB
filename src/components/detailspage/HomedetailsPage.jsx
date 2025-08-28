@@ -58,7 +58,7 @@ const HomedetailsPage = () => {
       setJoinReason('')
     }
   }
-
+  
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Header */}
@@ -107,7 +107,7 @@ const HomedetailsPage = () => {
                   </button>
                 </div>
               </div>
-              <p className="text-gray-300 text-xs sm:text-base leading-relaxed mb-6">
+              <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
                 {projectDetails.description}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

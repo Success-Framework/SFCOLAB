@@ -378,25 +378,25 @@ const Notifications = () => {
 
         // Play notification sound (optional)
         if (settings.playSoundOnNew) {
-        try {
-            // Create a simple notification sound
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            try {
+                // Create a simple notification sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
 
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
 
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
 
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-        } catch (error) {
-            // Fallback if audio context is not supported
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } catch (error) {
+                // Fallback if audio context is not supported
                 // console.log("Notification sound not supported");
             }
         }
@@ -604,12 +604,12 @@ const Notifications = () => {
                                                         className="absolute right-0 top-full mt-1 w-44 bg-[#1A1A1A] border border-white/20 rounded-lg shadow-lg py-1 z-50"
                                                     >
                                                         {!notification.read ? (
-                                                        <button
+                                                            <button
                                                                 onClick={() => { handleMarkAsRead(notification.id); setOpenMenuId(null); }}
-                                                            className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-                                                        >
-                                                            Mark as read
-                                                        </button>
+                                                                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                                                            >
+                                                                Mark as read
+                                                            </button>
                                                         ) : (
                                                             <button
                                                                 onClick={() => { handleMarkAsUnread(notification.id); setOpenMenuId(null); }}
@@ -617,14 +617,14 @@ const Notifications = () => {
                                                             >
                                                                 Mark as unread
                                                             </button>
-                                                    )}
+                                                        )}
                                                         {!notification.archived ? (
-                                                    <button
+                                                            <button
                                                                 onClick={() => { handleArchive(notification.id); setOpenMenuId(null); }}
-                                                        className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-                                                    >
-                                                        Archive
-                                                    </button>
+                                                                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                                                            >
+                                                                Archive
+                                                            </button>
                                                         ) : (
                                                             <button
                                                                 onClick={() => { handleUnarchive(notification.id); setOpenMenuId(null); }}
@@ -633,13 +633,13 @@ const Notifications = () => {
                                                                 Unarchive
                                                             </button>
                                                         )}
-                                                    <button
+                                                        <button
                                                             onClick={() => { handleDelete(notification.id); setOpenMenuId(null); }}
-                                                        className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
+                                                            className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -659,22 +659,22 @@ const Notifications = () => {
                     </div>
                     <div className="flex gap-2">
                         {activeTab !== "archived" && (
-                        <button
-                            onClick={handleMarkAllAsRead}
-                            disabled={unreadCount === 0}
+                            <button
+                                onClick={handleMarkAllAsRead}
+                                disabled={unreadCount === 0}
                                 className="px-4 py-2 text-sm max-sm:text-xs bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                        >
-                            Mark all as read
-                        </button>
+                            >
+                                Mark all as read
+                            </button>
                         )}
                         {activeTab !== "archived" ? (
-                        <button
-                            onClick={handleArchiveAll}
-                            disabled={totalCount === 0}
+                            <button
+                                onClick={handleArchiveAll}
+                                disabled={totalCount === 0}
                                 className="px-4 py-2 text-sm  bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                        >
-                            Archive all
-                        </button>
+                            >
+                                Archive all
+                            </button>
                         ) : (
                             <button
                                 onClick={handleUnarchiveFiltered}
