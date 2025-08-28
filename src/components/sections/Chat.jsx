@@ -12,7 +12,7 @@ import {
   ChevronDown,
   Mic,
 } from "lucide-react";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 
 // Default contacts data
 const defaultContacts = [

@@ -25,6 +25,7 @@ import Notifications from "../components/pages/Notifications.jsx";
 import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
+import SavedList from "../components/pages/SavedIdeaList.jsx";
 
 export const router = createBrowserRouter([
   // Authentication routes (accessible only when not logged in)
@@ -103,6 +104,10 @@ export const router = createBrowserRouter([
             element: <AccountandSecurity />,
           },
         ],
+      },
+      {
+        path: "/saved",
+        element: <SavedList />
       },
       {
         path: "/register-startup",
