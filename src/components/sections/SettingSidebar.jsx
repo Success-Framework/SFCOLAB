@@ -31,7 +31,7 @@ const SettingSidebar = () => {
         {
             id: 5,
             name: 'Saved',
-            href: '/setting/saved'
+            href: '/saved'
         },
         {
             id: 4,
