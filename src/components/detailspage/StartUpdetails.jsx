@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
-import { ArrowLeft, Share2, BookmarkPlus, Users, Briefcase, Star, Calendar, Clock, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, CheckCircle2, MapPin, Building2, DollarSign, Target } from 'lucide-react'
+import { ArrowLeft, Share2, Bookmark, Users, Briefcase, Star, Calendar, Clock, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, CheckCircle2, MapPin, Building2, DollarSign, Target } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { allimg } from "../../utils"
 
 const StartUpdetails = () => {
   const [isJoined, setIsJoined] = useState(false)
   const [comment, setComment] = useState('')
+  const [isBookmarked, setIsBookmarked] = useState(false)
+ 
 
   const startupDetails = {
     id: 1,
@@ -85,10 +87,30 @@ const StartUpdetails = () => {
     ]
   }
 
+const handleBookmark = () => {
+    setIsBookmarked((prev) => !prev);
+  };
+
+  const handleShare = async () => {
+    try {
+      const url = `${window.location.origin}/startup-details?id=${startupDetails.id}`;
+      if (navigator.share) {
+        await navigator.share({
+          title: startupDetails.name,
+          url: url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch (e) {
+      console.error('Share failed:', e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Header */}
-      <div className="border-b border-white/10">
+      <div className="border-b border-white/10 relative">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <Link to="/startup" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
@@ -96,11 +118,25 @@ const StartUpdetails = () => {
               <span className="hidden sm:inline">Back to Startups</span>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+              <button
+                className="p-2.5 rounded-xl transition-colors border border-white/20 hover:bg-white/10"
+                onClick={handleShare}
+                aria-label="Share"
+              >
                 <Share2 className="h-5 w-5" />
               </button>
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <BookmarkPlus className="h-5 w-5" />
+              <button
+                className={`p-2.5 rounded-xl transition-colors border border-white/20 ${
+                  isBookmarked
+                    ? "bg-blue-500/10 text-blue-400 border-blue-400"
+                    : "hover:bg-white/10"
+                }`}
+                onClick={handleBookmark}
+                aria-label="Bookmark"
+              >
+                <Bookmark
+                  className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
+                />
               </button>
             </div>
           </div>
@@ -336,8 +372,8 @@ const StartUpdetails = () => {
                   <span className="text-gray-400 text-sm sm:text-base">Location</span>
                   <span className="text-sm sm:text-base">{startupDetails.location}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Team Size</span>
+                <div className="fitext-sm sm:text-basex items-center justify-between">
+                  <span className="text-gray impar-400 text-sm sm:text-base">Team Size</span>
                   <span className="text-sm sm:text-base">{startupDetails.teamSize}</span>
                 </div>
                 <div className="flex items-center justify-between">

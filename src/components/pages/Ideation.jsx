@@ -29,6 +29,9 @@ const Ideation = () => {
   const [selectedStage, setSelectedStage] = useState("All Stages");
   const [selectedIndustry, setSelectedIndustry] = useState("All Industries");
   const [sortBy, setSortBy] = useState("trending"); // trending, latest, popular, discussed
+  const [bookmarkNotification, setBookmarkNotification] = useState("");
+  const [showShareMsg, setShowShareMsg] = useState(false);
+
   const [ideas, setIdeas] = useState(() => [
     {
       id: 1,
@@ -140,6 +143,8 @@ const Ideation = () => {
     },
   ]);
 
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
   const handleCreateIdea = (payload) => {
     const now = new Date();
     const newIdea = {
@@ -217,6 +222,48 @@ const Ideation = () => {
         return filtered;
     }
   }, [ideas, searchQuery, selectedStage, selectedIndustry, sortBy]);
+
+  const handleBookmark = (idea) => {
+    const id = idea.id;
+
+    setBookmarkedIds((prev) => {
+      const newSet = new Set(prev);
+
+      if (newSet.has(id)) {
+        newSet.delete(id);
+        setBookmarkNotification("Bookmark removed");
+      } else {
+        newSet.add(id);
+        setBookmarkNotification("Idea bookmarked!");
+      }
+
+      // Reset notification after 2s
+      setTimeout(() => setBookmarkNotification(""), 2000);
+
+      return newSet;
+    });
+  };
+
+  const handleShare = async (idea) => {
+    try {
+      const url = `${window.location.origin}/ideation-details?id=${idea.id}`;
+      const title = idea.title;
+
+      if (navigator.share) {
+        await navigator.share({
+          title: title,
+          url: url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShowShareMsg(true);
+        setTimeout(() => setShowShareMsg(false), 1500);
+      }
+    } catch (e) {
+      setShowShareMsg(true);
+      setTimeout(() => setShowShareMsg(false), 1500);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -330,10 +377,26 @@ const Ideation = () => {
 
             {/* Quick Action Buttons */}
             <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button className="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition-colors">
-                <Bookmark className="h-4 w-4 text-white" />
+              <button
+                className={`bg-white/20 p-2 rounded-lg transition-colors ${
+                  bookmarkedIds.has(content.id)
+                    ? "bg-blue-500/10 text-blue-400 border border-blue-400"
+                    : "hover:bg-white/30"
+                }`}
+                onClick={() => handleBookmark(content)}
+              >
+                <Bookmark
+                  className={`h-4 w-4 ${
+                    bookmarkedIds.has(content.id)
+                      ? "text-blue-400 fill-current"
+                      : "text-white"
+                  }`}
+                />
               </button>
-              <button className="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition-colors">
+              <button
+                className="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition-colors"
+                onClick={() => handleShare(content)}
+              >
                 <Share2 className="h-4 w-4 text-white" />
               </button>
             </div>
@@ -361,6 +424,12 @@ const Ideation = () => {
       )}
 
       <ScrollToTop />
+
+       {bookmarkNotification && (
+        <div className="fixed bottom-4 right-4 bg-[#232323] text-green-400 px-4 py-2 rounded shadow-lg border border-green-700 z-50">
+          {bookmarkNotification}
+        </div>
+      )}
     </div>
   );
 };

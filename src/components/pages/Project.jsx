@@ -355,10 +355,10 @@ export default function Project() {
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-gray-500 justify-center w-full flex items-center h-10">
+              {/* <div className="text-xs text-gray-500 justify-center w-full flex items-center h-10">
                 <Calendar className="h-3 w-3 mr-1" />
                 Joined: {employee.joined}
-              </div>
+              </div> */}
             </Link>
           ))}
         </div>

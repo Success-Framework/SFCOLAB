@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { BriefcaseBusiness, CheckCheck, LocateIcon, User, Calendar, Clock, ArrowLeft, Share2, BookmarkPlus, Users } from 'lucide-react'
+import { BriefcaseBusiness, CheckCheck, LocateIcon, User, Calendar, Clock, ArrowLeft, Share2, BookmarkPlus, Users, Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const HomedetailsPage = () => {
   const [isJoined, setIsJoined] = useState(false)
   const [showJoinModal, setShowJoinModal] = useState(false)
   const [joinReason, setJoinReason] = useState('')
+  const [isBookmarked, setIsBookmarked] = useState(false)
 
   const projectDetails = {
     id: 1,
@@ -59,6 +60,27 @@ const HomedetailsPage = () => {
     }
   }
 
+  const handleBookmark = () => {
+    setIsBookmarked((prev) => !prev);
+  };
+
+  const handleShare = async () => {
+    try {
+      const url = `${window.location.origin}/project/${projectDetails.id}`;
+      if (navigator.share) {
+        await navigator.share({
+          title: projectDetails.header,
+          url: url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+      }
+    } catch (e) {
+      console.error('Share failed:', e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Header */}
@@ -70,18 +92,32 @@ const HomedetailsPage = () => {
               <span className="hidden sm:inline">Back to Projects</span>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+              <button 
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                onClick={handleShare}
+                aria-label="Share"
+              >
                 <Share2 className="h-5 w-5" />
               </button>
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <BookmarkPlus className="h-5 w-5" />
+              <button 
+                className={`p-2 rounded-lg transition-colors ${
+                  isBookmarked 
+                    ? "bg-blue-500/10 text-blue-400" 
+                    : "hover:bg-white/10"
+                }`}
+                onClick={handleBookmark}
+                aria-label="Bookmark"
+              >
+                <Bookmark
+                  className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
+                />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Rest of the code remains exactly the same */}
       <div className="max-w-7xl mx-auto px-4 max-sm:px-2 py-4 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left Column - Main Info */}
@@ -112,20 +148,20 @@ const HomedetailsPage = () => {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">{projectDetails.people} Roles</span>
+                  <User className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">{projectDetails.people} Roles</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <BriefcaseBusiness className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">{projectDetails.technology}</span>
+                  <BriefcaseBusiness className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">{projectDetails.technology}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <LocateIcon className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">{projectDetails.location}</span>
+                  <LocateIcon className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">{projectDetails.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm sm:text-base">Created: {projectDetails.createdAt}</span>
+                  <Calendar className="h-5 w-5 max-sm:h-4 max-sm:w-4 text-gray-400" />
+                  <span className="text-xs sm:text-base">Created: {projectDetails.createdAt}</span>
                 </div>
               </div>
             </div>
@@ -171,32 +207,32 @@ const HomedetailsPage = () => {
               <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Quick Info</h2>
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Status</span>
-                  <span className="text-green-500 text-sm sm:text-base">Active</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Status</span>
+                  <span className="text-green-500 text-xs sm:text-base">Active</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Posted</span>
-                  <span className="text-sm sm:text-base">{projectDetails.createdAt}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Posted</span>
+                  <span className="text-xs sm:text-base">{projectDetails.createdAt}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Location</span>
-                  <span className="text-sm sm:text-base">{projectDetails.location}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Location</span>
+                  <span className="text-xs sm:text-base">{projectDetails.location}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Team Size</span>
-                  <span className="text-sm sm:text-base">{projectDetails.people} members</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Team Size</span>
+                  <span className="text-xs sm:text-base">{projectDetails.people} members</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Progress</span>
-                  <span className="text-sm sm:text-base">{projectDetails.metrics.progress}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Progress</span>
+                  <span className="text-xs sm:text-base">{projectDetails.metrics.progress}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Deadline</span>
-                  <span className="text-sm sm:text-base">{projectDetails.metrics.deadline}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Deadline</span>
+                  <span className="text-xs sm:text-base">{projectDetails.metrics.deadline}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm sm:text-base">Budget</span>
-                  <span className="text-sm sm:text-base">{projectDetails.metrics.budget}</span>
+                  <span className="text-gray-400 text-xs sm:text-base">Budget</span>
+                  <span className="text-xs sm:text-base">{projectDetails.metrics.budget}</span>
                 </div>
               </div>
             </div>
