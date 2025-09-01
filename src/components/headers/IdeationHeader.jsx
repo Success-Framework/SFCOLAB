@@ -34,10 +34,18 @@ const IdeationHeader = ({
   // Use refs instead of controlled state to prevent focus loss
   const titleRef = useRef("");
   const descriptionRef = useRef("");
+  const projectDetailsRef = useRef("");
+  const teamMemberRef = useRef("");
+  const positionRef = useRef("");
+  const skillsRef = useRef("");
   const industryRef = useRef("");
   const stageRef = useRef("");
   const tagsRef = useRef("");
   const searchTimeoutRef = useRef(null);
+  const [, setTick] = useState(0);
+  const forceRender = () => setTick((t) => t + 1);
+
+  const teamMembersRef = useRef([{ name: "", position: "", skills: "" }]);
 
   const stages = [
     "All Stages",
@@ -77,6 +85,15 @@ const IdeationHeader = ({
     const payload = {
       title: titleRef.current.trim(),
       description: descriptionRef.current.trim(),
+      projectDetails: projectDetailsRef.current.trim(),
+      teamMembers: teamMembersRef.current.map((m) => ({
+        name: (m.name || "").trim(),
+        position: (m.position || "").trim(),
+        skills: (m.skills || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+      })),
       industry: industryRef.current || "Technology",
       stage: stageRef.current || "Idea Stage",
       tags: tagsRef.current
@@ -84,17 +101,32 @@ const IdeationHeader = ({
         .map((t) => t.trim())
         .filter(Boolean),
     };
-    if (typeof onCreateIdea === "function") {
-      onCreateIdea(payload);
-    }
+    console.log (payload)
     setShowNewIdeaForm(false);
     // Clear refs
     titleRef.current = "";
     descriptionRef.current = "";
+    projectDetailsRef.current = "";
+    teamMemberRef.current = "";
+    positionRef.current = "";
+    skillsRef.current = "";
     industryRef.current = "";
     stageRef.current = "";
     tagsRef.current = "";
   };
+
+  //Add new team member
+  const addTeamMember = () => {
+    if (teamMembersRef.current.length >= 3) return;
+      teamMembersRef.current.push({ name: "", position: "", skills: "" });
+      forceRender();
+    };
+
+  // (Optional) remove to bring the add button back
+  const removeTeamMember = (index) => {
+    teamMembersRef.current.splice(index, 1);
+    forceRender();
+  };  
 
   const FilterButton = ({
     icon,
@@ -166,8 +198,6 @@ const IdeationHeader = ({
     </div>
   );
 
-
-
   const NewIdeaForm = () => (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-lg max-h-[500px] overflow-y-auto">
@@ -208,10 +238,72 @@ const IdeationHeader = ({
               onChange={(e) => {
                 descriptionRef.current = e.target.value;
               }}
-              placeholder="Describe your idea in detail. What problem does it solve? How does it work?"
+              placeholder="Give a brief description of your idea"
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 h-32 resize-none placeholder:text-xs"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Project Details *
+            </label>
+            <textarea
+              defaultValue=""
+              onChange={(e) => {
+                projectDetailsRef.current = e.target.value;
+              }}
+              placeholder="Go further by giving deeper and structured details of your project. What it's about, and how it works"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 h-32 resize-none placeholder:text-xs"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Add team members (Up to 3)
+            </label>
+
+            {teamMembersRef.current.map((member, index) => (
+              <div key={index} className="mb-6">
+                <div className=" grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Name of team member"
+                    onChange={(e) => {
+                      teamMemberRef.current[index].name = e.target.value;
+                    }}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Position"
+                    onChange={(e) => {
+                      positionRef.current[index].position = e.target.value;
+                    }}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Skills (Up to 3)"
+                  onChange={(e) => {
+                    skillsRef.current[index].skills = e.target.value;
+                  }}
+                  className="w-full mt-4 px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
+                />
+                {/* Optional remove button */}
+            {teamMembersRef.current.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeTeamMember(index)}
+                className="mt-4 px-3 py-2 border border-gray-600 rounded-md text-white hover:bg-gray-800"
+              >
+                Remove
+              </button>
+            )}
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -285,6 +377,23 @@ const IdeationHeader = ({
             />
           </div>
 
+            {teamMembersRef.current.length < 3 && (
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={addTeamMember}
+          onKeyDown={(e) =>
+            e.key === "Enter" || e.key === " " ? addTeamMember() : null
+          }
+          className="flex items-center justify-center px-4 py-2 border border-gray-600 rounded-md 
+                     text-white hover:bg-gray-800 transition-colors cursor-pointer"
+        >
+          {/* <Plus className="w-4 h-4 mr-2" /> */}
+          Add another team member
+        </div>
+      )}
+
+
           <div className="flex justify-end gap-3 pt-4 max-sm:text-sm">
             <button
               type="button"
@@ -334,8 +443,9 @@ const IdeationHeader = ({
 
       {/* Controls Section */}
       <div
-        className={`${isMobileMenuOpen ? "flex" : "hidden"
-          } sm:flex flex-col sm:flex-row gap-3 w-full`}
+        className={`${
+          isMobileMenuOpen ? "flex" : "hidden"
+        } sm:flex flex-col sm:flex-row gap-3 w-full`}
       >
         <div className="flex-1">
           <SearchBar
