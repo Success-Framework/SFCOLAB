@@ -87,6 +87,10 @@ export const router = createBrowserRouter([
         element: <Knowledge />,
       },
       {
+        path: "preferences", // relative path
+        element: <Preferences />,
+      },
+      {
         path: "/setting",
         element: <Setting />,
         children: [

@@ -36,6 +36,11 @@ const SideBar = () => {
       icon: <BriefcaseBusiness />,
       href: "/knowledge",
     },
+    {
+      id: 6,
+      icon: <File />,
+      href: "/preferences",
+    },
   ];
 
   // Helper to close sidebar on mobile when a link is clicked
