@@ -21,6 +21,8 @@ import Knowledgedetails from "../components/detailspage/Knowledgedetails.jsx";
 import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
 import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
 import Help from "../components/pages/Help.jsx";
+import ProjectManagement from "../components/pages/ProjectManagement.jsx";
+import VideoTutorials from "../components/pages/VideoTutorials.jsx";
 import Notifications from "../components/pages/Notifications.jsx";
 import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
@@ -71,6 +73,15 @@ export const router = createBrowserRouter([
         path: "/projects",
         element: <Project />,
       },
+      {
+  path: "/project-management",
+  element: <ProjectManagement />,
+},
+{
+  path: "/video-tutorials",
+  element: <VideoTutorials />,
+},
+
       {
         path: "/profile",
         element: <Profile />,
@@ -149,7 +160,7 @@ export const router = createBrowserRouter([
         path: "/messages",
         element: <Chat />,
       },
-    ],
+    ]
   },
   // Catch all unmatched routes
   {
