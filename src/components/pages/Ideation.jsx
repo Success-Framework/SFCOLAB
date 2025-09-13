@@ -24,6 +24,7 @@ import { Link } from "react-router-dom";
 import IdeationHeader from "../headers/IdeationHeader";
 import ScrollToTop from "../sections/ScrollToTop";
 
+
 const Ideation = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStage, setSelectedStage] = useState("All Stages");
@@ -31,6 +32,27 @@ const Ideation = () => {
   const [sortBy, setSortBy] = useState("trending"); // trending, latest, popular, discussed
   const [bookmarkNotification, setBookmarkNotification] = useState("");
   const [showShareMsg, setShowShareMsg] = useState(false);
+  const [likedIds, setLikedIds] = useState(new Set());
+
+  const handleToggleLike = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIdeas(prev =>
+      prev.map(item => {
+        if (item.id !== id) return item;
+        const nextLiked = !item.liked;
+        return {
+          ...item,
+          liked: nextLiked,
+          likes: Math.max(0, item.likes + (nextLiked ? 1 : -1)),
+        };
+      })
+    );
+  };
+
+
+
 
   const [ideas, setIdeas] = useState(() => [
     {
@@ -346,10 +368,25 @@ const Ideation = () => {
                 {/* Subtle Engagement Metrics */}
                 <div className="flex items-center justify-between pt-3 border-t border-white/5">
                   <div className="flex items-center gap-4 text-xs text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Heart className="h-3 w-3" />
-                      {content.likes}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleLike(e, content.id)}
+                      aria-pressed={content.liked}
+                      title={content.liked ? "Unlike" : "Like"}
+                      className="flex items-center gap-1 focus:outline-none"
+                    >
+                      <Heart
+                        className={`h-3 w-3 transition-transform ${content.liked ? "text-red-500 scale-110" : "text-gray-400"
+                          }`}
+                        fill={content.liked ? "currentColor" : "none"}
+                      />
+                      <span className={content.liked ? "text-red-500" : "text-gray-400"}>
+                        {content.likes}
+                      </span>
+                      <span className="sr-only">{content.liked ? "Liked" : "Not liked"}</span>
+                    </button>
+
+
                     <span className="flex items-center gap-1">
                       <MessageCircle className="h-3 w-3" />
                       {content.comments}
@@ -378,19 +415,17 @@ const Ideation = () => {
             {/* Quick Action Buttons */}
             <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <button
-                className={`bg-white/20 p-2 rounded-lg transition-colors ${
-                  bookmarkedIds.has(content.id)
-                    ? "bg-blue-500/10 text-blue-400 border border-blue-400"
-                    : "hover:bg-white/30"
-                }`}
+                className={`bg-white/20 p-2 rounded-lg transition-colors ${bookmarkedIds.has(content.id)
+                  ? "bg-blue-500/10 text-blue-400 border border-blue-400"
+                  : "hover:bg-white/30"
+                  }`}
                 onClick={() => handleBookmark(content)}
               >
                 <Bookmark
-                  className={`h-4 w-4 ${
-                    bookmarkedIds.has(content.id)
-                      ? "text-blue-400 fill-current"
-                      : "text-white"
-                  }`}
+                  className={`h-4 w-4 ${bookmarkedIds.has(content.id)
+                    ? "text-blue-400 fill-current"
+                    : "text-white"
+                    }`}
                 />
               </button>
               <button
@@ -401,36 +436,41 @@ const Ideation = () => {
               </button>
             </div>
           </div>
-        ))}
-      </div>
+        ))
+        }
+      </div >
 
       {/* No Results State */}
-      {filteredAndSortedProjects.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 px-4">
-          <div className="text-center space-y-4">
-            <Lightbulb className="h-16 w-16 text-gray-600 mx-auto" />
-            <h3 className="text-xl font-semibold text-gray-300">
-              No ideas found
-            </h3>
-            <p className="text-gray-500 max-w-md">
-              Be the first to share an innovative idea! Try adjusting your
-              filters or create a new idea to get the conversation started.
-            </p>
-            <button className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-              Share Your Idea
-            </button>
+      {
+        filteredAndSortedProjects.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="text-center space-y-4">
+              <Lightbulb className="h-16 w-16 text-gray-600 mx-auto" />
+              <h3 className="text-xl font-semibold text-gray-300">
+                No ideas found
+              </h3>
+              <p className="text-gray-500 max-w-md">
+                Be the first to share an innovative idea! Try adjusting your
+                filters or create a new idea to get the conversation started.
+              </p>
+              <button className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                Share Your Idea
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <ScrollToTop />
 
-       {bookmarkNotification && (
-        <div className="fixed bottom-4 right-4 bg-[#232323] text-green-400 px-4 py-2 rounded shadow-lg border border-green-700 z-50">
-          {bookmarkNotification}
-        </div>
-      )}
-    </div>
+      {
+        bookmarkNotification && (
+          <div className="fixed bottom-4 right-4 bg-[#232323] text-green-400 px-4 py-2 rounded shadow-lg border border-green-700 z-50">
+            {bookmarkNotification}
+          </div>
+        )
+      }
+    </div >
   );
 };
 

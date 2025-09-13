@@ -29,6 +29,7 @@ const IdeationDetails = () => {
   const discussionSectionRef = useRef(null);
   const location = useLocation();
 
+
   const ideaDetails = {
     id: 1,
     title: "Smart Parenting Assistant",
@@ -193,12 +194,12 @@ const IdeationDetails = () => {
               <span>Back to Ideas</span>
             </Link>
             <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
               <button
-                className={`p-2.5 rounded-xl transition-colors flex items-center gap-1 border border-white/20 ${
-                  liked
+                className={`p-2.5 rounded-xl transition-colors flex items-center gap-1 border border-white/20 ${liked
                     ? "bg-red-500/10 text-red-400 border-red-400"
                     : "hover:bg-white/10"
-                }`}
+                  }`}
                 onClick={handleLike}
                 aria-label="Like"
               >
@@ -218,11 +219,10 @@ const IdeationDetails = () => {
                 <Share2 className="h-5 w-5" />
               </button>
               <button
-                className={`p-2.5 rounded-xl transition-colors border border-white/20 ${
-                  bookmarked
+                className={`p-2.5 rounded-xl transition-colors border border-white/20 ${bookmarked
                     ? "bg-blue-500/10 text-blue-400 border-blue-400"
                     : "hover:bg-white/10"
-                }`}
+                  }`}
                 onClick={handleBookmark}
                 aria-label="Bookmark"
               >
@@ -230,6 +230,7 @@ const IdeationDetails = () => {
                   className={`h-5 w-5 ${bookmarked ? "fill-current" : ""}`}
                 />
               </button>
+              </span>
             </div>
           </div>
           {showShareMsg && (
@@ -346,9 +347,23 @@ const IdeationDetails = () => {
                     </div>
                     <p className="text-gray-300 mb-2">{item.comment}</p>
                     <div className="flex items-center gap-4 text-gray-400">
-                      <button className="flex items-center gap-1 hover:text-white transition-colors">
-                        <Heart className="h-4 w-4" /> {item.likes}
+                      <button
+                        type="button"
+                        onClick={() => toggleCommentLike(item.id)}
+                        aria-pressed={item.liked}
+                        title={item.liked ? "Unlike comment" : "Like comment"}
+                        className="flex items-center gap-1 transition-colors focus:outline-none"
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${item.liked ? "text-red-500" : "text-gray-400"}`}
+                          fill={item.liked ? "currentColor" : "none"}
+                        />
+                        <span className={item.liked ? "text-red-500" : "text-gray-400"}>
+                          {item.likes}
+                        </span>
+                        <span className="sr-only">{item.liked ? "Liked" : "Not liked"}</span>
                       </button>
+
                       <button className="hover:text-white transition-colors">
                         Reply
                       </button>
@@ -446,80 +461,80 @@ const IdeationDetails = () => {
       {/* Join Project Modal */}
       {showJoinModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-bold">Join Project</h2>
-                <button
+              <h2 className="text-lg font-bold">Join Project</h2>
+              <button
                 onClick={() => setShowJoinModal(false)}
                 className="p-2 hover:bg-white/10 rounded-lg"
-                >
+              >
                 <X className="h-5 w-5" />
-                </button>
+              </button>
             </div>
             {successMsg ? (
-                <div className="text-green-400 text-center py-6">
+              <div className="text-green-400 text-center py-6">
                 {successMsg}
-                </div>
+              </div>
             ) : (
-                <form onSubmit={handleJoinSubmit} className="space-y-4">
+              <form onSubmit={handleJoinSubmit} className="space-y-4">
                 <textarea
-                    value={joinMessage}
-                    onChange={(e) => setJoinMessage(e.target.value)}
-                    placeholder="Tell the team why you want to join..."
-                    className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={4}
-                    required
+                  value={joinMessage}
+                  onChange={(e) => setJoinMessage(e.target.value)}
+                  placeholder="Tell the team why you want to join..."
+                  className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
                 />
                 <button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
                 >
-                    Send Request
+                  Send Request
                 </button>
-                </form>
+              </form>
             )}
-            </div>
+          </div>
         </div>
-        )}
+      )}
 
-        {/* Suggest Improvement Modal */}
-        {showSuggestModal && (
+      {/* Suggest Improvement Modal */}
+      {showSuggestModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-bold">Suggest Improvement</h2>
-                <button
+              <h2 className="text-lg font-bold">Suggest Improvement</h2>
+              <button
                 onClick={() => setShowSuggestModal(false)}
                 className="p-2 hover:bg-white/10 rounded-lg"
-                >
+              >
                 <X className="h-5 w-5" />
-                </button>
+              </button>
             </div>
             {successMsg ? (
-                <div className="text-green-400 text-center py-6">
+              <div className="text-green-400 text-center py-6">
                 {successMsg}
-                </div>
+              </div>
             ) : (
-                <form onSubmit={handleSuggestSubmit} className="space-y-4">
+              <form onSubmit={handleSuggestSubmit} className="space-y-4">
                 <textarea
-                    value={suggestMessage}
-                    onChange={(e) => setSuggestMessage(e.target.value)}
-                    placeholder="Share your suggestion for improvement..."
-                    className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={4}
-                    required
+                  value={suggestMessage}
+                  onChange={(e) => setSuggestMessage(e.target.value)}
+                  placeholder="Share your suggestion for improvement..."
+                  className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
                 />
                 <button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
                 >
-                    Send Suggestion
+                  Send Suggestion
                 </button>
-                </form>
+              </form>
             )}
-            </div>
+          </div>
         </div>
-        )}
+      )}
 
       {/* Bookmark Notification */}
       {bookmarkNotification && (
