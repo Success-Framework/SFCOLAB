@@ -20,15 +20,19 @@ const IdeationDetails = () => {
   const [joinMessage, setJoinMessage] = useState("");
   const [suggestMessage, setSuggestMessage] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Idea-level like (independent of comments)
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(101);
+
+  // Bookmark/share
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkNotification, setBookmarkNotification] = useState("");
   const [showShareMsg, setShowShareMsg] = useState(false);
+
   const commentInputRef = useRef(null);
   const discussionSectionRef = useRef(null);
   const location = useLocation();
-
 
   const ideaDetails = {
     id: 1,
@@ -98,11 +102,32 @@ const IdeationDetails = () => {
     ],
   };
 
-  // Extract the idea ID from the URL
+  // Extract the idea ID from the URL (kept for share link)
   const queryParams = new URLSearchParams(location.search);
   const ideaId = parseInt(queryParams.get("id")) || ideaDetails.id;
 
-  // Button handlers
+  // ---------- Comment likes: independent per comment ----------
+  // Create stateful copy of feedback, each with a 'liked' flag
+  const [feedback, setFeedback] = useState(
+    ideaDetails.feedback.map((f) => ({ ...f, liked: false }))
+  );
+
+  const toggleCommentLike = (id) => {
+    setFeedback((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item; // untouched comments remain unchanged
+        const nextLiked = !item.liked;
+        return {
+          ...item,
+          liked: nextLiked,
+          likes: Math.max(0, item.likes + (nextLiked ? 1 : -1)),
+        };
+      })
+    );
+  };
+  // ------------------------------------------------------------
+
+  // Handlers
   const handleJoinProject = () => {
     setShowJoinModal(true);
     setSuccessMsg("");
@@ -118,9 +143,7 @@ const IdeationDetails = () => {
       discussionSectionRef.current.scrollIntoView({ behavior: "smooth" });
     }
     setTimeout(() => {
-      if (commentInputRef.current) {
-        commentInputRef.current.focus();
-      }
+      if (commentInputRef.current) commentInputRef.current.focus();
     }, 400);
   };
 
@@ -138,26 +161,19 @@ const IdeationDetails = () => {
     setTimeout(() => setShowSuggestModal(false), 1200);
   };
 
+  // Idea-level like: clean, single increment
   const handleLike = () => {
-    setLiked((prev) => {
-      const newLiked = !prev;
-      setLikeCount((count) => count + (newLiked ? 1 : -1));
-      return newLiked;
-    });
+    const willLike = !liked;
+    setLiked(willLike);
+    setLikeCount((c) => Math.max(0, c + (willLike ? 1 : -1)));
   };
 
   const handleBookmark = () => {
     setBookmarked((prev) => {
-      const newBookmarked = !prev;
-
-      if (newBookmarked) {
-        setBookmarkNotification("Idea bookmarked!");
-      } else {
-        setBookmarkNotification("Bookmark removed");
-      }
-
+      const next = !prev;
+      setBookmarkNotification(next ? "Idea bookmarked!" : "Bookmark removed");
       setTimeout(() => setBookmarkNotification(""), 2000);
-      return newBookmarked;
+      return next;
     });
   };
 
@@ -165,16 +181,13 @@ const IdeationDetails = () => {
     try {
       const url = `${window.location.origin}/ideation-details?id=${ideaId}`;
       if (navigator.share) {
-        await navigator.share({
-          title: ideaDetails.title,
-          url: url,
-        });
+        await navigator.share({ title: ideaDetails.title, url });
       } else {
         await navigator.clipboard.writeText(url);
         setShowShareMsg(true);
         setTimeout(() => setShowShareMsg(false), 1500);
       }
-    } catch (e) {
+    } catch {
       setShowShareMsg(true);
       setTimeout(() => setShowShareMsg(false), 1500);
     }
@@ -193,46 +206,49 @@ const IdeationDetails = () => {
               <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
               <span>Back to Ideas</span>
             </Link>
+
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
-              <button
-                className={`p-2.5 rounded-xl transition-colors flex items-center gap-1 border border-white/20 ${liked
-                    ? "bg-red-500/10 text-red-400 border-red-400"
-                    : "hover:bg-white/10"
-                  }`}
-                onClick={handleLike}
-                aria-label="Like"
-              >
-                <Heart className={`h-5 w-5 ${liked ? "fill-current" : ""}`} />
-                <span
-                  className="text-xs font-medium"
-                  style={{ minWidth: 24, textAlign: "center" }}
+                {/* Idea like button (independent of comments) */}
+                <button
+                  type="button"
+                  onClick={handleLike}
+                  aria-pressed={liked}
+                  className="flex items-center gap-1 focus:outline-none"
+                  title={liked ? "Unlike" : "Like"}
                 >
-                  {likeCount}
-                </span>
-              </button>
-              <button
-                className="p-2.5 rounded-xl transition-colors border border-white/20 hover:bg-white/10"
-                onClick={handleShare}
-                aria-label="Share"
-              >
-                <Share2 className="h-5 w-5" />
-              </button>
-              <button
-                className={`p-2.5 rounded-xl transition-colors border border-white/20 ${bookmarked
-                    ? "bg-blue-500/10 text-blue-400 border-blue-400"
-                    : "hover:bg-white/10"
+                  <Heart
+                    className={`h-5 w-5 ${liked ? "text-red-500" : "text-gray-400"}`}
+                    fill={liked ? "currentColor" : "none"}
+                  />
+                  <span className={liked ? "text-red-500" : "text-gray-400"}>
+                    {likeCount} Likes
+                  </span>
+                </button>
+
+                <button
+                  className="p-2.5 rounded-xl transition-colors border border-white/20 hover:bg-white/10"
+                  onClick={handleShare}
+                  aria-label="Share"
+                >
+                  <Share2 className="h-5 w-5" />
+                </button>
+
+                <button
+                  className={`p-2.5 rounded-xl transition-colors border border-white/20 ${
+                    bookmarked
+                      ? "bg-blue-500/10 text-blue-400 border-blue-400"
+                      : "hover:bg-white/10"
                   }`}
-                onClick={handleBookmark}
-                aria-label="Bookmark"
-              >
-                <Bookmark
-                  className={`h-5 w-5 ${bookmarked ? "fill-current" : ""}`}
-                />
-              </button>
+                  onClick={handleBookmark}
+                  aria-label="Bookmark"
+                >
+                  <Bookmark className={`h-5 w-5 ${bookmarked ? "fill-current" : ""}`} />
+                </button>
               </span>
             </div>
           </div>
+
           {showShareMsg && (
             <div className="absolute right-8 top-16 bg-[#232323] text-xs text-green-400 px-4 py-2 rounded shadow-lg border border-green-700 z-50">
               Link copied!
@@ -254,12 +270,13 @@ const IdeationDetails = () => {
                 <Clock className="h-3 w-3" /> {ideaDetails.timeAgo}
               </span>
             </div>
+
             <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">
               {ideaDetails.title}
             </h1>
-            <p className="text-gray-300 text-base mb-4">
-              {ideaDetails.description}
-            </p>
+
+            <p className="text-gray-300 text-base mb-4">{ideaDetails.description}</p>
+
             <div className="flex flex-wrap gap-2 mb-4">
               {ideaDetails.tags.map((tag, idx) => (
                 <span
@@ -270,18 +287,34 @@ const IdeationDetails = () => {
                 </span>
               ))}
             </div>
+
+            {/* Display metrics (like action handled in header button) */}
             <div className="flex items-center gap-6 text-xs text-gray-400 mb-4">
               <span className="flex items-center gap-1">
-                <Heart className="h-4 w-4" /> {likeCount} Likes
+                <button
+                  type="button"
+                  onClick={handleLike}
+                  aria-pressed={liked}
+                  className="flex items-center gap-1 focus:outline-none"
+                  title={liked ? "Unlike" : "Like"}
+                >
+                  <Heart
+                    className={`h-5 w-5 ${liked ? "text-red-500" : "text-gray-400"}`}
+                    fill={liked ? "currentColor" : "none"}
+                  />
+                  <span className={liked ? "text-red-500" : "text-gray-400"}>
+                    {likeCount} Likes
+                  </span>
+                </button>
               </span>
               <span className="flex items-center gap-1">
-                <MessageSquare className="h-4 w-4" /> {ideaDetails.comments}{" "}
-                Comments
+                <MessageSquare className="h-4 w-4" /> {ideaDetails.comments} Comments
               </span>
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" /> {ideaDetails.collaborators} Team
               </span>
             </div>
+
             <div className="flex flex-wrap gap-3 pt-2">
               <button
                 className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-medium transition-colors"
@@ -317,36 +350,28 @@ const IdeationDetails = () => {
           </div>
 
           {/* Discussion Section */}
-          <div
-            className="bg-[#18181A] rounded-2xl p-8"
-            ref={discussionSectionRef}
-          >
+          <div className="bg-[#18181A] rounded-2xl p-8" ref={discussionSectionRef}>
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-green-400" /> Discussion (
-              {ideaDetails.feedback.length})
+              <MessageSquare className="h-5 w-5 text-green-400" /> Discussion ({feedback.length})
             </h2>
+
             <div className="space-y-6">
-              {ideaDetails.feedback.map((item) => (
+              {feedback.map((item) => (
                 <div key={item.id} className="flex gap-4">
-                  <img
-                    src={item.user.avatar}
-                    alt={item.user.name}
-                    className="w-10 h-10 rounded-full"
-                  />
+                  <img src={item.user.avatar} alt={item.user.name} className="w-10 h-10 rounded-full" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{item.user.name}</h3>
-                        <span className="text-xs text-gray-400">
-                          {item.user.role}
-                        </span>
+                        <span className="text-xs text-gray-400">{item.user.role}</span>
                       </div>
-                      <span className="text-xs text-gray-400">
-                        {item.timestamp}
-                      </span>
+                      <span className="text-xs text-gray-400">{item.timestamp}</span>
                     </div>
+
                     <p className="text-gray-300 mb-2">{item.comment}</p>
+
                     <div className="flex items-center gap-4 text-gray-400">
+                      {/* Comment like button — independent per comment */}
                       <button
                         type="button"
                         onClick={() => toggleCommentLike(item.id)}
@@ -364,14 +389,13 @@ const IdeationDetails = () => {
                         <span className="sr-only">{item.liked ? "Liked" : "Not liked"}</span>
                       </button>
 
-                      <button className="hover:text-white transition-colors">
-                        Reply
-                      </button>
+                      <button className="hover:text-white transition-colors">Reply</button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+
             {/* Comment Input */}
             <div className="mt-8">
               <div className="flex gap-4">
@@ -410,37 +434,25 @@ const IdeationDetails = () => {
               alt={ideaDetails.author.name}
               className="w-16 h-16 rounded-full mx-auto mb-2"
             />
-            <h3 className="font-semibold text-base">
-              {ideaDetails.author.name}
-            </h3>
-            <p className="text-xs text-gray-400 mb-2">
-              {ideaDetails.author.role}
-            </p>
-            <p className="text-xs text-gray-300 mb-4">
-              {ideaDetails.author.bio}
-            </p>
+            <h3 className="font-semibold text-base">{ideaDetails.author.name}</h3>
+            <p className="text-xs text-gray-400 mb-2">{ideaDetails.author.role}</p>
+            <p className="text-xs text-gray-300 mb-4">{ideaDetails.author.bio}</p>
           </div>
 
           {/* Team Section */}
           <div className="bg-[#18181A] rounded-2xl p-6">
-            <h2 className="text-lg font-bold mb-4">
-              Team ({ideaDetails.team.length})
-            </h2>
+            <h2 className="text-lg font-bold mb-4">Team ({ideaDetails.team.length})</h2>
             <div className="space-y-4">
-              {ideaDetails.team.map((member, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <img
-                    src={member.avatar}
-                    alt={member.name}
-                    className="w-10 h-10 rounded-full"
-                  />
+              {ideaDetails.team.map((member) => (
+                <div key={member.name} className="flex items-center gap-3">
+                  <img src={member.avatar} alt={member.name} className="w-10 h-10 rounded-full" />
                   <div>
                     <h3 className="font-medium text-sm">{member.name}</h3>
                     <p className="text-xs text-gray-400">{member.role}</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {member.skills.map((skill, i) => (
+                      {member.skills.map((skill) => (
                         <span
-                          key={i}
+                          key={`${member.name}-${skill}`}
                           className="bg-blue-500/20 text-blue-300 text-xs px-2 py-0.5 rounded"
                         >
                           {skill}
@@ -464,17 +476,12 @@ const IdeationDetails = () => {
           <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Join Project</h2>
-              <button
-                onClick={() => setShowJoinModal(false)}
-                className="p-2 hover:bg-white/10 rounded-lg"
-              >
+              <button onClick={() => setShowJoinModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
                 <X className="h-5 w-5" />
               </button>
             </div>
             {successMsg ? (
-              <div className="text-green-400 text-center py-6">
-                {successMsg}
-              </div>
+              <div className="text-green-400 text-center py-6">{successMsg}</div>
             ) : (
               <form onSubmit={handleJoinSubmit} className="space-y-4">
                 <textarea
@@ -485,10 +492,7 @@ const IdeationDetails = () => {
                   rows={4}
                   required
                 />
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
-                >
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium">
                   Send Request
                 </button>
               </form>
@@ -503,17 +507,12 @@ const IdeationDetails = () => {
           <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Suggest Improvement</h2>
-              <button
-                onClick={() => setShowSuggestModal(false)}
-                className="p-2 hover:bg-white/10 rounded-lg"
-              >
+              <button onClick={() => setShowSuggestModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
                 <X className="h-5 w-5" />
               </button>
             </div>
             {successMsg ? (
-              <div className="text-green-400 text-center py-6">
-                {successMsg}
-              </div>
+              <div className="text-green-400 text-center py-6">{successMsg}</div>
             ) : (
               <form onSubmit={handleSuggestSubmit} className="space-y-4">
                 <textarea
@@ -524,10 +523,7 @@ const IdeationDetails = () => {
                   rows={4}
                   required
                 />
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
-                >
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium">
                   Send Suggestion
                 </button>
               </form>
