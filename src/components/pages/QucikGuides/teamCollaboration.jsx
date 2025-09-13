@@ -11,7 +11,7 @@ const TeamCollaboration = () => {
             </a> 
             <div className="text-white">
                 <div className="space-y-3">
-                        <h1 className=" text-2xl font-bold">TEAM COLLABORATIONS!!</h1>
+                        <h1 className=" text-2xl font-bold">TEAM COLLABORATIONS!</h1>
                         <p className="mb-4">Great collaboration is the key to successful projects. This guide will show you how to effectively communicate and work together using SFcollab's collaboration features.</p>
                 </div> 
                 
