@@ -26,6 +26,8 @@ import VideoTutorials from "../components/pages/VideoTutorials.jsx";
 import Notifications from "../components/pages/Notifications.jsx";
 import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
+import GettingStarted from "../components/pages/QucikGuides/gettingStarted.jsx";
+import TeamCollaboration from "../components/pages/QucikGuides/teamCollaboration.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
 import SavedList from "../components/pages/SavedIdeaList.jsx";
 
@@ -160,6 +162,15 @@ export const router = createBrowserRouter([
         path: "/messages",
         element: <Chat />,
       },
+      {
+        path: "/getting-started",
+        element: <GettingStarted/>
+      },
+      {
+        path:"/team-collaboration",
+        element: <TeamCollaboration/>
+      }
+    ],
     ]
   },
   // Catch all unmatched routes
