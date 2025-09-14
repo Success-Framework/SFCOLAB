@@ -171,7 +171,6 @@ export const router = createBrowserRouter([
         element: <TeamCollaboration/>
       }
     ],
-    ]
   },
   // Catch all unmatched routes
   {
