@@ -42,7 +42,7 @@ const Help = () => {
       title: 'Project Management',
       icon: <FileText className="h-5 w-5" />,
       description: 'Best practices for managing projects',
-      link: '#'
+      link: '/project-management'
     },
     {
       id: 3,
@@ -56,7 +56,7 @@ const Help = () => {
       title: 'Video Tutorials',
       icon: <Video className="h-5 w-5" />,
       description: 'Watch step-by-step video guides',
-      link: '#'
+      link: '/video-tutorials'
     }
   ]
 
