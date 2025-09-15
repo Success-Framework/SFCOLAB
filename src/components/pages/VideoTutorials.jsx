@@ -1,4 +1,5 @@
 import React from "react";
+import { FaArrowLeft } from "react-icons/fa";
 import { PlayCircle } from "lucide-react";
 
 export default function VideoTutorials() {
@@ -31,6 +32,12 @@ export default function VideoTutorials() {
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
+      {/* Back Button */}
+      <a href="/help">
+          <button className="mb-7 border border-gray-600 w-[3rem] h-[2rem] justify-center items-center rounded flex hover:bg-white hover:text-black transition-colors">
+              <FaArrowLeft/>
+          </button> 
+      </a>
       {/* Header */}
       <div className="border-b border-white/10 pb-4 mb-6">
         <h1 className="text-3xl font-bold">Video Tutorials</h1>
