@@ -169,9 +169,9 @@ export const router = createBrowserRouter([
       {
         path:"/team-collaboration",
         element: <TeamCollaboration/>
-    ], 
-    ],
-  },
+   },
+  ], 
+},
   // Catch all unmatched routes
   {
     path: "*",
