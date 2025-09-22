@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SimpleOAuthService } from '../services/simpleOAuthService';
+import axios from 'axios';
+
 
 const AuthContext = createContext();
 
@@ -35,93 +37,80 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (credentials) => {
-    try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(credentials),
-      // });
-      
-      // if (!response.ok) {
-      //   throw new Error('Login failed');
-      // }
-      
-      // const data = await response.json();
-      
-      // Simulate API response
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUser = {
-        id: 1,
-        email: credentials.email,
-        name: 'John Doe',
-        role: 'user',
-        authType: 'email'
-      };
-      
-      const mockToken = 'mock-jwt-token';
-      
-      // Store authentication data
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('userData', JSON.stringify(mockUser));
-      
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: error.message };
+ const login = async (credentials) => {
+  try {
+    // Call your deployed backend API
+    const response = await fetch(
+      'https://sfcollab-backend.onrender.com/api/auth/login',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // if your backend sets a cookie/session, keep this line:
+        credentials: 'include',
+        body: JSON.stringify(credentials),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Login failed');
     }
-  };
+
+    const data = await response.json();
+    // adjust these keys to what your backend actually returns:
+    const token = data.token || data.accessToken;
+    const userData = data.user || data.data;
+
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    setUser(userData);
+    setIsAuthenticated(true);
+
+    return { success: true, user: userData };
+  } catch (error) {
+    console.error('Login error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 
   const signup = async (userData) => {
-    try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/signup', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(userData),
-      // });
-      
-      // if (!response.ok) {
-      //   throw new Error('Signup failed');
-      // }
-      
-      // const data = await response.json();
-      
-      // Simulate API response
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUser = {
-        id: 1,
-        email: userData.email,
-        name: `${userData.firstName} ${userData.lastName}`,
-        role: 'user',
-        authType: 'email'
-      };
-      
-      const mockToken = 'mock-jwt-token';
-      
-      // Store authentication data
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('userData', JSON.stringify(mockUser));
-      
-      setUser(mockUser);
+  try {
+    // POST to your backend
+    const response = await axios.post(
+      'https://sfcollab-backend.onrender.com/api/auth/signup',
+      userData,
+      { withCredentials: true } // ensure cookies allowed if backend sets them
+    );
+
+    // Your backend returns status 201 and body { message, user, tokens }
+    if (response.status === 201 && response.data?.user) {
+      const returnedUser = response.data.user;
+      const tokens = response.data.tokens || {};
+
+      // Save tokens and user (adjust keys if your backend uses different names)
+      if (tokens.accessToken) localStorage.setItem('authToken', tokens.accessToken);
+      if (tokens.refreshToken) localStorage.setItem('refreshToken', tokens.refreshToken);
+
+      localStorage.setItem('userData', JSON.stringify(returnedUser));
+
+      // Update context state so ProtectedRoute sees user is authenticated
+      setUser(returnedUser);
       setIsAuthenticated(true);
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Signup error:', error);
-      return { success: false, error: error.message };
+
+      return { success: true, user: returnedUser, tokens };
     }
-  };
+
+    // fallback error
+    return { success: false, error: response.data?.error || 'Signup failed' };
+  } catch (err) {
+    console.error('Signup error (AuthContext):', err.response?.data || err.message);
+    return { success: false, error: err.response?.data?.message || err.message || 'Signup failed' };
+  }
+};
 
   const loginWithGoogle = async () => {
     try {

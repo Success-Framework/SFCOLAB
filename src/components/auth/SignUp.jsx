@@ -68,33 +68,36 @@ export default function SignUp() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!validateForm()) return
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    setIsLoading(true)
-    try {
-      const result = await signup(formData)
-      
-      if (result.success) {
-        // Navigate to dashboard after successful signup
-        navigate('/dashboard', { replace: true })
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          submit: result.error || "Signup failed"
-        }))
-      }
-    } catch (error) {
-      console.error('Signup error:', error)
+  setIsLoading(true);
+  try {
+    // Use the signup provided by the AuthContext
+    const result = await signup(formData); // signup comes from useAuth()
+
+    console.log('signup result', result);
+
+    if (result.success) {
+      // context already set isAuthenticated & user
+      navigate('/dashboard', { replace: true });
+    } else {
       setErrors(prev => ({
         ...prev,
-        submit: "An unexpected error occurred"
-      }))
-    } finally {
-      setIsLoading(false)
+        submit: result.error || 'Signup failed'
+      }));
     }
+  } catch (error) {
+    console.error('Signup unexpected error:', error);
+    setErrors(prev => ({
+      ...prev,
+      submit: error?.message || 'An unexpected error occurred'
+    }));
+  } finally {
+    setIsLoading(false);
   }
+};
 
   return (
     <div className="min-h-screen flex">
