@@ -143,6 +143,31 @@ const Ideation = () => {
     },
   ]);
 
+  const handleCreateIdea = (ideaOrPayload) => {
+  const now = new Date();
+
+  // If backend responded with { idea: {...} }, unwrap it:
+  const newIdea = ideaOrPayload?.idea ?? ideaOrPayload;
+
+  // Map backend fields to your UI shape
+  const mappedIdea = {
+    id: newIdea.id || Date.now(),
+    title: newIdea.title,
+    description: newIdea.description,
+    createdAt: newIdea.createdAt || now.toISOString(),
+    timeAgo: "just now",
+    stage: newIdea.stage,
+    category: newIdea.industry, // your backend uses "industry"
+    tags: newIdea.tags || [],
+    likes: newIdea.likes ?? 0,
+    comments: newIdea.comments ?? 0,
+    collaborators: (newIdea.teamMembers?.length ?? 1),
+    author: {
+      name: newIdea.author?.name || "You",
+      role: newIdea.author?.role || "Contributor",
+      avatar: newIdea.author?.avatar || "https://i.pravatar.cc/150?img=11",
+    },
+
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
 
   const handleCreateIdea = (payload) => {
@@ -169,6 +194,12 @@ const Ideation = () => {
     setSortBy("latest");
     setSearchQuery("");
   };
+
+  setIdeas((prev) => [mappedIdea, ...prev]);
+  setSortBy("latest");
+  setSearchQuery("");
+};
+
 
   const getStageColor = (stage) => {
     const colors = {
@@ -328,7 +359,7 @@ const Ideation = () => {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5">
-                  {content.tags.slice(0, 3).map((tag, index) => (
+                  {Array.isArray(content.tags) && content.tags.slice(0, 3).map((tag, index) => (
                     <span
                       key={index}
                       className="bg-white/5 text-gray-300 text-xs px-2 py-1 rounded-md hover:bg-white/10 transition-colors"
@@ -336,7 +367,7 @@ const Ideation = () => {
                       #{tag}
                     </span>
                   ))}
-                  {content.tags.length > 3 && (
+                  {Array.isArray(content.tags) && content.tags.length > 3 && (
                     <span className="text-gray-400 text-xs px-2 py-1">
                       +{content.tags.length - 3}
                     </span>

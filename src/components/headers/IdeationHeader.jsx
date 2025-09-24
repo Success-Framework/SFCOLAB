@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { IoOptionsOutline } from "react-icons/io5";
 import SearchBar from "../sections/SearchBar";
+import axios from "axios";
 
 const IdeationHeader = ({
   searchQuery,
@@ -35,9 +36,6 @@ const IdeationHeader = ({
   const titleRef = useRef("");
   const descriptionRef = useRef("");
   const projectDetailsRef = useRef("");
-  const teamMemberRef = useRef("");
-  const positionRef = useRef("");
-  const skillsRef = useRef("");
   const industryRef = useRef("");
   const stageRef = useRef("");
   const tagsRef = useRef("");
@@ -80,40 +78,81 @@ const IdeationHeader = ({
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    const payload = {
-      title: titleRef.current.trim(),
-      description: descriptionRef.current.trim(),
-      projectDetails: projectDetailsRef.current.trim(),
-      teamMembers: teamMembersRef.current.map((m) => ({
-        name: (m.name || "").trim(),
-        position: (m.position || "").trim(),
-        skills: (m.skills || "")
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-      })),
-      industry: industryRef.current || "Technology",
-      stage: stageRef.current || "Idea Stage",
-      tags: tagsRef.current
-        .split(",")
-        .map((t) => t.trim())
+ const handleFormSubmit = async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    title: (titleRef.current || '').trim(),
+    description: (descriptionRef.current || '').trim(),
+    projectDetails: (projectDetailsRef.current || '').trim(),
+    teamMembers: teamMembersRef.current.map((m) => ({
+      name: (m.name || '').trim(),
+      position: (m.position || '').trim(),
+      skills: (m.skills || '')
+        .split(',')
+        .map((s) => s.trim())
         .filter(Boolean),
-    };
-    console.log (payload)
-    setShowNewIdeaForm(false);
-    // Clear refs
-    titleRef.current = "";
-    descriptionRef.current = "";
-    projectDetailsRef.current = "";
-    teamMemberRef.current = "";
-    positionRef.current = "";
-    skillsRef.current = "";
-    industryRef.current = "";
-    stageRef.current = "";
-    tagsRef.current = "";
+    })),
+    industry: industryRef.current || 'Technology',
+    stage: stageRef.current || 'Idea Stage',
+    tags: (tagsRef.current || '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean),
   };
+
+  console.log('Submitting idea payload:', payload);
+
+  try {
+    // get token from localStorage
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+      alert('You must be logged in first.');
+      return;
+    }
+
+    const res = await axios.post(
+      'https://sfcollab-backend.onrender.com/api/ideation',
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('Idea submitted successfully:', res.data);
+
+    // close modal
+    setShowNewIdeaForm(false);
+
+    // reset refs and force re-render so UI inputs clear
+    titleRef.current = '';
+    descriptionRef.current = '';
+    projectDetailsRef.current = '';
+    // reset team to one blank member
+    teamMembersRef.current = [{ name: '', position: '', skills: '' }];
+    forceRender();
+    industryRef.current = '';
+    stageRef.current = '';
+    tagsRef.current = '';
+
+    // pass the created idea to parent (handle both shapes)
+    if (onCreateIdea) onCreateIdea(res.data?.idea ?? res.data);
+  } catch (err) {
+    console.error('Error submitting idea:', err);
+    if (err.response?.data) {
+      console.error('Server validation details:', err.response.data);
+      alert(err.response.data.message || 'Failed to submit idea');
+    } else {
+      alert(err.message || 'Failed to submit idea');
+    }
+  }
+};
+
+
 
   //Add new team member
   const addTeamMember = () => {
@@ -271,7 +310,7 @@ const IdeationHeader = ({
                     type="text"
                     placeholder="Name of team member"
                     onChange={(e) => {
-                      teamMemberRef.current[index].name = e.target.value;
+                      teamMembersRef.current[index].name = e.target.value;
                     }}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
                   />
@@ -279,7 +318,7 @@ const IdeationHeader = ({
                     type="text"
                     placeholder="Position"
                     onChange={(e) => {
-                      positionRef.current[index].position = e.target.value;
+                      teamMembersRef.current[index].position = e.target.value;
                     }}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
                   />
@@ -288,7 +327,7 @@ const IdeationHeader = ({
                   type="text"
                   placeholder="Skills (Up to 3)"
                   onChange={(e) => {
-                    skillsRef.current[index].skills = e.target.value;
+                    teamMembersRef.current[index].skills = e.target.value;
                   }}
                   className="w-full mt-4 px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-400 placeholder:text-xs"
                 />
