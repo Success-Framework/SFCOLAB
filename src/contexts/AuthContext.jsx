@@ -37,9 +37,8 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
- const login = async (credentials) => {
+const login = async (credentials) => {
   try {
-    // Call your deployed backend API
     const response = await fetch(
       'https://sfcollab-backend.onrender.com/api/auth/login',
       {
@@ -47,8 +46,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        // if your backend sets a cookie/session, keep this line:
-        credentials: 'include',
+        credentials: 'include', // keep if you want cookies
         body: JSON.stringify(credentials),
       }
     );
@@ -59,9 +57,14 @@ export const AuthProvider = ({ children }) => {
     }
 
     const data = await response.json();
-    // adjust these keys to what your backend actually returns:
-    const token = data.token || data.accessToken;
-    const userData = data.user || data.data;
+
+    // ✅ match your backend
+    const token = data.tokens?.accessToken; // <- correct path
+    const userData = data.user;
+
+    if (!token) {
+      throw new Error('No access token returned from server');
+    }
 
     localStorage.setItem('authToken', token);
     localStorage.setItem('userData', JSON.stringify(userData));
@@ -75,6 +78,7 @@ export const AuthProvider = ({ children }) => {
     return { success: false, error: error.message };
   }
 };
+
 
 
   const signup = async (userData) => {
