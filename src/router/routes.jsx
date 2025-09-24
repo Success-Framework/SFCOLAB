@@ -21,9 +21,13 @@ import Knowledgedetails from "../components/detailspage/Knowledgedetails.jsx";
 import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
 import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
 import Help from "../components/pages/Help.jsx";
+import ProjectManagement from "../components/pages/ProjectManagement.jsx";
+import VideoTutorials from "../components/pages/VideoTutorials.jsx";
 import Notifications from "../components/pages/Notifications.jsx";
 import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
+import GettingStarted from "../components/pages/QucikGuides/gettingStarted.jsx";
+import TeamCollaboration from "../components/pages/QucikGuides/teamCollaboration.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
 import SavedList from "../components/pages/SavedIdeaList.jsx";
 
@@ -71,6 +75,15 @@ export const router = createBrowserRouter([
         path: "/projects",
         element: <Project />,
       },
+      {
+  path: "/project-management",
+  element: <ProjectManagement />,
+},
+{
+  path: "/video-tutorials",
+  element: <VideoTutorials />,
+},
+
       {
         path: "/profile",
         element: <Profile />,
@@ -149,8 +162,16 @@ export const router = createBrowserRouter([
         path: "/messages",
         element: <Chat />,
       },
-    ],
-  },
+      {
+        path: "/getting-started",
+        element: <GettingStarted/>
+      },
+      {
+        path:"/team-collaboration",
+        element: <TeamCollaboration/>
+   },
+  ], 
+},
   // Catch all unmatched routes
   {
     path: "*",

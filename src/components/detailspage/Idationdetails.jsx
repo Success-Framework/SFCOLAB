@@ -11,9 +11,9 @@ import {
   Tag,
   X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-const Idationdetails = () => {
+const IdeationDetails = () => {
   const [comment, setComment] = useState("");
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
@@ -23,9 +23,11 @@ const Idationdetails = () => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(101);
   const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkNotification, setBookmarkNotification] = useState("");
   const [showShareMsg, setShowShareMsg] = useState(false);
   const commentInputRef = useRef(null);
   const discussionSectionRef = useRef(null);
+  const location = useLocation();
 
   const ideaDetails = {
     id: 1,
@@ -95,15 +97,21 @@ const Idationdetails = () => {
     ],
   };
 
+  // Extract the idea ID from the URL
+  const queryParams = new URLSearchParams(location.search);
+  const ideaId = parseInt(queryParams.get("id")) || ideaDetails.id;
+
   // Button handlers
   const handleJoinProject = () => {
     setShowJoinModal(true);
     setSuccessMsg("");
   };
+
   const handleSuggestImprovement = () => {
     setShowSuggestModal(true);
     setSuccessMsg("");
   };
+
   const handleStartDiscussion = () => {
     if (discussionSectionRef.current) {
       discussionSectionRef.current.scrollIntoView({ behavior: "smooth" });
@@ -114,18 +122,21 @@ const Idationdetails = () => {
       }
     }, 400);
   };
+
   const handleJoinSubmit = (e) => {
     e.preventDefault();
     setSuccessMsg("Request sent! The team will review your interest.");
     setJoinMessage("");
     setTimeout(() => setShowJoinModal(false), 1200);
   };
+
   const handleSuggestSubmit = (e) => {
     e.preventDefault();
     setSuccessMsg("Thank you for your suggestion!");
     setSuggestMessage("");
     setTimeout(() => setShowSuggestModal(false), 1200);
   };
+
   const handleLike = () => {
     setLiked((prev) => {
       const newLiked = !prev;
@@ -133,18 +144,32 @@ const Idationdetails = () => {
       return newLiked;
     });
   };
+
   const handleBookmark = () => {
-    setBookmarked((prev) => !prev);
+    setBookmarked((prev) => {
+      const newBookmarked = !prev;
+
+      if (newBookmarked) {
+        setBookmarkNotification("Idea bookmarked!");
+      } else {
+        setBookmarkNotification("Bookmark removed");
+      }
+
+      setTimeout(() => setBookmarkNotification(""), 2000);
+      return newBookmarked;
+    });
   };
+
   const handleShare = async () => {
     try {
+      const url = `${window.location.origin}/ideation-details?id=${ideaId}`;
       if (navigator.share) {
         await navigator.share({
           title: ideaDetails.title,
-          url: window.location.href,
+          url: url,
         });
       } else {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText(url);
         setShowShareMsg(true);
         setTimeout(() => setShowShareMsg(false), 1500);
       }
@@ -246,7 +271,7 @@ const Idationdetails = () => {
             </div>
             <div className="flex items-center gap-6 text-xs text-gray-400 mb-4">
               <span className="flex items-center gap-1">
-                <Heart className="h-4 w-4" /> {ideaDetails.likes} Likes
+                <Heart className="h-4 w-4" /> {likeCount} Likes
               </span>
               <span className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" /> {ideaDetails.comments}{" "}
@@ -421,82 +446,89 @@ const Idationdetails = () => {
       {/* Join Project Modal */}
       {showJoinModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
+            <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Join Project</h2>
-              <button
+                <h2 className="text-lg font-bold">Join Project</h2>
+                <button
                 onClick={() => setShowJoinModal(false)}
                 className="p-2 hover:bg-white/10 rounded-lg"
-              >
+                >
                 <X className="h-5 w-5" />
-              </button>
+                </button>
             </div>
             {successMsg ? (
-              <div className="text-green-400 text-center py-6">
+                <div className="text-green-400 text-center py-6">
                 {successMsg}
-              </div>
+                </div>
             ) : (
-              <form onSubmit={handleJoinSubmit} className="space-y-4">
+                <form onSubmit={handleJoinSubmit} className="space-y-4">
                 <textarea
-                  value={joinMessage}
-                  onChange={(e) => setJoinMessage(e.target.value)}
-                  placeholder="Tell the team why you want to join..."
-                  className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={4}
-                  required
+                    value={joinMessage}
+                    onChange={(e) => setJoinMessage(e.target.value)}
+                    placeholder="Tell the team why you want to join..."
+                    className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={4}
+                    required
                 />
                 <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
                 >
-                  Send Request
+                    Send Request
                 </button>
-              </form>
+                </form>
             )}
-          </div>
+            </div>
         </div>
-      )}
+        )}
 
-      {/* Suggest Improvement Modal */}
-      {showSuggestModal && (
+        {/* Suggest Improvement Modal */}
+        {showSuggestModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
+            <div className="bg-[#1A1A1A] border border-white/20 rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Suggest Improvement</h2>
-              <button
+                <h2 className="text-lg font-bold">Suggest Improvement</h2>
+                <button
                 onClick={() => setShowSuggestModal(false)}
                 className="p-2 hover:bg-white/10 rounded-lg"
-              >
+                >
                 <X className="h-5 w-5" />
-              </button>
+                </button>
             </div>
             {successMsg ? (
-              <div className="text-green-400 text-center py-6">
+                <div className="text-green-400 text-center py-6">
                 {successMsg}
-              </div>
+                </div>
             ) : (
-              <form onSubmit={handleSuggestSubmit} className="space-y-4">
+                <form onSubmit={handleSuggestSubmit} className="space-y-4">
                 <textarea
-                  value={suggestMessage}
-                  onChange={(e) => setSuggestMessage(e.target.value)}
-                  placeholder="Share your suggestion for improvement..."
-                  className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={4}
-                  required
+                    value={suggestMessage}
+                    onChange={(e) => setSuggestMessage(e.target.value)}
+                    placeholder="Share your suggestion for improvement..."
+                    className="w-full bg-[#232323] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={4}
+                    required
                 />
                 <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium"
                 >
-                  Send Suggestion
+                    Send Suggestion
                 </button>
-              </form>
+                </form>
             )}
-          </div>
+            </div>
+        </div>
+        )}
+
+      {/* Bookmark Notification */}
+      {bookmarkNotification && (
+        <div className="fixed bottom-4 right-4 bg-[#232323] text-green-400 px-4 py-2 rounded shadow-lg border border-green-700 z-50">
+          {bookmarkNotification}
         </div>
       )}
     </div>
   );
 };
 
-export default Idationdetails;
+export default IdeationDetails;

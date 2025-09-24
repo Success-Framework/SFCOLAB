@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Phone,
@@ -11,8 +11,12 @@ import {
   ChevronUp,
   ChevronDown,
   Mic,
+  Play,
+  Pause,
 } from "lucide-react";
-// import io from "socket.io-client";
+import io from "socket.io-client";
+import RecordRTC from "recordrtc";
+import React from "react";
 
 // Default contacts data
 const defaultContacts = [
@@ -98,6 +102,11 @@ export default function Chat() {
   const [searchResults, setSearchResults] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [isRecording, setIsRecording] = useState(false);
+  const [recorder, setRecorder] = useState(null);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioURL, setAudioURL] = useState("");
+  const [recordingTime, setRecordingTime] = useState(0);
 
   // Refs
   const fileInputRef = useRef(null);
@@ -150,35 +159,50 @@ export default function Chat() {
       const sessionUserId = getSessionUserKey();
       setCurrentUserId(sessionUserId);
 
-      // Load data from localStorage
-      const savedContacts = localStorage.getItem("chatContacts");
-      const savedMessages = localStorage.getItem("chatMessages");
-
+      // Load contacts from localStorage or use default
       let initialContacts = defaultContacts;
+      const savedContacts = localStorage.getItem("chatContacts");
       if (savedContacts) {
-        initialContacts = JSON.parse(savedContacts);
-      }
-
-      setContacts(updateContactsWithOnlineStatus(initialContacts));
-      setSelectedContact(initialContacts[1] || initialContacts[0]);
-
-      if (!savedContacts) {
+        try {
+          initialContacts = JSON.parse(savedContacts);
+        } catch (err) {
+          console.error("Error parsing savedContacts:", err);
+          localStorage.removeItem("chatContacts");
+          localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
+          initialContacts = defaultContacts;
+        }
+      } else {
         localStorage.setItem("chatContacts", JSON.stringify(defaultContacts));
       }
 
+      const updatedContacts = updateContactsWithOnlineStatus(initialContacts);
+      setContacts(updatedContacts);
+      console.log("Initial contacts set:", updatedContacts);
+
+      const firstContact = updatedContacts.find(
+        (contact) => contact.id !== sessionUserId
+      );
+      setSelectedContact(firstContact || null);
+
+      // Load messages from localStorage
+      const savedMessages = localStorage.getItem("chatMessages");
       if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages).map((msg) => ({
-          ...msg,
-          // Ensure existing messages get proper IDs
-          id:
-            msg.id.startsWith("msg_") || msg.id.startsWith("temp_msg_")
-              ? msg.id
-              : `msg_${msg.id}`,
-        }));
-        const sortedMessages = parsedMessages.sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-        );
-        setMessages(sortedMessages);
+        try {
+          const parsedMessages = JSON.parse(savedMessages).map((msg) => ({
+            ...msg,
+            id:
+              msg.id.startsWith("msg_") || msg.id.startsWith("temp_msg_")
+                ? msg.id
+                : `msg_${msg.id}`,
+          }));
+          const sortedMessages = parsedMessages.sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+          setMessages(sortedMessages);
+        } catch (err) {
+          console.error("Error parsing savedMessages:", err);
+          localStorage.removeItem("chatMessages"); // Clear corrupted data
+        }
       }
 
       // Initialize socket connection
@@ -191,6 +215,18 @@ export default function Chat() {
       });
 
       setSocket(newSocket);
+
+      newSocket.on("connection:established", ({ userId }) => {
+        console.log(`Connection established for user ${userId}`);
+        setIsConnected(true);
+        setConnectionStatus("connected");
+      });
+
+      newSocket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err);
+        setConnectionStatus("error");
+        setIsConnected(false);
+      });
 
       return () => {
         newSocket.disconnect();
@@ -210,7 +246,7 @@ export default function Chat() {
 
       for (const message of unsentMessages) {
         try {
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             socket.emit(
               "sendMessage",
               {
@@ -228,11 +264,12 @@ export default function Chat() {
                     "delivered",
                     response.message
                   );
+                  resolve();
                 } else {
                   failedMessages.push(message.tempId);
                   updateMessageStatus(message.tempId, "failed");
+                  reject(new Error("Failed to send message"));
                 }
-                resolve();
               }
             );
           });
@@ -254,7 +291,6 @@ export default function Chat() {
   const updateMessageStatus = (tempId, status, serverMessage = null) => {
     setMessages((prevMessages) => {
       const updatedMessages = prevMessages.map((msg) => {
-        // Handle both temp_msg_ and final msg_ IDs
         if (
           msg.id === tempId ||
           (tempId.startsWith("temp_msg_") &&
@@ -289,25 +325,46 @@ export default function Chat() {
     return counts;
   };
 
-  // Update unread counts when messages or selected contact changes
+  // Update contacts with last message and unread counts
   useEffect(() => {
     const newUnreadCounts = calculateUnreadCounts();
-    setUnreadCounts(newUnreadCounts);
 
-    // Update contacts with unread counts
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) => ({
-        ...contact,
-        unreadCount: newUnreadCounts[contact.id] || 0,
-      }))
-    );
+    setContacts((prevContacts) => {
+      const updatedContacts = prevContacts.map((contact) => {
+        const relevantMessages = messages
+          .filter(
+            (msg) =>
+              (msg.senderId === contact.id &&
+                msg.recipientId === currentUserId) ||
+              (msg.senderId === currentUserId && msg.recipientId === contact.id)
+          )
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        const lastMessage = relevantMessages[0]
+          ? relevantMessages[0].content ||
+            (relevantMessages[0].file
+              ? `File: ${relevantMessages[0].file.name}`
+              : "")
+          : "";
+
+        return {
+          ...contact,
+          lastMessage,
+          unreadCount: newUnreadCounts[contact.id] || 0,
+        };
+      });
+
+      localStorage.setItem("chatContacts", JSON.stringify(updatedContacts));
+      return updatedContacts;
+    });
+
+    setUnreadCounts(newUnreadCounts);
   }, [messages, currentUserId]);
 
   // Mark messages as read when a contact is selected
   useEffect(() => {
-    if (!selectedContact || !socket || !currentUserId) return;
+    if (!selectedContact || !socket || !currentUserId || !isConnected) return;
 
-    // Find unread messages from this contact
     const unreadMessageIds = messages
       .filter(
         (msg) =>
@@ -318,37 +375,49 @@ export default function Chat() {
       .map((msg) => (msg.id.startsWith("msg_") ? msg.id : `msg_${msg.id}`));
 
     if (unreadMessageIds.length > 0) {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          unreadMessageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
-        )
-      );
-
-      // Notify server
-      socket.emit("markAsRead", unreadMessageIds, (response) => {
-        if (response?.status !== "success") {
-          console.error("Failed to mark messages as read on server");
-          setMessages((prevMessages) =>
-            prevMessages.map((msg) =>
-              unreadMessageIds.includes(msg.id)
-                ? { ...msg, isRead: false }
-                : msg
-            )
+      const timeout = setTimeout(() => {
+        setMessages((prevMessages) => {
+          const updatedMessages = prevMessages.map((msg) =>
+            unreadMessageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
           );
-        }
-      });
+          localStorage.setItem("chatMessages", JSON.stringify(updatedMessages));
+          return updatedMessages;
+        });
+
+        socket.emit("markAsRead", unreadMessageIds, (response) => {
+          if (response?.status !== "success") {
+            console.error("Failed to mark messages as read on server:", response);
+            setMessages((prevMessages) => {
+              const revertedMessages = prevMessages.map((msg) =>
+                unreadMessageIds.includes(msg.id)
+                  ? { ...msg, isRead: false }
+                  : msg
+              );
+              localStorage.setItem(
+                "chatMessages",
+                JSON.stringify(revertedMessages)
+              );
+              return revertedMessages;
+            });
+          }
+        });
+      }, 500); // Delay by 500ms to ensure socket is ready
+
+      return () => clearTimeout(timeout);
     }
-  }, [selectedContact, messages, socket, currentUserId]);
+  }, [selectedContact, messages, socket, currentUserId, isConnected]);
 
   // Socket event handlers
   useEffect(() => {
     if (!socket || !currentUserId) return;
 
     const onConnect = () => {
-      setIsConnected(true);
-      setConnectionStatus("connected");
-      console.log("Connected to server");
-      socket.emit("setUser", currentUserId);
+      console.log("Socket connected, emitting setUser");
+      socket.emit("setUser", currentUserId, (response) => {
+        if (response?.status !== "success") {
+          console.error("Failed to set user:", response);
+        }
+      });
     };
 
     const onDisconnect = () => {
@@ -360,6 +429,7 @@ export default function Chat() {
     const onConnectError = (err) => {
       console.error("Connection error:", err);
       setConnectionStatus("error");
+      setIsConnected(false);
     };
 
     const onReconnectAttempt = (attempt) => {
@@ -372,14 +442,13 @@ export default function Chat() {
       console.error("Reconnection failed");
     };
 
-    const handleIncomingMessage = (message) => {
+    const handleIncomingMessage = (message, callback) => {
       const normalizedMessage = {
         ...message,
         id: message.id.startsWith("msg_") ? message.id : `msg_${message.id}`,
       };
 
       setMessages((prevMessages) => {
-        // Check for duplicates using normalized ID
         if (prevMessages.some((m) => m.id === normalizedMessage.id))
           return prevMessages;
 
@@ -391,22 +460,9 @@ export default function Chat() {
         return updatedMessages;
       });
 
-      if (!message.isOwn) {
-        setContacts((prevContacts) => {
-          const updatedContacts = prevContacts.map((contact) => {
-            if (contact.id === message.senderId) {
-              return {
-                ...contact,
-                lastMessage:
-                  message.content ||
-                  (message.file ? `File: ${message.file.name}` : ""),
-              };
-            }
-            return contact;
-          });
-          localStorage.setItem("chatContacts", JSON.stringify(updatedContacts));
-          return updatedContacts;
-        });
+      // Acknowledge receipt of the message
+      if (callback) {
+        callback({ status: "success" });
       }
     };
 
@@ -464,7 +520,11 @@ export default function Chat() {
 
   // Update contacts when onlineUsers changes
   useEffect(() => {
-    setContacts((prevContacts) => updateContactsWithOnlineStatus(prevContacts));
+    setContacts((prevContacts) => {
+      const updatedContacts = updateContactsWithOnlineStatus(prevContacts);
+      console.log("Updated contacts with online status:", updatedContacts);
+      return updatedContacts;
+    });
 
     if (selectedContact) {
       setSelectedContact((prev) => ({
@@ -609,28 +669,142 @@ export default function Chat() {
     URL.revokeObjectURL(url);
   };
 
-  // Test to check for connection of websocket
-  // const renderConnectionStatus = () => {
-  //   const statusColors = {
-  //     connected: "bg-green-500",
-  //     disconnected: "bg-red-500",
-  //     reconnecting: "bg-yellow-500",
-  //     error: "bg-red-700",
-  //     failed: "bg-red-900",
-  //   };
+  // Start recording voice note
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const options = {
+        type: "audio",
+        mimeType: "audio/webm;codecs=opus",
+        recorderType: RecordRTC.StereoAudioRecorder,
+        desiredSampRate: 16000,
+        numberOfAudioChannels: 1,
+      };
 
-  //   return (
-  //     <div className="fixed bottom-4 right-4 flex items-center z-50">
-  //       <div
-  //         className={`w-3 h-3 rounded-full mr-2 ${statusColors[connectionStatus]}`}
-  //       ></div>
-  //       <span className="text-xs capitalize">
-  //         {connectionStatus}
-  //         {unsentMessages.length > 0 && ` (${unsentMessages.length} queued)`}
-  //       </span>
-  //     </div>
-  //   );
-  // };
+      const newRecorder = new RecordRTC(stream, options);
+
+      newRecorder.startRecording();
+      setRecorder(newRecorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      const timer = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    } catch (err) {
+      console.error("Error starting recording:", err);
+      alert("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  // Stop recording voice note
+  const stopRecording = () => {
+    if (!recorder) return;
+
+    recorder.stopRecording(async () => {
+      const blob = recorder.getBlob();
+      setAudioBlob(blob);
+      setAudioURL(URL.createObjectURL(blob));
+      setIsRecording(false);
+
+      await sendVoiceNote(blob);
+
+      recorder.stream?.getTracks().forEach((track) => track.stop());
+    });
+  };
+
+  // Cancel recording voice note
+  const cancelRecording = () => {
+    if (!recorder) return;
+
+    recorder.stopRecording(() => {
+      setIsRecording(false);
+      setAudioBlob(null);
+      setAudioURL("");
+      recorder.stream?.getTracks().forEach((track) => track.stop());
+    });
+  };
+
+  // Send voice note
+  const sendVoiceNote = async (blob) => {
+    if (!selectedContact || !currentUserId) return;
+
+    const tempId = `temp_voice_${Date.now()}`;
+    const fileName = `voice_note_${Date.now()}.webm`;
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const fileData = {
+      name: fileName,
+      type: "audio/webm;codecs=opus",
+      size: blob.size,
+      data: Array.from(new Uint8Array(arrayBuffer)),
+      isVoiceNote: true,
+      duration: recordingTime || 1,
+    };
+
+    const message = {
+      id: tempId,
+      senderId: currentUserId,
+      senderName: "You",
+      recipientId: selectedContact.id,
+      content: "Voice note",
+      file: fileData,
+      timestamp: new Date().toISOString(),
+      isOwn: true,
+      status: "sending",
+      isRead: false,
+    };
+
+    setMessages((prev) => [...prev, message]);
+
+    if (isConnected && socket) {
+      socket.emit(
+        "sendMessage",
+        {
+          recipientId: selectedContact.id,
+          content: "Voice note",
+          file: fileData,
+          senderName: "You",
+          tempId,
+        },
+        (response) => {
+          if (response?.status === "success") {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === tempId ? response.message : m))
+            );
+
+            const savedMessages = JSON.parse(
+              localStorage.getItem("chatMessages") || "[]"
+            );
+            const updatedMessages = savedMessages
+              .filter((m) => m.id !== tempId)
+              .concat(response.message);
+            localStorage.setItem(
+              "chatMessages",
+              JSON.stringify(updatedMessages)
+            );
+          } else {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === tempId ? { ...m, status: "failed" } : m
+              )
+            );
+          }
+        }
+      );
+    } else {
+      setUnsentMessages((prev) => [...prev, { ...message, tempId }]);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, status: "queued" } : m))
+      );
+    }
+
+    setAudioBlob(null);
+    setAudioURL("");
+    setRecordingTime(0);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[#181818] text-white md:flex-row pt-13">
@@ -688,14 +862,16 @@ export default function Chat() {
         <div className="p-4 pt-0 md:pt-4">
           <div className="hidden md:flex gap-4 items-center mb-4">
             <h1 className="text-xl font-semibold">Messages</h1>
-            <div className="text-sm bg-[#181818] px-2 py-1 rounded"></div>
+            <div className="text-sm bg-[#181818] px-2 py-1 rounded">
+              {contacts.length}
+            </div>
           </div>
           <div className="relative">
             <input
               type="text"
               value={contactSearch}
               onChange={(e) => setContactSearch(e.target.value.toLowerCase())}
-              placeholder="Search messages"
+              placeholder="Search contacts"
               className="w-full px-3 py-2 bg-[#181818] border-[#2d2d2d] border rounded-lg text-white placeholder-gray-400"
             />
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -704,6 +880,9 @@ export default function Chat() {
 
         {/* Contacts List */}
         <div className="overflow-y-auto flex-1">
+          {contacts.length === 0 && (
+            <div className="p-4 text-gray-400">No contacts available</div>
+          )}
           {contacts
             .filter(
               (c) =>
@@ -854,7 +1033,7 @@ export default function Chat() {
               </AnimatePresence>
               <button
                 onClick={toggleInput}
-                className="text-gray-400  px-3 py-1.5 sm:px-4 sm:py-2 hover:text-white flex items-center text-xs sm:text-sm rounded"
+                className="text-gray-400 px-3 py-1.5 sm:px-4 sm:py-2 hover:text-white flex items-center text-xs sm:text-sm rounded"
               >
                 {isInputVisible ? (
                   <X className="w-4 h-4 mr-1" />
@@ -864,7 +1043,7 @@ export default function Chat() {
               </button>
 
               <button className="text-gray-400 bg-zinc-700 px-3 py-1.5 sm:px-4 sm:py-2 hover:text-white flex items-center text-xs sm:text-sm rounded">
-                <Phone className="w-4 h-4 mr-1" />{" "}
+                <Phone className="w-4 h-4 mr-1" />
                 <span className="hidden xs:inline">Call</span>
               </button>
             </div>
@@ -892,9 +1071,9 @@ export default function Chat() {
                 <div
                   id={`message-${message.id}`}
                   key={message.id}
-                  className={`flex ${
-                    isOwn ? "justify-end" : "justify-start"
-                  } ${searchResults.includes(message.id)}`}
+                  className={`flex ${isOwn ? "justify-end" : "justify-start"} ${
+                    searchResults.includes(message.id) ? "highlight" : ""
+                  }`}
                 >
                   <div className="flex items-start space-x-2 max-w-[80vw] sm:max-w-xs md:max-w-md">
                     {!isOwn && (
@@ -928,7 +1107,9 @@ export default function Chat() {
                             : "Sending..."}
                         </div>
                       )}
-                      {message.file && (
+                      {message.file && message.file.isVoiceNote ? (
+                        <VoiceNotePlayer file={message.file} key={message.id} />
+                      ) : message.file ? (
                         <div className="mb-1 bg-gray-200 text-black p-2 rounded">
                           <div className="text-xs text-gray-600">
                             {message.file.name}
@@ -940,7 +1121,7 @@ export default function Chat() {
                             <Download className="mr-4 text-black text-xs mt-2 hover:text-gray-400" />
                           </button>
                         </div>
-                      )}
+                      ) : null}
                       <p className="text-xs sm:text-sm">
                         {message.content && searchQuery ? (
                           <span
@@ -969,6 +1150,7 @@ export default function Chat() {
             })}
           <div ref={messagesEndRef} />
         </div>
+
         {/* Message Input */}
         <div className="p-2 sm:p-4 bg-[#181818]">
           <div className="flex items-center space-x-2">
@@ -1032,7 +1214,9 @@ export default function Chat() {
                 type="text"
                 placeholder={
                   isConnected
-                    ? "Type a message..."
+                    ? isRecording
+                      ? `Recording... (${recordingTime}s)`
+                      : "Type a message..."
                     : unsentMessages.length > 0
                     ? "Reconnecting... (messages queued)"
                     : "Connecting..."
@@ -1040,7 +1224,7 @@ export default function Chat() {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && !isRecording) {
                     sendMessage();
                   }
                 }}
@@ -1052,29 +1236,183 @@ export default function Chat() {
                 disabled={!isConnected && unsentMessages.length > 0}
               />
               <button
-                onClick={sendMessage}
-                disabled={
-                  (!isConnected && unsentMessages.length === 0) ||
-                  (!newMessage.trim() && !selectedFile)
-                }
+                onClick={() => {
+                  if ((newMessage.trim() || selectedFile) && !isRecording) {
+                    sendMessage();
+                  } else {
+                    isRecording ? stopRecording() : startRecording();
+                  }
+                }}
+                disabled={!isConnected && unsentMessages.length > 0}
                 className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded ${
-                  (isConnected || unsentMessages.length > 0) &&
-                  (newMessage.trim() || selectedFile)
+                  isConnected || unsentMessages.length > 0
                     ? "text-white hover:bg-[#1e1e1e]"
                     : "text-gray-500 cursor-not-allowed"
                 }`}
                 style={{ lineHeight: 0 }}
               >
-                {newMessage.trim() || selectedFile ? (
+                {isRecording ? (
+                  <Mic className="w-4 h-4 text-red-500" />
+                ) : newMessage.trim() || selectedFile ? (
                   <Send className="w-4 h-4" />
                 ) : (
                   <Mic className="w-4 h-4" />
                 )}
               </button>
             </div>
+            {isRecording && (
+              <button
+                onClick={cancelRecording}
+                className="p-2 text-red-400 hover:text-red-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+const VoiceNotePlayer = React.memo(({ file }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
+  const blobUrlRef = useRef(null);
+
+  const audioSrc = useMemo(() => {
+    if (!file?.data || !file?.type || !Array.isArray(file.data)) {
+      console.error("Invalid file data or type:", file);
+      setError("Invalid audio file");
+      return null;
+    }
+    try {
+      const byteArray = new Uint8Array(file.data);
+      if (byteArray.length === 0) {
+        console.error("Empty file data:", file);
+        setError("Empty audio file");
+        return null;
+      }
+      const blob = new Blob([byteArray], { type: file.type });
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+      return url;
+    } catch (err) {
+      console.error("Error creating blob:", err);
+      setError("Failed to load audio");
+      return null;
+    }
+  }, [file]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioSrc) return;
+
+    const handleError = (e) => {
+      console.error("Audio error:", e);
+      setError("Failed to load audio");
+      setIsPlaying(false);
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+      if (audio) {
+        audio.currentTime = 0;
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      setProgress((audio.currentTime / audio.duration) * 100 || 0);
+    };
+
+    audio.addEventListener("error", handleError);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+
+    audio.src = audioSrc;
+
+    return () => {
+      audio.removeEventListener("error", handleError);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+    };
+  }, [audioSrc]);
+
+  const togglePlay = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioSrc) {
+      setError("Audio source not available");
+      return;
+    }
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setError(null);
+        })
+        .catch((err) => {
+          console.error("Play error:", err);
+          setError("Failed to play audio");
+          setIsPlaying(false);
+        });
+    }
+  }, [isPlaying, audioSrc]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  if (error) {
+    return (
+      <div className="flex items-center bg-gray-200 p-2 rounded-lg w-full text-red-600 text-xs">
+        {error}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center bg-gray-200 p-2 rounded-lg w-full">
+      <button
+        onClick={togglePlay}
+        className="p-2 bg-blue-500 text-white rounded-full flex-shrink-0"
+        disabled={!audioSrc}
+      >
+        {isPlaying ? (
+          <Pause className="w-4 h-4" />
+        ) : (
+          <Play className="w-4 h-4" />
+        )}
+      </button>
+
+      <div className="ml-2 flex-1 min-w-0">
+        <div className="text-xs text-gray-700 mb-1">Voice message</div>
+        <div className="relative h-1 bg-gray-300 rounded-full w-full">
+          <div
+            className="absolute h-1 bg-blue-500 rounded-full"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>{formatTime((file.duration * progress) / 100 || 0)}</span>
+          <span>{formatTime(file.duration || 1)}</span>
+        </div>
+      </div>
+
+      {audioSrc && <audio ref={audioRef} hidden />}
+    </div>
+  );
+});

@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { ArrowLeft, Share2, BookmarkPlus, Users, Briefcase, Star, Calendar, Clock, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Share2, BookmarkPlus, Users, Briefcase, Star, Calendar, Clock, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, CheckCircle2, Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { allimg } from "../../utils"
 
 const ProjectDetails = () => {
   const [isJoined, setIsJoined] = useState(false)
   const [comment, setComment] = useState('')
+  const [isBookmarked, setIsBookmarked] = useState(false)
 
   const projectDetails = {
     id: 1,
@@ -71,6 +72,27 @@ const ProjectDetails = () => {
     ]
   }
 
+  const handleBookmark = () => {
+    setIsBookmarked((prev) => !prev);
+  };
+
+  const handleShare = async () => {
+    try {
+      const url = `${window.location.origin}/project-details?id=${projectDetails.id}`;
+      if (navigator.share) {
+        await navigator.share({
+          title: projectDetails.name,
+          url: url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+      }
+    } catch (e) {
+      console.error('Share failed:', e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Header */}
@@ -82,18 +104,32 @@ const ProjectDetails = () => {
               <span className="hidden sm:inline">Back to Projects</span>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+              <button 
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                onClick={handleShare}
+                aria-label="Share"
+              >
                 <Share2 className="h-5 w-5" />
               </button>
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <BookmarkPlus className="h-5 w-5" />
+              <button 
+                className={`p-2 rounded-lg transition-colors ${
+                  isBookmarked 
+                    ? "bg-blue-500/10 text-blue-400" 
+                    : "hover:bg-white/10"
+                }`}
+                onClick={handleBookmark}
+                aria-label="Bookmark"
+              >
+                <Bookmark
+                  className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
+                />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content  */}
       <div className="max-w-7xl mx-auto px-0 sm:px-6 py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Left Column - Main Profile */}

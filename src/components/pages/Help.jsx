@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Search, ChevronDown, ChevronUp, Book, MessageSquare, Phone, Mail, FileText, Video, Users, Settings, ArrowRight } from 'lucide-react'
 
+
 const Help = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedFaq, setExpandedFaq] = useState(null)
@@ -34,28 +35,28 @@ const Help = () => {
       title: 'Getting Started Guide',
       icon: <Book className="h-5 w-5" />,
       description: 'Learn the basics of using our platform',
-      link: '#'
+      link: '/getting-started'
     },
     {
       id: 2,
       title: 'Project Management',
       icon: <FileText className="h-5 w-5" />,
       description: 'Best practices for managing projects',
-      link: '#'
+      link: '/project-management'
     },
     {
       id: 3,
       title: 'Team Collaboration',
       icon: <Users className="h-5 w-5" />,
       description: 'Tips for effective team collaboration',
-      link: '#'
+      link: '/team-collaboration'
     },
     {
       id: 4,
       title: 'Video Tutorials',
       icon: <Video className="h-5 w-5" />,
       description: 'Watch step-by-step video guides',
-      link: '#'
+      link: '/video-tutorials'
     }
   ]
 
@@ -120,9 +121,10 @@ const Help = () => {
                 </div>
                 <p className="text-gray-400 mb-4">{guide.description}</p>
                 <div className="flex items-center text-blue-500 text-sm">
-                  Read Guide
+                  Read Guide 
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </div>
+                
               </a>
             ))}
           </div>
