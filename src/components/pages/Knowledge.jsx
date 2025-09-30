@@ -1,8 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import KnowledgeHeader from "../headers/KnowledgeHeader";
 import {
-  FileText,
-  Calendar,
   User,
   Tag,
   Eye,
@@ -11,6 +9,8 @@ import {
   ArrowUpRight,
   FileType,
   Clock,
+  WifiOff,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -18,6 +18,10 @@ const Knowledge = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedSort, setSelectedSort] = useState("Newest First");
+  const [knowledgeContent, setKnowledgeContent] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [networkError, setNetworkError] = useState(false);
 
   const getFileTypeColor = (type) => {
     const colors = {
@@ -26,118 +30,161 @@ const Knowledge = () => {
       XLS: "bg-green-600",
       PPT: "bg-yellow-600",
       TXT: "bg-gray-600",
+      PNG: "bg-pink-600",
+      JPG: "bg-orange-600",
+      JPEG: "bg-orange-600",
     };
     return colors[type] || "bg-gray-600";
   };
 
-  const knowledgeContent = [
-    {
-      id: 1,
-      title: "Marketing Strategy Guide 2024",
-      description:
-        "Comprehensive guide covering modern marketing strategies, including digital marketing, social media, and content marketing approaches for startups.",
-      category: "Marketing",
-      author: {
-        name: "John Doe",
-        role: "Marketing Director",
-        avatar: "https://i.pravatar.cc/150?img=5",
-      },
-      date: "March 6, 2024",
-      fileType: "PDF",
-      views: "1.2k",
-      downloads: 234,
-      likes: 45,
-      tags: ["Marketing", "Strategy", "Digital Marketing"],
-      metrics: {
-        pages: 45,
-        size: "2.4 MB",
-        lastUpdated: "2 days ago",
-      },
-    },
-    {
-      id: 2,
-      title: "Product Development Framework",
-      description:
-        "A detailed framework for product development, from ideation to launch, including best practices and common pitfalls to avoid.",
-      category: "Product",
-      author: {
-        name: "Jane Smith",
-        role: "Product Manager",
-        avatar: "https://i.pravatar.cc/150?img=2",
-      },
-      date: "March 5, 2024",
-      fileType: "DOC",
-      views: "856",
-      downloads: 189,
-      likes: 32,
-      tags: ["Product", "Development", "Framework"],
-      metrics: {
-        pages: 32,
-        size: "1.8 MB",
-        lastUpdated: "3 days ago",
-      },
-    },
-    {
-      id: 3,
-      title: "Technical Documentation Template",
-      description:
-        "Standardized template for technical documentation, ensuring consistency and clarity in project documentation.",
-      category: "Development",
-      author: {
-        name: "Mike Johnson",
-        role: "Tech Lead",
-        avatar: "https://i.pravatar.cc/150?img=3",
-      },
-      date: "March 4, 2024",
-      fileType: "PDF",
-      views: "2.1k",
-      downloads: 567,
-      likes: 78,
-      tags: ["Technical", "Documentation", "Template"],
-      metrics: {
-        pages: 28,
-        size: "1.5 MB",
-        lastUpdated: "1 day ago",
-      },
-    },
-    {
-      id: 4,
-      title: "Financial Planning for Startups",
-      description:
-        "Essential financial planning guide for startups, covering budgeting, fundraising, and financial management.",
-      category: "Finance",
-      author: {
-        name: "Sarah Wilson",
-        role: "Financial Analyst",
-        avatar: "https://i.pravatar.cc/150?img=4",
-      },
-      date: "March 3, 2024",
-      fileType: "XLS",
-      views: "1.5k",
-      downloads: 432,
-      likes: 56,
-      tags: ["Finance", "Planning", "Startup"],
-      metrics: {
-        pages: 36,
-        size: "3.2 MB",
-        lastUpdated: "4 days ago",
-      },
-    },
-  ];
+  const fetchKnowledgeResources = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setNetworkError(false);
+      
+      const response = await fetch(
+        "https://sfcollab-backend.onrender.com/api/knowledge?page=1&limit=100&sortBy=createdAt&sortOrder=desc"
+      );
 
-  // Filter and sort knowledge content based on search query and filters
+      let mappedContent = [];
+      if (response.ok) {
+        const data = await response.json();
+        mappedContent = data.resources.map((resource) => ({
+          id: resource.id,
+          title: resource.title,
+          titleDescription: resource.titleDescription || "No title description available.",
+          contentPreview: resource.contentPreview || "No content preview available.",
+          category: resource.category,
+          author: {
+            name: `${resource.author.firstName} ${resource.author.lastName}`,
+            role: "Contributor",
+            avatar: `https://i.pravatar.cc/150?img=${resource.id}`,
+          },
+          date: new Date(resource.createdAt).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          }),
+          fileUrl: resource.fileUrl
+            ? resource.fileUrl.split(".").pop().toUpperCase()
+            : "UNKNOWN",
+          views: resource.views?.toString() || "0",
+          downloads: resource.downloads || 0,
+          likes: resource.likes || 0,
+          tags: resource.tags || [],
+          metrics: {
+            pages: "N/A",
+            size: "N/A",
+            lastUpdated: new Date(resource.updatedAt).toLocaleDateString(
+              "en-US",
+              {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              }
+            ),
+          },
+        }));
+      }
+
+      // Fallback to localStorage
+      const localData = localStorage.getItem("knowledgeResources");
+      let localMapped = [];
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          if (Array.isArray(parsed)) {
+            localMapped = parsed.map((resource) => ({
+              id: resource.id,
+              title: resource.title,
+              titleDescription: resource.titleDescription || "No title description available.",
+              contentPreview: resource.contentPreview || "No content preview available.",
+              category: resource.category,
+              author: {
+                name: "Local User",
+                role: "Contributor",
+                avatar: `https://i.pravatar.cc/150?u=${resource.id}`,
+              },
+              date: new Date().toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              }),
+              fileUrl: resource.fileUrl
+                ? resource.fileUrl.split(".").pop().toUpperCase()
+                : "UNKNOWN",
+              views: "0",
+              downloads: 0,
+              likes: 0,
+              tags: resource.tags || [],
+              metrics: {
+                pages: "N/A",
+                size: "N/A",
+                lastUpdated: new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                }),
+              },
+            }));
+          }
+        } catch (parseError) {
+          console.error("Error parsing localStorage data:", parseError);
+        }
+      }
+
+      const merged = [
+        ...mappedContent,
+        ...localMapped.filter(
+          (localItem) =>
+            !mappedContent.some((apiItem) => apiItem.id === localItem.id)
+        ),
+      ];
+
+      setKnowledgeContent(merged);
+      if (merged.length) {
+        localStorage.setItem("knowledgeResources", JSON.stringify(merged));
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setNetworkError(true);
+      setError("Unable to connect to the server. Showing locally saved resources.");
+      
+      // Try to load from localStorage as fallback
+      try {
+        const localData = localStorage.getItem("knowledgeResources");
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setKnowledgeContent(parsed);
+            setError("Using locally saved resources (offline mode).");
+          }
+        }
+      } catch (localError) {
+        setError("No resources available. Please check your connection.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchKnowledgeResources();
+  }, []);
+
   const filteredAndSortedContent = useMemo(() => {
     let filtered = knowledgeContent.filter((content) => {
-      // Search query filter
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
         searchQuery === "" ||
         content.title.toLowerCase().includes(searchLower) ||
-        content.description.toLowerCase().includes(searchLower) ||
+        content.titleDescription.toLowerCase().includes(searchLower) ||
+        content.contentPreview.toLowerCase().includes(searchLower) ||
         content.category.toLowerCase().includes(searchLower) ||
         content.author.name.toLowerCase().includes(searchLower) ||
         content.author.role.toLowerCase().includes(searchLower) ||
-        content.fileType.toLowerCase().includes(searchLower) ||
+        content.fileUrl.toLowerCase().includes(searchLower) ||
         content.date.toLowerCase().includes(searchLower) ||
         content.views.toLowerCase().includes(searchLower) ||
         content.downloads.toString().includes(searchLower) ||
@@ -147,7 +194,6 @@ const Knowledge = () => {
           value.toString().toLowerCase().includes(searchLower)
         );
 
-      // Category filter
       const matchesCategory =
         selectedCategory === "All Categories" ||
         content.category === selectedCategory;
@@ -155,7 +201,6 @@ const Knowledge = () => {
       return matchesSearch && matchesCategory;
     });
 
-    // Sort the filtered results
     switch (selectedSort) {
       case "Newest First":
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -174,7 +219,65 @@ const Knowledge = () => {
     }
 
     return filtered;
-  }, [searchQuery, selectedCategory, selectedSort]);
+  }, [knowledgeContent, searchQuery, selectedCategory, selectedSort]);
+
+  const handleRetry = () => {
+    fetchKnowledgeResources();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-gray-300">Loading knowledge resources...</p>
+      </div>
+    );
+  }
+
+  if (networkError) {
+    return (
+      <div className="min-h-screen bg-black">
+        <KnowledgeHeader
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedSort={selectedSort}
+          setSelectedSort={setSelectedSort}
+          reloadResources={fetchKnowledgeResources}
+        />
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <div className="bg-[#1A1A1A] rounded-2xl p-8 max-w-md w-full text-center">
+            <div className="flex justify-center mb-4">
+              <div className="bg-red-500/20 p-4 rounded-full">
+                <WifiOff className="h-8 w-8 text-red-500" />
+              </div>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+              Network Connection Issue
+            </h3>
+            <p className="text-gray-400 mb-6">
+              {error || "Unable to connect to the server. Please check your internet connection."}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={handleRetry}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Try Again
+              </button>
+              <button
+                onClick={() => setNetworkError(false)}
+                className="bg-[#232323] hover:bg-[#2a2a2a] text-gray-300 px-4 py-2 rounded-lg transition-colors"
+              >
+                Continue Offline
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -185,7 +288,18 @@ const Knowledge = () => {
         setSelectedCategory={setSelectedCategory}
         selectedSort={selectedSort}
         setSelectedSort={setSelectedSort}
+        reloadResources={fetchKnowledgeResources}
       />
+      
+      {error && !networkError && (
+        <div className="mx-4 mt-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-yellow-400">
+            <WifiOff className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 p-4 max-sm:p-0">
         {filteredAndSortedContent.map((content) => (
           <Link
@@ -195,29 +309,26 @@ const Knowledge = () => {
           >
             <div className="w-full h-full p-2 max-sm:p-1">
               <div className="bg-[#1A1A1A] flex-1 items-center justify-center min-h-[330px] rounded-4xl p-7 space-y-6 max-sm:p-5">
-                {/* header */}
                 <div className="flex w-full justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-700 flex items-center justify-center">
                       <FileType className="h-6 w-6 text-gray-400" />
                     </div>
-                    <h1 className="text-lg max-sm:text-base font-bold">{content.title}</h1>
+                    <h1 className="text-lg max-sm:text-base font-bold">
+                      {content.title}
+                    </h1>
                   </div>
                   <button
                     className={`${getFileTypeColor(
-                      content.fileType
+                      content.fileUrl
                     )} text-sm px-2 py-1 font-medium rounded-full`}
                   >
-                    {content.fileType}
+                    {content.fileUrl}
                   </button>
                 </div>
-
-                {/* content */}
                 <div className="text-sm font-medium max-sm:font-normal leading-relaxed text-[#C4C4C4] line-clamp-3">
-                  {content.description}
+                  {content.contentPreview}
                 </div>
-
-                {/* metrics */}
                 <div className="grid grid-cols-3 gap-2">
                   {Object.entries(content.metrics).map(
                     ([key, value], index) => (
@@ -231,8 +342,6 @@ const Knowledge = () => {
                     )
                   )}
                 </div>
-
-                {/* tags */}
                 <div className="flex flex-wrap gap-2">
                   {content.tags.map((tag, index) => (
                     <span
@@ -243,8 +352,6 @@ const Knowledge = () => {
                     </span>
                   ))}
                 </div>
-
-                {/* metadata */}
                 <div className="grid grid-cols-2 font-medium text-[#C4C4C4] gap-4">
                   <div className="space-y-3">
                     <p className="flex items-center gap-2 text-sm">
@@ -274,8 +381,6 @@ const Knowledge = () => {
                     </p>
                   </div>
                 </div>
-
-                {/* footer */}
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <div className="flex items-center gap-4 text-gray-400">
                     <span className="flex items-center gap-1">
@@ -297,8 +402,6 @@ const Knowledge = () => {
           </Link>
         ))}
       </div>
-
-      {/* Show message when no results found */}
       {filteredAndSortedContent.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 px-4">
           <div className="text-center">

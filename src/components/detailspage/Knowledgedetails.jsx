@@ -1,103 +1,268 @@
-import React, { useState } from 'react'
-import { ArrowLeft, Share2, BookmarkPlus, FileText, Calendar, User, Tag, Download, Eye, ThumbsUp, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon, Bookmark } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Share2, Bookmark, FileText, Calendar, User, Tag, Download, Eye, ThumbsUp, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
-const Knowledgedetails = () => {
+const KnowledgeDetails = () => {
+  const [knowledgeDetails, setKnowledgeDetails] = useState(null);
   const [comment, setComment] = useState('');
-  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
-  const knowledgeDetails = {
-    id: 1,
-    title: 'Marketing Strategy Guide 2024',
-    description: 'Comprehensive guide covering modern marketing strategies, including digital marketing, social media, and content marketing approaches for startups.',
-    fullContent: `# Marketing Strategy Guide 2024
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const id = queryParams.get('id');
 
-## Introduction
-This comprehensive guide provides startups with essential marketing strategies and tactics for 2024. Learn how to leverage digital marketing, social media, and content marketing to grow your business effectively.
+  const getfileUrlColor = (type) => {
+    const colors = {
+      PDF: 'bg-red-600',
+      DOC: 'bg-blue-600',
+      XLS: 'bg-green-600',
+      PPT: 'bg-yellow-600',
+      TXT: 'bg-gray-600',
+      PNG: 'bg-pink-600',
+      JPG: 'bg-orange-600',
+      JPEG: 'bg-orange-600',
+    };
+    return colors[type] || 'bg-gray-600';
+  };
 
-## Key Topics Covered
-1. Digital Marketing Fundamentals
-   - SEO best practices
-   - PPC advertising
-   - Email marketing strategies
-   - Social media marketing
-
-2. Content Marketing
-   - Content creation guidelines
-   - Distribution strategies
-   - Analytics and measurement
-   - ROI tracking
-
-3. Social Media Strategy
-   - Platform selection
-   - Content calendar
-   - Community management
-   - Paid social advertising
-
-4. Growth Hacking Techniques
-   - Viral marketing
-   - Referral programs
-   - User acquisition
-   - Retention strategies
-
-## Best Practices
-- Focus on data-driven decisions
-- Maintain consistent brand voice
-- Optimize for mobile-first
-- Leverage automation tools
-- Measure and iterate regularly`,
-    category: 'Marketing',
-    author: {
-      name: 'John Doe',
-      role: 'Marketing Director',
-      avatar: 'https://i.pravatar.cc/150?img=5'
-    },
-    date: 'March 6, 2024',
-    fileType: 'PDF',
-    views: '1.2k',
-    likes: 45,
-    comments: 12,
-    downloads: 234,
-    tags: ['Marketing', 'Strategy', 'Digital Marketing', 'Content Marketing'],
-    relatedResources: [
-      {
-        id: 2,
-        title: 'Product Development Framework',
-        category: 'Product',
-        fileType: 'DOC',
-        views: '856'
-      },
-      {
-        id: 3,
-        title: 'Technical Documentation Template',
-        category: 'Development',
-        fileType: 'PDF',
-        views: '2.1k'
+  // Fetch comments for the resource
+  const fetchComments = async () => {
+    if (!id) return;
+    
+    setCommentsLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      // Try API first
+      try {
+        const response = await fetch(`https://sfcollab-backend.onrender.com/api/knowledge/${id}/comments`);
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data.comments || []);
+          return;
+        }
+      } catch (apiError) {
+        console.warn('API comments fetch failed, falling back to localStorage:', apiError.message);
       }
-    ],
-    feedback: [
-      {
-        id: 1,
-        user: {
-          name: 'Sarah Wilson',
-          avatar: 'https://i.pravatar.cc/150?img=6'
-        },
-        comment: 'Excellent guide! The section on social media strategy was particularly helpful for our startup.',
-        timestamp: '2 hours ago',
-        likes: 5
-      },
-      {
-        id: 2,
-        user: {
-          name: 'Mike Chen',
-          avatar: 'https://i.pravatar.cc/150?img=7'
-        },
-        comment: 'Would love to see more case studies and real-world examples in the next update.',
-        timestamp: '5 hours ago',
-        likes: 3
+
+      // Fallback to localStorage
+      const localComments = localStorage.getItem('knowledgeComments');
+      if (localComments) {
+        const parsedComments = JSON.parse(localComments);
+        const resourceComments = parsedComments.filter(comment => comment.resourceId === id);
+        setComments(resourceComments);
+      } else {
+        setComments([]);
       }
-    ]
-  }
+    } catch (err) {
+      console.error('Error fetching comments:', err);
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  // Submit a new comment
+  const submitComment = async () => {
+    if (!comment.trim() || !id) return;
+
+    setCommentSubmitting(true);
+    const token = localStorage.getItem('authToken');
+
+    try {
+      // Try API first
+      try {
+        const response = await fetch(`https://sfcollab-backend.onrender.com/api/knowledge/${id}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: JSON.stringify({
+            content: comment.trim()
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Refresh comments after successful submission
+          await fetchComments();
+          setComment('');
+          return;
+        }
+      } catch (apiError) {
+        console.warn('API comment submission failed, falling back to localStorage:', apiError.message);
+      }
+
+      // Fallback to localStorage
+      const newComment = {
+        id: Date.now().toString(),
+        resourceId: id,
+        content: comment.trim(),
+        author: {
+          id: 'local-user',
+          firstName: 'Local',
+          lastName: 'User'
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Get existing comments or initialize empty array
+      const existingComments = JSON.parse(localStorage.getItem('knowledgeComments') || '[]');
+      const updatedComments = [...existingComments, newComment];
+      
+      // Save to localStorage
+      localStorage.setItem('knowledgeComments', JSON.stringify(updatedComments));
+      
+      // Update local state
+      setComments(prev => [...prev, newComment]);
+      setComment('');
+      
+    } catch (err) {
+      console.error('Error submitting comment:', err);
+      alert('Failed to submit comment. Please try again.');
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
+
+  const fetchKnowledgeDetails = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let resourceData = null;
+      try {
+        const response = await fetch(`https://sfcollab-backend.onrender.com/api/knowledge/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            resourceData = {
+              id: data.id || id,
+              title: data.title || 'Untitled Resource',
+              titleDescription: data.titleDescription || 'No title description available.',
+              contentPreview: data.contentPreview || 'No content preview available.',
+              category: data.category || 'Uncategorized',
+              author: {
+                name: data.author ? `${data.author.firstName || ''} ${data.author.lastName || ''}`.trim() || 'Unknown Author' : 'Unknown Author',
+                role: data.author?.role || 'Contributor',
+                avatar: data.author?.avatar || `https://i.pravatar.cc/150?img=${id}`,
+              },
+              date: data.createdAt
+                ? new Date(data.createdAt).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : 'Unknown Date',
+              fileUrl: data.fileUrl ? data.fileUrl.split('.').pop().toUpperCase() : 'UNKNOWN',
+              views: data.views?.toString() || '0',
+              downloads: data.downloads || 0,
+              likes: data.likes || 0,
+              comments: data.comments?.length || 0,
+              tags: data.tags || [],
+              relatedResources: data.relatedResources?.map((res) => ({
+                id: res.id,
+                title: res.title || 'Untitled',
+                category: res.category || 'Uncategorized',
+                fileUrl: res.fileUrl ? res.fileUrl.split('.').pop().toUpperCase() : 'UNKNOWN',
+                views: res.views?.toString() || '0',
+              })) || [],
+            };
+            console.log('API data fetched:', resourceData);
+          }
+        } else {
+          console.warn('API response not OK:', response.status);
+        }
+      } catch (apiError) {
+        console.warn('API fetch failed:', apiError.message);
+      }
+
+      if (!resourceData) {
+        console.log('Checking localStorage for resource with ID:', id);
+        const localData = localStorage.getItem('knowledgeResources');
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            console.log('Local storage data:', parsed);
+            if (Array.isArray(parsed)) {
+              const localResource = parsed.find((resource) => resource.id.toString() === id.toString());
+              if (localResource) {
+                resourceData = {
+                  id: localResource.id,
+                  title: localResource.title || 'Untitled Resource',
+                  titleDescription: localResource.titleDescription || 'No title description available.',
+                  contentPreview: localResource.contentPreview || 'No content preview available.',
+                  category: localResource.category || 'Uncategorized',
+                  author: {
+                    name: localResource.author?.name || 'Local User',
+                    role: localResource.author?.role || 'Contributor',
+                    avatar: localResource.author?.avatar || `https://i.pravatar.cc/150?u=${id}`,
+                  },
+                  date: localResource.createdAt
+                    ? new Date(localResource.createdAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : new Date().toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }),
+                  fileUrl: localResource.fileUrl
+                    ? localResource.fileUrl.split('.').pop().toUpperCase()
+                    : 'UNKNOWN',
+                  views: localResource.views?.toString() || '0',
+                  downloads: localResource.downloads || 0,
+                  likes: localResource.likes || 0,
+                  comments: localResource.comments?.length || 0,
+                  tags: localResource.tags || [],
+                  relatedResources: localResource.relatedResources || [],
+                };
+                console.log('Local storage resource found:', resourceData);
+              } else {
+                console.warn('No matching resource found in localStorage for ID:', id);
+              }
+            } else {
+              console.warn('Local storage data is not an array:', parsed);
+            }
+          } catch (parseError) {
+            console.error('Failed to parse localStorage data:', parseError.message);
+          }
+        } else {
+          console.warn('No knowledgeResources found in localStorage');
+        }
+      }
+
+      if (!resourceData) {
+        throw new Error('Knowledge resource not found in API or local storage.');
+      }
+
+      setKnowledgeDetails(resourceData);
+    } catch (err) {
+      console.error('Error in fetchKnowledgeDetails:', err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchKnowledgeDetails();
+      fetchComments();
+    } else {
+      setError('No resource ID provided.');
+      setLoading(false);
+    }
+  }, [id]);
 
   const handleBookmark = () => {
     setIsBookmarked((prev) => !prev);
@@ -105,10 +270,10 @@ This comprehensive guide provides startups with essential marketing strategies a
 
   const handleShare = async () => {
     try {
-      const url = `${window.location.origin}/knowledge/${knowledgeDetails.id}`;
+      const url = `${window.location.origin}/knowledge-details?id=${knowledgeDetails?.id || id}`;
       if (navigator.share) {
         await navigator.share({
-          title: knowledgeDetails.title,
+          title: knowledgeDetails?.title || 'Knowledge Resource',
           url: url,
         });
       } else {
@@ -120,9 +285,52 @@ This comprehensive guide provides startups with essential marketing strategies a
     }
   };
 
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+    submitComment();
+  };
+
+  const formatCommentTime = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatCommentDate = (timestamp) => {
+    return new Date(timestamp).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <p className="text-gray-300">Loading knowledge resource...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <p className="text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (!knowledgeDetails) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <p className="text-gray-300">No resource found.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Header */}
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -131,24 +339,24 @@ This comprehensive guide provides startups with essential marketing strategies a
               <span>Back to Resources</span>
             </Link>
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                 onClick={handleShare}
                 aria-label="Share"
               >
                 <Share2 className="h-5 w-5" />
               </button>
-              <button 
+              <button
                 className={`p-2 rounded-lg transition-colors ${
-                  isBookmarked 
-                    ? "bg-blue-500/10 text-blue-400" 
-                    : "hover:bg-white/10"
+                  isBookmarked
+                    ? 'bg-blue-500/10 text-blue-400'
+                    : 'hover:bg-white/10'
                 }`}
                 onClick={handleBookmark}
                 aria-label="Bookmark"
               >
                 <Bookmark
-                  className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
+                  className={`h-5 w-5 ${isBookmarked ? 'fill-current' : ''}`}
                 />
               </button>
             </div>
@@ -156,21 +364,19 @@ This comprehensive guide provides startups with essential marketing strategies a
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Resource Header */}
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <div className="flex justify-between items-start mb-6">
                 <h1 className="text-3xl font-bold">{knowledgeDetails.title}</h1>
-                <button className="bg-blue-600 text-sm px-3 py-1 font-medium rounded-sm">
-                  {knowledgeDetails.fileType}
+                <button className={`${getfileUrlColor(knowledgeDetails.fileUrl)} text-sm px-3 py-1 font-medium rounded-sm`}>
+                  {knowledgeDetails.fileUrl}
                 </button>
               </div>
+              <h2 className="text-xl font-semibold mb-2">Title Description</h2>
               <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                {knowledgeDetails.description}
+                {knowledgeDetails.titleDescription}
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {knowledgeDetails.tags.map((tag, index) => (
@@ -201,12 +407,11 @@ This comprehensive guide provides startups with essential marketing strategies a
               </div>
             </div>
 
-            {/* Content Preview */}
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <h2 className="text-2xl font-semibold mb-6">Content Preview</h2>
               <div className="prose prose-invert max-w-none">
                 <pre className="whitespace-pre-wrap font-sans text-gray-300">
-                  {knowledgeDetails.fullContent}
+                  {knowledgeDetails.contentPreview}
                 </pre>
               </div>
               <div className="mt-6 flex justify-center">
@@ -217,73 +422,95 @@ This comprehensive guide provides startups with essential marketing strategies a
               </div>
             </div>
 
-            {/* Comments Section */}
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <h2 className="text-2xl font-semibold mb-6">Comments & Feedback</h2>
               <div className="space-y-6">
-                {knowledgeDetails.feedback.map((item) => (
-                  <div key={item.id} className="flex gap-4">
+                {commentsLoading ? (
+                  <p className="text-gray-400">Loading comments...</p>
+                ) : comments.length > 0 ? (
+                  comments.map((commentItem) => (
+                    <div key={commentItem.id} className="flex gap-4">
+                      <img
+                        src={`https://i.pravatar.cc/150?u=${commentItem.author.id}`}
+                        alt={commentItem.author.firstName}
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium">
+                            {commentItem.author.firstName} {commentItem.author.lastName}
+                          </h3>
+                          <span className="text-sm text-gray-400">
+                            {formatCommentDate(commentItem.createdAt)} at {formatCommentTime(commentItem.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-gray-300 mb-2">{commentItem.content}</p>
+                        <div className="flex items-center gap-4 text-gray-400">
+                          <button className="flex items-center gap-1 hover:text-white transition-colors">
+                            <ThumbsUp className="h-4 w-4" />
+                            <span>0</span>
+                          </button>
+                          <button className="hover:text-white transition-colors">Reply</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400">No comments yet. Be the first to comment!</p>
+                )}
+              </div>
+
+              <div className="mt-8">
+                <form onSubmit={handleCommentSubmit}>
+                  <div className="flex gap-4">
                     <img
-                      src={item.user.avatar}
-                      alt={item.user.name}
+                      src={knowledgeDetails.author.avatar}
+                      alt={knowledgeDetails.author.name}
                       className="w-10 h-10 rounded-full"
                     />
                     <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium">{item.user.name}</h3>
-                        <span className="text-sm text-gray-400">{item.timestamp}</span>
-                      </div>
-                      <p className="text-gray-300 mb-2">{item.comment}</p>
-                      <div className="flex items-center gap-4 text-gray-400">
-                        <button className="flex items-center gap-1 hover:text-white transition-colors">
-                          <ThumbsUp className="h-4 w-4" />
-                          {item.likes}
+                      <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Add your comment..."
+                        className="w-full bg-[#2A2A2A] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows="3"
+                        disabled={commentSubmitting}
+                      />
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex gap-2">
+                          <button 
+                            type="button"
+                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            disabled={commentSubmitting}
+                          >
+                            <ImageIcon className="h-5 w-5" />
+                          </button>
+                          <button 
+                            type="button"
+                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            disabled={commentSubmitting}
+                          >
+                            <LinkIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                        <button 
+                          type="submit"
+                          className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!comment.trim() || commentSubmitting}
+                        >
+                          {commentSubmitting ? 'Posting...' : 'Post Comment'}
+                          <Send className="h-4 w-4" />
                         </button>
-                        <button className="hover:text-white transition-colors">Reply</button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Comment Input */}
-              <div className="mt-8">
-                <div className="flex gap-4">
-                  <img
-                    src={knowledgeDetails.author.avatar}
-                    alt={knowledgeDetails.author.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="flex-1">
-                    <textarea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      placeholder="Add your comment..."
-                      className="w-full bg-[#2A2A2A] rounded-xl p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows="3"
-                    />
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex gap-2">
-                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                          <ImageIcon className="h-5 w-5" />
-                        </button>
-                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                          <LinkIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                      <button className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        <Send className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                </form>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Info & Related */}
           <div className="space-y-8">
-            {/* Author Info */}
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <h2 className="text-2xl font-semibold mb-6">Author</h2>
               <div className="flex items-center gap-4">
@@ -299,30 +526,32 @@ This comprehensive guide provides startups with essential marketing strategies a
               </div>
             </div>
 
-            {/* Related Resources */}
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <h2 className="text-2xl font-semibold mb-6">Related Resources</h2>
               <div className="space-y-4">
-                {knowledgeDetails.relatedResources.map((resource) => (
-                  <Link
-                    key={resource.id}
-                    to={`/knowledge/${resource.id}`}
-                    className="block p-4 bg-[#2A2A2A] rounded-xl hover:bg-[#333333] transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium">{resource.title}</h3>
-                      <span className="text-sm text-gray-400">{resource.fileType}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-gray-400">
-                      <span>{resource.category}</span>
-                      <span>{resource.views} views</span>
-                    </div>
-                  </Link>
-                ))}
+                {knowledgeDetails.relatedResources.length > 0 ? (
+                  knowledgeDetails.relatedResources.map((resource) => (
+                    <Link
+                      key={resource.id}
+                      to={`/knowledge-details?id=${resource.id}`}
+                      className="block p-4 bg-[#2A2A2A] rounded-xl hover:bg-[#333333] transition-colors"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium">{resource.title}</h3>
+                        <span className="text-sm text-gray-400">{resource.fileUrl}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm text-gray-400">
+                        <span>{resource.category}</span>
+                        <span>{resource.views} views</span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-gray-400">No related resources available.</p>
+                )}
               </div>
             </div>
 
-            {/* Quick Info */}
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <h2 className="text-2xl font-semibold mb-6">Quick Info</h2>
               <div className="space-y-4">
@@ -332,7 +561,7 @@ This comprehensive guide provides startups with essential marketing strategies a
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">File Type</span>
-                  <span>{knowledgeDetails.fileType}</span>
+                  <span>{knowledgeDetails.fileUrl}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Added</span>
@@ -348,7 +577,7 @@ This comprehensive guide provides startups with essential marketing strategies a
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Knowledgedetails
+export default KnowledgeDetails;
