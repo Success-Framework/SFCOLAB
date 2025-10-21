@@ -11,6 +11,8 @@ import {
   Users,
   X,
   Bell,
+  PlusSquare,
+  MessageSquare,
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -36,8 +38,13 @@ const SideBar = () => {
       icon: <BriefcaseBusiness />,
       href: "/knowledge",
     },
+    {
+      id: 4,
+      icon: <PlusSquare />,
+      href: "/posts",
+    },
   ];
-
+  
   // Helper to close sidebar on mobile when a link is clicked
   const handleMobileLinkClick = () => {
     setIsOpen(false);
@@ -68,6 +75,18 @@ const SideBar = () => {
 
       {/* bottom links */}
       <div className="flex flex-col gap-2 items-center">
+        <Link
+          to="/messages"
+          className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${location.pathname === "/messages"
+              ? "bg-[#2A2A2A] text-white"
+              : "text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+            }`}
+          onClick={onLinkClick}
+        >
+          <div className="flex items-center justify-center">
+            <MessageSquare size={20} />
+          </div>
+        </Link>
         <Link
           to="/setting"
           className={`flex items-center justify-center w-full px-2 py-2 rounded-lg transition-colors ${location.pathname === "/settings"

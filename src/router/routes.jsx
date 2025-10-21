@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Home from "../components/pages/Home.jsx";
 import Layout from "../Layout/Layout.jsx";
 import Project from "../components/pages/Project.jsx";
@@ -19,17 +19,18 @@ import HomedetailsPage from "../components/detailspage/HomedetailsPage.jsx";
 import Idationdetails from "../components/detailspage/Idationdetails.jsx";
 import Knowledgedetails from "../components/detailspage/Knowledgedetails.jsx";
 import ProjectDetails from "../components/detailspage/ProjectDetails.jsx";
+import Posts from "../components/pages/Posts.jsx";
 import StartUpdetails from "../components/detailspage/StartUpdetails.jsx";
 import Help from "../components/pages/Help.jsx";
 import ProjectManagement from "../components/pages/ProjectManagement.jsx";
 import VideoTutorials from "../components/pages/VideoTutorials.jsx";
 import Notifications from "../components/pages/Notifications.jsx";
-import Chat from "../components/sections/Chat.jsx";
 import NotFound from "../components/NotFound.jsx";
 import GettingStarted from "../components/pages/QucikGuides/gettingStarted.jsx";
 import TeamCollaboration from "../components/pages/QucikGuides/teamCollaboration.jsx";
 import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute.jsx";
 import SavedList from "../components/pages/SavedIdeaList.jsx";
+import ChatPage from "../components/pages/ChatPage.jsx";
 
 export const router = createBrowserRouter([
   // Authentication routes (accessible only when not logged in)
@@ -101,6 +102,10 @@ export const router = createBrowserRouter([
         element: <Knowledge />,
       },
       {
+        path: "/posts",
+        element: <Posts />,
+      },
+      {
         path: "/setting",
         element: <Setting />,
         children: [
@@ -160,7 +165,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/messages",
-        element: <Chat />,
+        element: <ChatPage />,
       },
       {
         path: "/getting-started",
