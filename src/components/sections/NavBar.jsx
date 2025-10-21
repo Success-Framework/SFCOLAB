@@ -1,4 +1,4 @@
-import { BellDot, SquareMenu } from "lucide-react";
+import { BellDot, SquareMenu, ChevronDown } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { allimg } from "../../utils";
@@ -99,16 +99,21 @@ const NavBar = ({ isHidden = false }) => {
 
         {/* profile dropdown */}
         <div className="relative" ref={profileRef}>
-          <button
-            onClick={() => handleDropdownClick("profile")}
-            className="w-10 h-10 rounded-full overflow-hidden"
-          >
-            <img
-              src={allimg.profileImg}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-          </button>
+          <div className="flex items-center gap-2">
+            <Link to="/profile" className="w-10 h-10 rounded-full overflow-hidden block">
+              <img
+                src={allimg.profileImg}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            </Link>
+            <button
+              onClick={() => handleDropdownClick("profile")}
+              className="p-1 text-gray-400 hover:text-white"
+            >
+              <ChevronDown size={20} />
+            </button>
+          </div>
           {activeDropdown === "profile" && (
             <div className="absolute right-0 mt-2 w-48 bg-[#120C18] rounded-lg shadow-lg py-2 z-50">
               <Link

@@ -1,25 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Bell,
-  BellOff,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  X,
   Filter,
   Search,
   Clock,
   User,
   MessageSquare,
-  Heart,
   TrendingUp,
   Building2,
-  Calendar,
-  Settings,
-  Trash2,
-  Archive,
   MoreVertical,
-  Bookmark,
   BookmarkMinus,
 } from "lucide-react";
 import SavedHeader from "./SavedHeader";
