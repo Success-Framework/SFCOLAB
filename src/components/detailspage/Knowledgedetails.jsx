@@ -1,10 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Share2, Bookmark, FileText, Calendar, User, Tag, Download, Eye, ThumbsUp, MessageSquare, Send, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  Share2,
+  Bookmark,
+  FileText,
+  Calendar,
+  User,
+  Tag,
+  Download,
+  Eye,
+  ThumbsUp,
+  MessageSquare,
+  Send,
+  Image as ImageIcon,
+  Link as LinkIcon,
+} from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const KnowledgeDetails = () => {
   const [knowledgeDetails, setKnowledgeDetails] = useState(null);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,53 +29,39 @@ const KnowledgeDetails = () => {
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get('id');
+  const id = queryParams.get("id");
 
   const getfileUrlColor = (type) => {
     const colors = {
-      PDF: 'bg-red-600',
-      DOC: 'bg-blue-600',
-      XLS: 'bg-green-600',
-      PPT: 'bg-yellow-600',
-      TXT: 'bg-gray-600',
-      PNG: 'bg-pink-600',
-      JPG: 'bg-orange-600',
-      JPEG: 'bg-orange-600',
+      PDF: "bg-red-600",
+      DOC: "bg-blue-600",
+      XLS: "bg-green-600",
+      PPT: "bg-yellow-600",
+      TXT: "bg-gray-600",
+      PNG: "bg-pink-600",
+      JPG: "bg-orange-600",
+      JPEG: "bg-orange-600",
     };
-    return colors[type] || 'bg-gray-600';
+    return colors[type] || "bg-gray-600";
   };
-
   // Fetch comments for the resource
   const fetchComments = async () => {
     if (!id) return;
-    
+
     setCommentsLoading(true);
     try {
-      const token = localStorage.getItem('authToken');
-      
-      // Try API first
-      try {
-        const response = await fetch(`https://sfcollab-backend.onrender.com/api/knowledge/${id}/comments`);
-        if (response.ok) {
-          const data = await response.json();
-          setComments(data.comments || []);
-          return;
-        }
-      } catch (apiError) {
-        console.warn('API comments fetch failed, falling back to localStorage:', apiError.message);
-      }
-
-      // Fallback to localStorage
-      const localComments = localStorage.getItem('knowledgeComments');
-      if (localComments) {
-        const parsedComments = JSON.parse(localComments);
-        const resourceComments = parsedComments.filter(comment => comment.resourceId === id);
-        setComments(resourceComments);
+      const response = await fetch(
+        `https://sfcolab-backend.onrender.com/api/knowledge/${id}/comments`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setComments(data.comments || []);
       } else {
+        console.warn("Comments API response not OK:", response.status);
         setComments([]);
       }
-    } catch (err) {
-      console.error('Error fetching comments:', err);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
       setComments([]);
     } finally {
       setCommentsLoading(false);
@@ -72,182 +73,102 @@ const KnowledgeDetails = () => {
     if (!comment.trim() || !id) return;
 
     setCommentSubmitting(true);
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
 
     try {
-      // Try API first
-      try {
-        const response = await fetch(`https://sfcollab-backend.onrender.com/api/knowledge/${id}/comments`, {
-          method: 'POST',
+      const response = await fetch(
+        `https://sfcolab-backend.onrender.com/api/knowledge/${id}/comments`,
+        {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
           },
-          body: JSON.stringify({
-            content: comment.trim()
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // Refresh comments after successful submission
-          await fetchComments();
-          setComment('');
-          return;
+          body: JSON.stringify({ content: comment.trim() }),
         }
-      } catch (apiError) {
-        console.warn('API comment submission failed, falling back to localStorage:', apiError.message);
+      );
+
+      if (response.ok) {
+        await fetchComments(); 
+        setComment("");
+      } else {
+        console.warn("Comment submission failed:", response.status);
       }
-
-      // Fallback to localStorage
-      const newComment = {
-        id: Date.now().toString(),
-        resourceId: id,
-        content: comment.trim(),
-        author: {
-          id: 'local-user',
-          firstName: 'Local',
-          lastName: 'User'
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Get existing comments or initialize empty array
-      const existingComments = JSON.parse(localStorage.getItem('knowledgeComments') || '[]');
-      const updatedComments = [...existingComments, newComment];
-      
-      // Save to localStorage
-      localStorage.setItem('knowledgeComments', JSON.stringify(updatedComments));
-      
-      // Update local state
-      setComments(prev => [...prev, newComment]);
-      setComment('');
-      
-    } catch (err) {
-      console.error('Error submitting comment:', err);
-      alert('Failed to submit comment. Please try again.');
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+      alert("Failed to submit comment. Please try again.");
     } finally {
       setCommentSubmitting(false);
     }
   };
 
+  // Fetch resource details
   const fetchKnowledgeDetails = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      let resourceData = null;
-      try {
-        const response = await fetch(`https://sfcollab-backend.onrender.com/api/knowledge/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            resourceData = {
-              id: data.id || id,
-              title: data.title || 'Untitled Resource',
-              titleDescription: data.titleDescription || 'No title description available.',
-              contentPreview: data.contentPreview || 'No content preview available.',
-              category: data.category || 'Uncategorized',
-              author: {
-                name: data.author ? `${data.author.firstName || ''} ${data.author.lastName || ''}`.trim() || 'Unknown Author' : 'Unknown Author',
-                role: data.author?.role || 'Contributor',
-                avatar: data.author?.avatar || `https://i.pravatar.cc/150?img=${id}`,
-              },
-              date: data.createdAt
-                ? new Date(data.createdAt).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
-                : 'Unknown Date',
-              fileUrl: data.fileUrl ? data.fileUrl.split('.').pop().toUpperCase() : 'UNKNOWN',
-              views: data.views?.toString() || '0',
-              downloads: data.downloads || 0,
-              likes: data.likes || 0,
-              comments: data.comments?.length || 0,
-              tags: data.tags || [],
-              relatedResources: data.relatedResources?.map((res) => ({
+      const response = await fetch(
+        `https://sfcolab-backend.onrender.com/api/knowledge/${id}`
+      );
+      if (response.ok) {
+        const { resource: data } = await response.json();
+        if (data) {
+          const resourceData = {
+            id: data._id || id,
+            title: data.title || "Untitled Resource",
+            titleDescription:
+              data.titleDescription || "No title description available.",
+            contentPreview:
+              data.contentPreview || "No content preview available.",
+            category: data.category || "Uncategorized",
+            author: {
+              name: data.author
+                ? `${data.author.firstName || ""} ${
+                    data.author.lastName || ""
+                  }`.trim() || "Unknown Author"
+                : "Unknown Author",
+              role: data.author?.role || "Contributor",
+              avatar:
+                data.author?.avatar || `https://i.pravatar.cc/150?img=${id}`,
+            },
+            date: data.createdAt
+              ? new Date(data.createdAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "Unknown Date",
+            fileUrl: data.fileUrl
+              ? data.fileUrl.split(".").pop().toUpperCase()
+              : "UNKNOWN",
+            views: data.views?.toString() || "0",
+            downloads: data.downloads || 0,
+            likes: data.likes || 0,
+            comments: data.comments?.length || 0,
+            tags: data.tags || [],
+            relatedResources:
+              data.relatedResources?.map((res) => ({
                 id: res.id,
-                title: res.title || 'Untitled',
-                category: res.category || 'Uncategorized',
-                fileUrl: res.fileUrl ? res.fileUrl.split('.').pop().toUpperCase() : 'UNKNOWN',
-                views: res.views?.toString() || '0',
+                title: res.title || "Untitled",
+                category: res.category || "Uncategorized",
+                fileUrl: res.fileUrl
+                  ? res.fileUrl.split(".").pop().toUpperCase()
+                  : "UNKNOWN",
+                views: res.views?.toString() || "0",
               })) || [],
-            };
-            console.log('API data fetched:', resourceData);
-          }
+          };
+
+          setKnowledgeDetails(resourceData);
+          console.log("API data fetched:", resourceData);
         } else {
-          console.warn('API response not OK:', response.status);
+          throw new Error("No resource data returned.");
         }
-      } catch (apiError) {
-        console.warn('API fetch failed:', apiError.message);
+      } else {
+        throw new Error(`API responded with status ${response.status}`);
       }
-
-      if (!resourceData) {
-        console.log('Checking localStorage for resource with ID:', id);
-        const localData = localStorage.getItem('knowledgeResources');
-        if (localData) {
-          try {
-            const parsed = JSON.parse(localData);
-            console.log('Local storage data:', parsed);
-            if (Array.isArray(parsed)) {
-              const localResource = parsed.find((resource) => resource.id.toString() === id.toString());
-              if (localResource) {
-                resourceData = {
-                  id: localResource.id,
-                  title: localResource.title || 'Untitled Resource',
-                  titleDescription: localResource.titleDescription || 'No title description available.',
-                  contentPreview: localResource.contentPreview || 'No content preview available.',
-                  category: localResource.category || 'Uncategorized',
-                  author: {
-                    name: localResource.author?.name || 'Local User',
-                    role: localResource.author?.role || 'Contributor',
-                    avatar: localResource.author?.avatar || `https://i.pravatar.cc/150?u=${id}`,
-                  },
-                  date: localResource.createdAt
-                    ? new Date(localResource.createdAt).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })
-                    : new Date().toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      }),
-                  fileUrl: localResource.fileUrl
-                    ? localResource.fileUrl.split('.').pop().toUpperCase()
-                    : 'UNKNOWN',
-                  views: localResource.views?.toString() || '0',
-                  downloads: localResource.downloads || 0,
-                  likes: localResource.likes || 0,
-                  comments: localResource.comments?.length || 0,
-                  tags: localResource.tags || [],
-                  relatedResources: localResource.relatedResources || [],
-                };
-                console.log('Local storage resource found:', resourceData);
-              } else {
-                console.warn('No matching resource found in localStorage for ID:', id);
-              }
-            } else {
-              console.warn('Local storage data is not an array:', parsed);
-            }
-          } catch (parseError) {
-            console.error('Failed to parse localStorage data:', parseError.message);
-          }
-        } else {
-          console.warn('No knowledgeResources found in localStorage');
-        }
-      }
-
-      if (!resourceData) {
-        throw new Error('Knowledge resource not found in API or local storage.');
-      }
-
-      setKnowledgeDetails(resourceData);
     } catch (err) {
-      console.error('Error in fetchKnowledgeDetails:', err.message);
+      console.error("Error in fetchKnowledgeDetails:", err.message);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -259,7 +180,7 @@ const KnowledgeDetails = () => {
       fetchKnowledgeDetails();
       fetchComments();
     } else {
-      setError('No resource ID provided.');
+      setError("No resource ID provided.");
       setLoading(false);
     }
   }, [id]);
@@ -270,18 +191,20 @@ const KnowledgeDetails = () => {
 
   const handleShare = async () => {
     try {
-      const url = `${window.location.origin}/knowledge-details?id=${knowledgeDetails?.id || id}`;
+      const url = `${window.location.origin}/knowledge-details?id=${
+        knowledgeDetails?.id || id
+      }`;
       if (navigator.share) {
         await navigator.share({
-          title: knowledgeDetails?.title || 'Knowledge Resource',
+          title: knowledgeDetails?.title || "Knowledge Resource",
           url: url,
         });
       } else {
         await navigator.clipboard.writeText(url);
-        alert('Link copied to clipboard!');
+        alert("Link copied to clipboard!");
       }
     } catch (e) {
-      console.error('Share failed:', e);
+      console.error("Share failed:", e);
     }
   };
 
@@ -291,17 +214,17 @@ const KnowledgeDetails = () => {
   };
 
   const formatCommentTime = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(timestamp).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatCommentDate = (timestamp) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return new Date(timestamp).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -334,7 +257,10 @@ const KnowledgeDetails = () => {
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <Link to="/knowledge" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+            <Link
+              to="/knowledge"
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
               <ArrowLeft className="h-5 w-5" />
               <span>Back to Resources</span>
             </Link>
@@ -349,14 +275,14 @@ const KnowledgeDetails = () => {
               <button
                 className={`p-2 rounded-lg transition-colors ${
                   isBookmarked
-                    ? 'bg-blue-500/10 text-blue-400'
-                    : 'hover:bg-white/10'
+                    ? "bg-blue-500/10 text-blue-400"
+                    : "hover:bg-white/10"
                 }`}
                 onClick={handleBookmark}
                 aria-label="Bookmark"
               >
                 <Bookmark
-                  className={`h-5 w-5 ${isBookmarked ? 'fill-current' : ''}`}
+                  className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
                 />
               </button>
             </div>
@@ -370,7 +296,11 @@ const KnowledgeDetails = () => {
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
               <div className="flex justify-between items-start mb-6">
                 <h1 className="text-3xl font-bold">{knowledgeDetails.title}</h1>
-                <button className={`${getfileUrlColor(knowledgeDetails.fileUrl)} text-sm px-3 py-1 font-medium rounded-sm`}>
+                <button
+                  className={`${getfileUrlColor(
+                    knowledgeDetails.fileUrl
+                  )} text-sm px-3 py-1 font-medium rounded-sm`}
+                >
                   {knowledgeDetails.fileUrl}
                 </button>
               </div>
@@ -380,7 +310,10 @@ const KnowledgeDetails = () => {
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {knowledgeDetails.tags.map((tag, index) => (
-                  <span key={index} className="bg-[#2A2A2A] text-sm px-3 py-1 rounded-full">
+                  <span
+                    key={index}
+                    className="bg-[#2A2A2A] text-sm px-3 py-1 rounded-full"
+                  >
                     {tag}
                   </span>
                 ))}
@@ -423,7 +356,9 @@ const KnowledgeDetails = () => {
             </div>
 
             <div className="bg-[#1A1A1A] rounded-4xl p-8">
-              <h2 className="text-2xl font-semibold mb-6">Comments & Feedback</h2>
+              <h2 className="text-2xl font-semibold mb-6">
+                Comments & Feedback
+              </h2>
               <div className="space-y-6">
                 {commentsLoading ? (
                   <p className="text-gray-400">Loading comments...</p>
@@ -438,25 +373,33 @@ const KnowledgeDetails = () => {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-medium">
-                            {commentItem.author.firstName} {commentItem.author.lastName}
+                            {commentItem.author.firstName}{" "}
+                            {commentItem.author.lastName}
                           </h3>
                           <span className="text-sm text-gray-400">
-                            {formatCommentDate(commentItem.createdAt)} at {formatCommentTime(commentItem.createdAt)}
+                            {formatCommentDate(commentItem.createdAt)} at{" "}
+                            {formatCommentTime(commentItem.createdAt)}
                           </span>
                         </div>
-                        <p className="text-gray-300 mb-2">{commentItem.content}</p>
+                        <p className="text-gray-300 mb-2">
+                          {commentItem.content}
+                        </p>
                         <div className="flex items-center gap-4 text-gray-400">
                           <button className="flex items-center gap-1 hover:text-white transition-colors">
                             <ThumbsUp className="h-4 w-4" />
                             <span>0</span>
                           </button>
-                          <button className="hover:text-white transition-colors">Reply</button>
+                          <button className="hover:text-white transition-colors">
+                            Reply
+                          </button>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-400">No comments yet. Be the first to comment!</p>
+                  <p className="text-gray-400">
+                    No comments yet. Be the first to comment!
+                  </p>
                 )}
               </div>
 
@@ -479,14 +422,14 @@ const KnowledgeDetails = () => {
                       />
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex gap-2">
-                          <button 
+                          <button
                             type="button"
                             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                             disabled={commentSubmitting}
                           >
                             <ImageIcon className="h-5 w-5" />
                           </button>
-                          <button 
+                          <button
                             type="button"
                             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                             disabled={commentSubmitting}
@@ -494,12 +437,12 @@ const KnowledgeDetails = () => {
                             <LinkIcon className="h-5 w-5" />
                           </button>
                         </div>
-                        <button 
+                        <button
                           type="submit"
                           className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           disabled={!comment.trim() || commentSubmitting}
                         >
-                          {commentSubmitting ? 'Posting...' : 'Post Comment'}
+                          {commentSubmitting ? "Posting..." : "Post Comment"}
                           <Send className="h-4 w-4" />
                         </button>
                       </div>
@@ -520,8 +463,12 @@ const KnowledgeDetails = () => {
                   className="w-16 h-16 rounded-full"
                 />
                 <div>
-                  <h3 className="font-medium text-lg">{knowledgeDetails.author.name}</h3>
-                  <p className="text-gray-400">{knowledgeDetails.author.role}</p>
+                  <h3 className="font-medium text-lg">
+                    {knowledgeDetails.author.name}
+                  </h3>
+                  <p className="text-gray-400">
+                    {knowledgeDetails.author.role}
+                  </p>
                 </div>
               </div>
             </div>
@@ -538,7 +485,9 @@ const KnowledgeDetails = () => {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-medium">{resource.title}</h3>
-                        <span className="text-sm text-gray-400">{resource.fileUrl}</span>
+                        <span className="text-sm text-gray-400">
+                          {resource.fileUrl}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm text-gray-400">
                         <span>{resource.category}</span>
@@ -547,7 +496,9 @@ const KnowledgeDetails = () => {
                     </Link>
                   ))
                 ) : (
-                  <p className="text-gray-400">No related resources available.</p>
+                  <p className="text-gray-400">
+                    No related resources available.
+                  </p>
                 )}
               </div>
             </div>
