@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Send, MoreHorizontal, Phone, Video, Info, Smile, X, CornerUpLeft, MessageSquare as MessageSquareIcon } from 'lucide-react';
+import { Search, Send, MoreHorizontal, Phone, Video, Info, Smile, X, CornerUpLeft, MessageSquare as MessageSquareIcon, Bell, Sparkles, Palette } from 'lucide-react';
 
 // Mock Data
 const conversations = [
@@ -62,6 +62,15 @@ const messages = {
 
 const ChatSettingsMenu = ({ currentSettings, onSettingsChange, onClose }) => {
   const [stagedSettings, setStagedSettings] = useState(currentSettings);
+  const [activeCategory, setActiveCategory] = useState(null); // null represents the main menu
+
+  const handleAnimationChange = (animation) => {
+    setStagedSettings(prev => ({
+      ...prev,
+      textAnimation: { ...prev.textAnimation, [animation]: !prev.textAnimation[animation] }
+    }));
+  };
+
 
   const handleThemeChange = (theme) => setStagedSettings(prev => ({ ...prev, theme }));
 
@@ -87,86 +96,123 @@ const ChatSettingsMenu = ({ currentSettings, onSettingsChange, onClose }) => {
   return (
     <div className="absolute top-full right-0 mt-2 w-72 bg-[#1A1A1A] border border-white/20 rounded-xl shadow-lg z-20">
       <div className="flex justify-between items-center p-4 border-b border-white/10">
-        <h4 className="font-semibold text-base">Chat Settings</h4>
+        <div className="flex items-center gap-2">
+          {activeCategory && (
+            <button onClick={() => setActiveCategory(null)} className="p-1 hover:bg-white/10 rounded-full">
+              <CornerUpLeft size={16} />
+            </button>
+          )}
+          <h4 className="font-semibold text-base capitalize">
+            {activeCategory ? `${activeCategory} Settings` : 'Chat Settings'}
+          </h4>
+        </div>
         <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full">
           <X size={16} />
         </button>
       </div>
 
       <div className="p-4 space-y-6 max-h-80 overflow-y-auto">
-        {/* Chat Theme Section */}
-        <div className="space-y-4">
-          <h5 className="font-medium text-sm text-gray-300">Theme</h5>
-          <div>
-            <p className="text-xs text-gray-400 mb-2">Solid Colors</p>
-            <div className="flex gap-2">
-              {solidColors.map(color => (
-                <button key={color} onClick={() => handleThemeChange({ type: 'color', value: color })} className={`w-8 h-8 rounded-full transition-all ${stagedSettings.theme.value === color ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : 'border-2 border-transparent hover:border-white'}`} style={{ backgroundColor: color }} />
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-2">Gradients</p>
-            <div className="flex gap-2">
-              {gradients.map(gradient => (
-                <button key={gradient} onClick={() => handleThemeChange({ type: 'gradient', value: gradient })} className={`w-8 h-8 rounded-full transition-all ${stagedSettings.theme.value === gradient ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : 'border-2 border-transparent hover:border-white'}`} style={{ background: gradient }} />
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-2">Images</p>
-            <div className="grid grid-cols-4 gap-2">
-              {images.map(img => (
-                <button key={img} onClick={() => handleThemeChange({ type: 'image', value: `url(${img})` })} className={`w-full h-8 rounded-md bg-cover bg-center transition-all ${stagedSettings.theme.value === `url(${img})` ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : 'border-2 border-transparent hover:border-white'}`} style={{ backgroundImage: `url(${img})` }} />
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-2">Custom Color</p>
-            <input
-              type="color"
-              value={stagedSettings.theme.type === 'color' ? stagedSettings.theme.value : '#0A0A0A'}
-              onChange={(e) => handleThemeChange({ type: 'color', value: e.target.value })}
-              className="w-full h-8 p-0 border-none rounded-md cursor-pointer"
-            />
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-white/10"></div>
-
-        {/* Notifications Section */}
-        <div className="space-y-2">
-          <h5 className="font-medium text-sm text-gray-300">Notifications</h5>
-          <div className="flex items-center justify-between">
-            <label htmlFor="notif-sound" className="text-sm text-gray-400 cursor-pointer">Play sound for new messages</label>
-            <button
-              id="notif-sound"
-              onClick={() => setStagedSettings(prev => ({ ...prev, playNotificationSound: !prev.playNotificationSound }))}
-              className={`w-10 h-5 rounded-full p-0.5 transition-colors ${stagedSettings.playNotificationSound ? 'bg-blue-600' : 'bg-gray-600'}`}
-            >
-              <span className={`block w-4 h-4 rounded-full bg-white transform transition-transform ${stagedSettings.playNotificationSound ? 'translate-x-5' : 'translate-x-0'}`} />
+        {!activeCategory ? (
+          <div className="space-y-2">
+            <button onClick={() => setActiveCategory('theme')} className="w-full flex items-center gap-3 text-left p-3 hover:bg-white/10 rounded-lg transition-colors">
+              <Palette size={18} className="text-gray-400" />
+              <span>Chat Theme</span>
+            </button>
+            <button onClick={() => setActiveCategory('animation')} className="w-full flex items-center gap-3 text-left p-3 hover:bg-white/10 rounded-lg transition-colors">
+              <Sparkles size={18} className="text-gray-400" />
+              <span>Typing Animation</span>
+            </button>
+            <button onClick={() => setActiveCategory('notification')} className="w-full flex items-center gap-3 text-left p-3 hover:bg-white/10 rounded-lg transition-colors">
+              <Bell size={18} className="text-gray-400" />
+              <span>Notifications</span>
             </button>
           </div>
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-white/10"></div>
-
-        {/* Animations Section */}
-        <div className="space-y-2">
-          <h5 className="font-medium text-sm text-gray-300">Animations</h5>
-          <div className="flex items-center justify-between">
-            <label htmlFor="typing-indicator" className="text-sm text-gray-400 cursor-pointer">Show typing indicator</label>
-            <button
-              id="typing-indicator"
-              onClick={() => setStagedSettings(prev => ({ ...prev, showTypingIndicator: !prev.showTypingIndicator }))}
-              className={`w-10 h-5 rounded-full p-0.5 transition-colors ${stagedSettings.showTypingIndicator ? 'bg-blue-600' : 'bg-gray-600'}`}
-            >
-              <span className={`block w-4 h-4 rounded-full bg-white transform transition-transform ${stagedSettings.showTypingIndicator ? 'translate-x-5' : 'translate-x-0'}`} />
-            </button>
+        ) : activeCategory === 'theme' ? (
+          <div className="space-y-4">
+            <h5 className="font-medium text-sm text-gray-300">Chat Theme</h5>
+            <div>
+              <p className="text-xs text-gray-400 mb-2">Solid Colors</p>
+              <div className="flex gap-2">
+                {solidColors.map(color => (
+                  <button key={color} onClick={() => handleThemeChange({ type: 'color', value: color })} className={`w-8 h-8 rounded-full transition-all ${stagedSettings.theme.value === color ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : 'border-2 border-transparent hover:border-white'}`} style={{ backgroundColor: color }} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-2">Gradients</p>
+              <div className="flex gap-2">
+                {gradients.map(gradient => (
+                  <button key={gradient} onClick={() => handleThemeChange({ type: 'gradient', value: gradient })} className={`w-8 h-8 rounded-full transition-all ${stagedSettings.theme.value === gradient ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : 'border-2 border-transparent hover:border-white'}`} style={{ background: gradient }} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-2">Images</p>
+              <div className="grid grid-cols-4 gap-2">
+                {images.map(img => (
+                  <button key={img} onClick={() => handleThemeChange({ type: 'image', value: `url(${img})` })} className={`w-full h-8 rounded-md bg-cover bg-center transition-all ${stagedSettings.theme.value === `url(${img})` ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : 'border-2 border-transparent hover:border-white'}`} style={{ backgroundImage: `url(${img})` }} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-2">Custom Color</p>
+              <input
+                type="color"
+                value={stagedSettings.theme.type === 'color' ? stagedSettings.theme.value : '#0A0A0A'}
+                onChange={(e) => handleThemeChange({ type: 'color', value: e.target.value })}
+                className="w-full h-8 p-0 border-none rounded-md cursor-pointer"
+              />
+            </div>
           </div>
-        </div>
+        ) : activeCategory === 'animation' ? (
+          <div className="space-y-4">
+            <h5 className="font-medium text-sm text-gray-300 flex items-center gap-2"><Sparkles size={14} /> Text Animations</h5>
+            <div className="flex items-center justify-between">
+              <label htmlFor="typing-indicator" className="text-sm text-gray-400 cursor-pointer">Show "thinking" animation</label>
+              <button
+                id="typing-indicator"
+                onClick={() => handleAnimationChange('thinking')}
+                className={`w-10 h-5 rounded-full p-0.5 transition-colors ${stagedSettings.textAnimation.thinking ? 'bg-blue-600' : 'bg-gray-600'}`}
+              >
+                <span className={`block w-4 h-4 rounded-full bg-white transform transition-transform ${stagedSettings.textAnimation.thinking ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="fade-in" className="text-sm text-gray-400 cursor-pointer">Fade in new messages</label>
+              <button
+                id="fade-in"
+                onClick={() => handleAnimationChange('fadeIn')}
+                className={`w-10 h-5 rounded-full p-0.5 transition-colors ${stagedSettings.textAnimation.fadeIn ? 'bg-blue-600' : 'bg-gray-600'}`}
+              >
+                <span className={`block w-4 h-4 rounded-full bg-white transform transition-transform ${stagedSettings.textAnimation.fadeIn ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="pulse-unread" className="text-sm text-gray-400 cursor-pointer">Pulse on unread</label>
+              <button
+                id="pulse-unread"
+                onClick={() => handleAnimationChange('pulseUnread')}
+                className={`w-10 h-5 rounded-full p-0.5 transition-colors ${stagedSettings.textAnimation.pulseUnread ? 'bg-blue-600' : 'bg-gray-600'}`}
+              >
+                <span className={`block w-4 h-4 rounded-full bg-white transform transition-transform ${stagedSettings.textAnimation.pulseUnread ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+          </div>
+        ) : activeCategory === 'notification' ? (
+          <div className="space-y-2">
+            <h5 className="font-medium text-sm text-gray-300 flex items-center gap-2"><Bell size={14} /> Notifications</h5>
+            <div className="flex items-center justify-between">
+              <label htmlFor="notif-sound" className="text-sm text-gray-400 cursor-pointer">Notification from text</label>
+              <button
+                id="notif-sound"
+                onClick={() => setStagedSettings(prev => ({ ...prev, playNotificationSound: !prev.playNotificationSound }))}
+                className={`w-10 h-5 rounded-full p-0.5 transition-colors ${stagedSettings.playNotificationSound ? 'bg-blue-600' : 'bg-gray-600'}`}
+              >
+                <span className={`block w-4 h-4 rounded-full bg-white transform transition-transform ${stagedSettings.playNotificationSound ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
       <div className="p-4 border-t border-white/10 flex justify-end">
         <button
@@ -200,7 +246,7 @@ const ToastNotification = ({ notification, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="fixed top-28 right-6 w-80 bg-[#1A1A1A] border border-white/20 rounded-xl shadow-2xl p-4 z-50 animate-fade-in-down">
+    <div className="fixed top-28 right-6 w-80 bg-[#1A1A1A] border border-white/20 rounded-xl shadow-2xl p-4 z-50">
       <button onClick={onClose} className="absolute top-2 right-2 p-1 text-gray-500 hover:text-white">
         <X size={16} />
       </button>
@@ -228,8 +274,12 @@ const ChatPage = () => {
     const savedSettings = localStorage.getItem('chatSettings');
     return savedSettings ? JSON.parse(savedSettings) : {
       theme: { type: 'color', value: '#0A0A0A' },
-      showTypingIndicator: true,
       playNotificationSound: true,
+      textAnimation: {
+        thinking: true,
+        fadeIn: false,
+        pulseUnread: true,
+      },
     };
   });
   const [isTyping, setIsTyping] = useState(false);
@@ -428,7 +478,7 @@ const ChatPage = () => {
                     )}
                   </div>
                 ))}
-                {isTyping && chatSettings.showTypingIndicator && <TypingIndicator />}
+                {isTyping && chatSettings.textAnimation.thinking && <TypingIndicator />}
                 <div ref={chatEndRef} />
               </div>
             </div>

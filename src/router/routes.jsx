@@ -34,35 +34,36 @@ import ChatPage from "../components/pages/ChatPage.jsx";
 
 export const router = createBrowserRouter([
   // Authentication routes (accessible only when not logged in)
-  {
-    path: "/login",
-    element: (
-      <AuthRoute>
-        <Login />
-      </AuthRoute>
-    ),
-  },
-  {
-    path: "/signup",
-    element: (
-      <AuthRoute>
-        <SignUp />
-      </AuthRoute>
-    ),
-  },
+  // {
+  //   path: "/login",
+  //   element: (
+  //     <AuthRoute>
+  //       <Login />
+  //     </AuthRoute>
+  //   ),
+  // },
+  // {
+  //   path: "/signup",
+  //   element: (
+  //     <AuthRoute>
+  //       <SignUp />
+  //     </AuthRoute>
+  //   ),
+  // },
   // OAuth callback route
   {
     path: "/auth/callback",
     element: <OAuthCallback />,
   },
-  // Protected routes (accessible only when logged in)
+  // Routes are now public for development
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <Layout />
-      </ProtectedRoute>
-    ),
+    // element: (
+    //   <ProtectedRoute>
+    //     <Layout />
+    //   </ProtectedRoute>
+    // ),
+    element: <Layout />,
     children: [
       {
         path: "/",
