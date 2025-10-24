@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 const login = async (credentials) => {
   try {
     const response = await fetch(
-      'https://sfcollab-backend.onrender.com/api/auth/login',
+      'https://sfcolab-backend.onrender.com/api/auth/login',
       {
         method: 'POST',
         headers: {
@@ -85,7 +85,7 @@ const login = async (credentials) => {
   try {
     // POST to your backend
     const response = await axios.post(
-      'https://sfcollab-backend.onrender.com/api/auth/signup',
+      'https://sfcolab-backend.onrender.com/api/auth/signup',
       userData,
       { withCredentials: true } // ensure cookies allowed if backend sets them
     );

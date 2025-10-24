@@ -17,9 +17,9 @@ const Options = ({ isHidden = false }) => {
             }`}
           to="/"
         >
-          Home
+          Dashboard
         </Link>
-        <Link
+        {/* <Link
           className={`px-3 py-1 rounded-full transition-colors ${location.pathname === "/dashboard"
               ? "border border-white text-white"
               : "text-gray-400 hover:text-white"
@@ -27,7 +27,7 @@ const Options = ({ isHidden = false }) => {
           to="/dashboard"
         >
           Dashboard
-        </Link>
+        </Link> */}
         <Link
           className={`px-3 py-1 rounded-full transition-colors ${location.pathname === "/ideation"
               ? "border border-white text-white"

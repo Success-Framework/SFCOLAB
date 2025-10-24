@@ -64,7 +64,7 @@ const StartupRegister = () => {
       }
 
       const res = await axios.post(
-        "https://sfcollab-backend.onrender.com/api/startup/register",
+        "https://sfcolab-backend.onrender.com/api/startup/register",
         payload,
         {
           headers: {
