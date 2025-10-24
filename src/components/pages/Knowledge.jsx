@@ -44,14 +44,14 @@ const Knowledge = () => {
       setNetworkError(false);
       
       const response = await fetch(
-        "https://sfcollab-backend.onrender.com/api/knowledge?page=1&limit=100&sortBy=createdAt&sortOrder=desc"
+        "https://sfcolab-backend.onrender.com/api/knowledge?page=1&limit=100&sortBy=createdAt&sortOrder=desc"
       );
 
       let mappedContent = [];
       if (response.ok) {
         const data = await response.json();
         mappedContent = data.resources.map((resource) => ({
-          id: resource.id,
+          id: resource._id,
           title: resource.title,
           titleDescription: resource.titleDescription || "No title description available.",
           contentPreview: resource.contentPreview || "No content preview available.",
@@ -88,82 +88,11 @@ const Knowledge = () => {
         }));
       }
 
-      // Fallback to localStorage
-      const localData = localStorage.getItem("knowledgeResources");
-      let localMapped = [];
-      if (localData) {
-        try {
-          const parsed = JSON.parse(localData);
-          if (Array.isArray(parsed)) {
-            localMapped = parsed.map((resource) => ({
-              id: resource.id,
-              title: resource.title,
-              titleDescription: resource.titleDescription || "No title description available.",
-              contentPreview: resource.contentPreview || "No content preview available.",
-              category: resource.category,
-              author: {
-                name: "Local User",
-                role: "Contributor",
-                avatar: `https://i.pravatar.cc/150?u=${resource.id}`,
-              },
-              date: new Date().toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              }),
-              fileUrl: resource.fileUrl
-                ? resource.fileUrl.split(".").pop().toUpperCase()
-                : "UNKNOWN",
-              views: "0",
-              downloads: 0,
-              likes: 0,
-              tags: resource.tags || [],
-              metrics: {
-                pages: "N/A",
-                size: "N/A",
-                lastUpdated: new Date().toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                }),
-              },
-            }));
-          }
-        } catch (parseError) {
-          console.error("Error parsing localStorage data:", parseError);
-        }
-      }
-
-      const merged = [
-        ...mappedContent,
-        ...localMapped.filter(
-          (localItem) =>
-            !mappedContent.some((apiItem) => apiItem.id === localItem.id)
-        ),
-      ];
-
-      setKnowledgeContent(merged);
-      if (merged.length) {
-        localStorage.setItem("knowledgeResources", JSON.stringify(merged));
-      }
+      setKnowledgeContent(mappedContent);
     } catch (err) {
       console.error("Fetch error:", err);
       setNetworkError(true);
-      setError("Unable to connect to the server. Showing locally saved resources.");
-      
-      // Try to load from localStorage as fallback
-      try {
-        const localData = localStorage.getItem("knowledgeResources");
-        if (localData) {
-          const parsed = JSON.parse(localData);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setKnowledgeContent(parsed);
-            setError("Using locally saved resources (offline mode).");
-          }
-        }
-      } catch (localError) {
-        setError("No resources available. Please check your connection.");
-      }
+      setError("Unable to connect to the server.");
     } finally {
       setLoading(false);
     }
@@ -212,7 +141,7 @@ const Knowledge = () => {
         filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
       case "Z-A":
-        filtered.sort((a, b) => b.title.localeCompare(a.title));
+        filtered.sort((a, b) => b.title.localeCompare(b.title));
         break;
       default:
         break;
@@ -265,12 +194,6 @@ const Knowledge = () => {
               >
                 <RefreshCw className="h-4 w-4" />
                 Try Again
-              </button>
-              <button
-                onClick={() => setNetworkError(false)}
-                className="bg-[#232323] hover:bg-[#2a2a2a] text-gray-300 px-4 py-2 rounded-lg transition-colors"
-              >
-                Continue Offline
               </button>
             </div>
           </div>

@@ -10,7 +10,7 @@ const NewKnowledgeForm = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    titleDescription: "", 
+    titleDescription: "",
     contentPreview: "",
     file: null,
     tags: [],
@@ -50,7 +50,7 @@ const NewKnowledgeForm = ({
       try {
         setCategoryLoading(true);
         const response = await fetch(
-          "https://sfcollab-backend.onrender.com/api/knowledge/predefined-categories"
+          "https://sfcolab-backend.onrender.com/api/knowledge/predefined-categories"
         );
         if (!response.ok) {
           throw new Error("Failed to fetch categories");
@@ -128,10 +128,12 @@ const NewKnowledgeForm = ({
 
   const handleChange = (e) => {
     const { id, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: files ? files[0] : value,
-    }));
+    if (id === "file") {
+      setFormData((prev) => ({ ...prev, file: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [id]: value }));
+    }
+
     if (errors[id]) {
       setErrors((prev) => ({ ...prev, [id]: "" }));
     }
@@ -166,7 +168,6 @@ const NewKnowledgeForm = ({
     setIsSubmitting(true);
 
     const token = localStorage.getItem("authToken");
-
     if (!token) {
       Toast.fire({
         title: "Error",
@@ -178,31 +179,34 @@ const NewKnowledgeForm = ({
     }
 
     try {
-      const body = {
-        title: formData.title,
-        titleDescription: formData.titleDescription,
-        contentPreview: formData.contentPreview,
-        category: selectedCategory,
-        fileUrl: formData.file ? formData.file.name : null,
-        tags: formData.tags,
-      };
-      console.log("Submitting to API:", body);
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("titleDescription", formData.titleDescription);
+      formDataToSend.append("contentPreview", formData.contentPreview);
+      formDataToSend.append("category", selectedCategory);
+
+     
+      formData.tags.forEach((tag) => formDataToSend.append("tags[]", tag));
+
+      if (formData.file) {
+        formDataToSend.append("fileUrl", formData.file);
+      }
 
       const response = await fetch(
-        "https://sfcollab-backend.onrender.com/api/knowledge",
+        "https://sfcolab-backend.onrender.com/api/knowledge",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, 
           },
-          body: JSON.stringify(body),
+          body: formDataToSend,
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "API submission failed");
+        throw new Error(data.message || "API submission failed");
       }
 
       Toast.fire({
@@ -215,47 +219,12 @@ const NewKnowledgeForm = ({
         await reloadResources();
       }
     } catch (error) {
-      console.warn("Falling back to localStorage:", error.message);
-
-      const localData = {
-        id: Date.now().toString(),
-        title: formData.title,
-        titleDescription: formData.titleDescription,
-        contentPreview: formData.contentPreview,
-        category: selectedCategory,
-        tags: formData.tags,
-        fileUrl: formData.file?.name || null,
-        author: {
-          firstName: "Local",
-          lastName: "User",
-          name: "Local User",
-          role: "Contributor",
-          avatar: `https://i.pravatar.cc/150?u=${Date.now()}`,
-        },
-        createdAt: new Date().toISOString(),
-        views: 0,
-        downloads: 0,
-        likes: 0,
-        comments: [],
-        relatedResources: [],
-        feedback: [],
-      };
-      console.log("Saving to localStorage:", localData);
-
-      const existing =
-        JSON.parse(localStorage.getItem("knowledgeResources")) || [];
-      existing.push(localData);
-      localStorage.setItem("knowledgeResources", JSON.stringify(existing));
-
+      console.error("Upload failed:", error);
       Toast.fire({
-        title: "Saved Offline",
-        text: "Knowledge resource saved locally (offline mode).",
-        icon: "warning",
+        title: "Error",
+        text: error.message,
+        icon: "error",
       });
-
-      if (typeof reloadResources === "function") {
-        await reloadResources();
-      }
     } finally {
       setIsSubmitting(false);
     }
@@ -356,14 +325,18 @@ const NewKnowledgeForm = ({
               id="titleDescription"
               placeholder="Enter title description"
               className={`bg-[#232323] rounded-lg px-4 py-3 border transition-colors ${
-                errors.titleDescription ? "border-red-500" : "border-transparent"
+                errors.titleDescription
+                  ? "border-red-500"
+                  : "border-transparent"
               }`}
               rows={3}
               value={formData.titleDescription}
               onChange={handleChange}
             />
             {errors.titleDescription && (
-              <span className="text-red-500 text-sm">{errors.titleDescription}</span>
+              <span className="text-red-500 text-sm">
+                {errors.titleDescription}
+              </span>
             )}
           </div>
 
@@ -382,7 +355,9 @@ const NewKnowledgeForm = ({
               onChange={handleChange}
             />
             {errors.contentPreview && (
-              <span className="text-red-500 text-sm">{errors.contentPreview}</span>
+              <span className="text-red-500 text-sm">
+                {errors.contentPreview}
+              </span>
             )}
           </div>
 
