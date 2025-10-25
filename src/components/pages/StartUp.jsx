@@ -26,6 +26,16 @@ const StartUp = () => {
   const [networkError, setNetworkError] = useState(false);
   const [error, setError] = useState("");
 
+  const bufferToBase64 = (imageObj) => {
+    if (!imageObj || !imageObj.data || !imageObj.data.data) return null;
+    const base64String = btoa(
+      new Uint8Array(imageObj.data.data).reduce(
+        (data, byte) => data + String.fromCharCode(byte),
+        ""
+      )
+    );
+    return `data:${imageObj.contentType};base64,${base64String}`;
+  };
   // Map backend stage values to frontend colors
   const getStageColor = (stage) => {
     const colors = {
@@ -49,15 +59,28 @@ const StartUp = () => {
           params: {
             page,
             limit: 12,
-            industry: selectedIndustry !== "All Industries" ? selectedIndustry : undefined,
+            industry:
+              selectedIndustry !== "All Industries"
+                ? selectedIndustry
+                : undefined,
             stage: selectedStage !== "All Stages" ? selectedStage : undefined,
-            location: selectedLocation !== "All Locations" ? selectedLocation : undefined,
+            location:
+              selectedLocation !== "All Locations"
+                ? selectedLocation
+                : undefined,
             search: searchQuery || undefined,
           },
         }
       );
+      const converted = res.data.startups.map((startup) => ({
+        ...startup,
+        logo:
+          bufferToBase64(startup.logo) ||
+          "https://via.placeholder.com/150?text=No+Logo",
+        banner: bufferToBase64(startup.banner),
+      }));
 
-      setStartups(res.data.startups);
+      setStartups(converted);
       setTotalPages(res.data.pagination.totalPages);
     } catch (err) {
       console.error("Failed to fetch startups:", err);
@@ -98,7 +121,8 @@ const StartUp = () => {
               Network Connection Issue
             </h3>
             <p className="text-gray-400 mb-6">
-              {error || "Unable to connect to the server. Please check your internet connection."}
+              {error ||
+                "Unable to connect to the server. Please check your internet connection."}
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -149,10 +173,14 @@ const StartUp = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <h1 className="text-lg max-sm:text-base font-bold">{startup.name}</h1>
+                    <h1 className="text-lg max-sm:text-base font-bold">
+                      {startup.name}
+                    </h1>
                   </div>
                   <button
-                    className={`${getStageColor(startup.stage)} text-xs max-sm:text-[10px] px-2 py-1 font-medium rounded-full`}
+                    className={`${getStageColor(
+                      startup.stage
+                    )} text-xs max-sm:text-[10px] px-2 py-1 font-medium rounded-full`}
                   >
                     {startup.stage}
                   </button>
@@ -167,11 +195,15 @@ const StartUp = () => {
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-[#2A2A2A] rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400 mb-1">Positions</p>
-                    <p className="text-sm font-medium">{startup.positions || 0}</p>
+                    <p className="text-sm font-medium">
+                      {startup.positions || 0}
+                    </p>
                   </div>
                   <div className="bg-[#2A2A2A] rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400 mb-1">Members</p>
-                    <p className="text-sm font-medium">{startup.memberCount || 1}</p>
+                    <p className="text-sm font-medium">
+                      {startup.memberCount || 1}
+                    </p>
                   </div>
                   <div className="bg-[#2A2A2A] rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400 mb-1">Views</p>
@@ -199,7 +231,10 @@ const StartUp = () => {
                     <p className="flex items-center gap-2 text-sm">
                       <Calendar size={18} className="text-purple-500" />
                       <span>
-                        Founded {startup.createdAt ? new Date(startup.createdAt).getFullYear() : "N/A"}
+                        Founded{" "}
+                        {startup.createdAt
+                          ? new Date(startup.createdAt).getFullYear()
+                          : "N/A"}
                       </span>
                     </p>
                     <p className="flex items-center gap-2 text-sm text-green-500">
@@ -223,9 +258,12 @@ const StartUp = () => {
       {startups.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 px-4">
           <div className="text-center">
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">No startups found</h3>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+              No startups found
+            </h3>
             <p className="text-gray-500">
-              Try adjusting your search terms or filters to find what you're looking for.
+              Try adjusting your search terms or filters to find what you're
+              looking for.
             </p>
           </div>
         </div>
